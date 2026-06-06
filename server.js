@@ -22,7 +22,7 @@ const DATA_FILE = path.join(__dirname, 'recipes.json');
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));  // serves index.html, any assets
-
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // ─── Helper ─────────────────────────────────────────────────────────────────
 
 function loadData() {
