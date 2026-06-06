@@ -1,0 +1,3505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toastique Recipe Book 2026</title>
+<style>
+  :root {
+    --green: #3a7d44;
+    --green-light: #e8f5e9;
+    --green-mid: #5a9e63;
+    --cream: #faf7f2;
+    --brown: #6b4c2a;
+    --text: #2c2c2c;
+    --text-light: #666;
+    --card-bg: #ffffff;
+    --border: #e0dbd3;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header { background: var(--green); padding: 28px 24px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+  header h1 { color: #fff; font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+  header h1 span { opacity: 0.75; font-weight: 400; font-size: 1rem; display: block; margin-top: 2px; }
+
+  .search-bar { display: flex; align-items: center; max-width: 480px; margin: 0 auto 14px; background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 30px; padding: 6px 16px; }
+  .search-bar input { background: transparent; border: none; outline: none; color: #fff; font-size: 0.95rem; width: 100%; }
+  .search-bar input::placeholder { color: rgba(255,255,255,0.65); }
+  .search-bar svg { color: rgba(255,255,255,0.65); flex-shrink: 0; margin-right: 8px; }
+
+  /* NAV TABS */
+  nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  nav button { background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  nav button:hover { background: rgba(255,255,255,0.28); }
+  nav button.active { background: #fff; color: var(--green); border-color: #fff; }
+
+  /* MAIN */
+  main { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+  .section-header { font-size: 1.35rem; font-weight: 700; color: var(--green); margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--green-light); display: flex; align-items: center; gap: 10px; }
+  .section-header:first-child { margin-top: 0; }
+  .recipe-count { font-size: 0.78rem; font-weight: 600; color: var(--green-mid); background: var(--green-light); padding: 2px 8px; border-radius: 10px; }
+
+  /* GRID */
+  .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+
+  /* CARD */
+  .recipe-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; overflow: hidden; border: 1px solid var(--border); }
+  .recipe-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+  .card-emoji { font-size: 2.8rem; height: 90px; display: flex; align-items: center; justify-content: center; background: var(--green-light); }
+  .card-body { padding: 10px 12px 12px; }
+  .card-name { font-size: 0.82rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
+  .card-meta { font-size: 0.72rem; color: var(--text-light); }
+  .card-tag { display: inline-block; font-size: 0.68rem; font-weight: 600; background: var(--green-light); color: var(--green); padding: 1px 6px; border-radius: 8px; margin-top: 5px; }
+
+  /* MISSING CARD */
+  .recipe-card.missing .card-emoji { background: #f5f5f5; filter: grayscale(0.5); opacity: 0.6; }
+  .recipe-card.missing .card-name { color: #999; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+  /* OVERLAY */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .overlay.open { opacity: 1; pointer-events: all; }
+
+  /* MODAL */
+  .modal { background: var(--card-bg); border-radius: 20px; width: 100%; max-width: 640px; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95) translateY(10px); transition: transform 0.2s; }
+  .overlay.open .modal { transform: scale(1) translateY(0); }
+
+  .modal-header { background: var(--green); padding: 20px 22px 16px; color: #fff; flex-shrink: 0; }
+  .modal-header h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+  .modal-header p { font-size: 0.82rem; opacity: 0.8; }
+  .modal-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: rgba(255,255,255,0.35); }
+
+  /* VIEW CHOICE */
+  .view-choice { display: flex; gap: 14px; padding: 20px 22px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+  .choice-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: #fff; cursor: pointer; text-align: center; transition: all 0.18s; }
+  .choice-btn:hover { border-color: var(--green); }
+  .choice-btn.selected { border-color: var(--green); background: var(--green-light); }
+  .choice-btn .choice-icon { font-size: 1.6rem; margin-bottom: 5px; }
+  .choice-btn .choice-label { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+  .choice-btn .choice-sub { font-size: 0.72rem; color: var(--text-light); }
+
+  /* MODAL BODY */
+  .modal-body { overflow-y: auto; flex: 1; padding: 20px 22px; }
+
+  /* FULL RECIPE VIEW */
+  .recipe-full h3 { font-size: 0.9rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 10px; }
+  .recipe-full .ingredients-list { list-style: none; margin-bottom: 20px; }
+  .recipe-full .ingredients-list li { padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; display: flex; gap: 8px; }
+  .recipe-full .ingredients-list li::before { content: '•'; color: var(--green); font-size: 1.1rem; flex-shrink: 0; }
+  .recipe-full .steps-list { list-style: none; }
+  .recipe-full .steps-list li { display: flex; gap: 12px; margin-bottom: 14px; font-size: 0.88rem; line-height: 1.5; }
+  .recipe-full .step-num { background: var(--green); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .recipe-full .yield-row { background: var(--green-light); border-radius: 8px; padding: 8px 12px; margin-bottom: 16px; font-size: 0.82rem; color: var(--green); font-weight: 600; display: flex; gap: 16px; }
+  .recipe-full .missing-note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px; font-size: 0.85rem; color: #795548; text-align: center; }
+  .group-label { font-size: 0.78rem; font-weight: 700; color: var(--brown); margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* STEP BY STEP VIEW */
+  .step-view { display: flex; flex-direction: column; gap: 0; }
+  .step-progress { display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
+  .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.2s; }
+  .step-dot.done { background: var(--green); }
+  .step-dot.current { background: var(--green-mid); box-shadow: 0 0 0 3px var(--green-light); }
+
+  .step-ingredients { background: var(--green-light); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+  .step-ingredients h4 { font-size: 0.8rem; font-weight: 700; color: var(--green); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .step-ingredients ul { list-style: none; }
+  .step-ingredients ul li { font-size: 0.83rem; padding: 3px 0; }
+  .step-ingredients ul li::before { content: '✓ '; color: var(--green); font-size: 0.8rem; }
+
+  .step-card { background: #fff; border: 2px solid var(--green-light); border-radius: 12px; padding: 18px 16px; margin-bottom: 18px; }
+  .step-label { font-size: 0.75rem; font-weight: 700; color: var(--green-mid); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .step-text { font-size: 1rem; line-height: 1.6; color: var(--text); font-weight: 500; }
+
+  .step-nav { display: flex; gap: 10px; align-items: center; }
+  .step-nav button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.18s; }
+  .btn-prev { background: var(--border); color: var(--text); }
+  .btn-prev:hover { background: #d5cfc7; }
+  .btn-next { background: var(--green); color: #fff; }
+  .btn-next:hover { background: var(--green-mid); }
+  .btn-done { background: var(--brown); color: #fff; }
+  .btn-done:hover { opacity: 0.85; }
+  .step-counter { font-size: 0.8rem; color: var(--text-light); text-align: center; flex-shrink: 0; min-width: 60px; }
+  .step-complete { text-align: center; padding: 20px 0; }
+  .step-complete .done-icon { font-size: 3rem; margin-bottom: 12px; }
+  .step-complete h3 { font-size: 1.1rem; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+  .step-complete p { font-size: 0.85rem; color: var(--text-light); }
+
+  /* ADMIN */
+  .admin-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .admin-btn.active { background: #fff; color: var(--green); }
+  header { position: relative; }
+  .admin-active .recipe-card { overflow: visible; }
+  .card-edit, .card-delete { position: absolute; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; z-index: 10; font-size: 0.75rem; }
+  .card-edit { top: -8px; right: -8px; background: var(--green); color: #fff; }
+  .card-delete { top: -8px; left: -8px; background: #e53935; color: #fff; }
+  .admin-active .recipe-card:hover .card-edit,
+  .admin-active .recipe-card:hover .card-delete { opacity: 1; }
+  .fab { position: fixed; bottom: 28px; right: 28px; background: var(--green); color: #fff; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.28); display: none; align-items: center; justify-content: center; z-index: 150; transition: transform 0.18s; }
+  .fab:hover { transform: scale(1.09); }
+  .admin-active .fab { display: flex; }
+
+  /* FORM MODAL */
+  .form-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .form-overlay.open { opacity: 1; pointer-events: all; }
+  .form-modal { background: #fff; border-radius: 20px; width: 100%; max-width: 620px; max-height: 92vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .form-modal h2 { font-size: 1.15rem; font-weight: 700; color: var(--green); margin-bottom: 18px; }
+  .form-row { margin-bottom: 13px; }
+  .form-row label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-row input, .form-row select, .form-row textarea { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.87rem; outline: none; font-family: inherit; box-sizing: border-box; }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--green); }
+  .form-row textarea { resize: vertical; min-height: 56px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 13px; }
+  .form-row-2 label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-row-2 input, .form-row-2 select { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.87rem; outline: none; font-family: inherit; box-sizing: border-box; }
+  .dynamic-list { list-style: none; margin-bottom: 6px; }
+  .dynamic-list li { display: flex; gap: 6px; margin-bottom: 7px; align-items: flex-start; }
+  .dynamic-list li input { flex: 1; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.85rem; outline: none; font-family: inherit; }
+  .dynamic-list li input:focus { border-color: var(--green); }
+  .dynamic-list li button { background: #ffebee; border: none; color: #e53935; width: 30px; min-width: 30px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+  .add-row-btn { background: var(--green-light); border: 1.5px dashed var(--green); color: var(--green); padding: 7px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 16px; }
+  .form-section-label { font-size: 0.8rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--green-light); }
+  .form-actions { display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); margin-top: 6px; }
+  .form-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 0.87rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .btn-save { background: var(--green); color: #fff; }
+  .btn-save:hover { opacity: 0.88; }
+  .btn-cancel-form { background: var(--border); color: var(--text); }
+  .btn-danger { background: #ffebee; color: #e53935; }
+  .btn-danger:hover { background: #ffcdd2; }
+
+  /* GROUPS */
+  .group-badge { font-size: 0.67rem; font-weight: 700; background: var(--brown); color: #fff; padding: 2px 7px; border-radius: 8px; margin-top: 5px; display: inline-block; }
+  .sub-recipe-list { display: flex; flex-direction: column; gap: 10px; }
+  .sub-recipe-btn { background: var(--green-light); border: 2px solid var(--border); border-radius: 12px; padding: 13px 15px; text-align: left; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 12px; width: 100%; }
+  .sub-recipe-btn:hover { border-color: var(--green); background: #d0ecd4; }
+  .sub-emoji { font-size: 1.5rem; flex-shrink: 0; }
+  .sub-info { flex: 1; }
+  .sub-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+  .sub-meta { font-size: 0.74rem; color: var(--text-light); margin-top: 2px; }
+  .back-btn { background: none; border: none; color: var(--green); font-size: 0.82rem; font-weight: 700; cursor: pointer; padding: 0 0 14px; display: flex; align-items: center; gap: 4px; }
+
+  /* DATA ACTIONS */
+  .data-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 10px 16px; background: rgba(255,255,255,0.12); border-radius: 10px; margin-top: 10px; }
+  .data-btn { background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; padding: 5px 13px; border-radius: 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+  .data-btn:hover { background: rgba(255,255,255,0.3); }
+  #importFile { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌿 Toastique Recipe Book <span>2026 Edition</span></h1>
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()">
+  </div>
+  <nav id="sectionNav">
+    <button class="active" onclick="filterSection('all', this)">All</button>
+    <button onclick="filterSection('treats', this)">🍫 Treats</button>
+    <button onclick="filterSection('parfaits', this)">🥛 Parfaits & Chia</button>
+    <button onclick="filterSection('salads', this)">🥗 Salads & Bowls</button>
+    <button onclick="filterSection('dressings', this)">🫙 Dressings</button>
+    <button onclick="filterSection('soups', this)">🍲 Soups</button>
+    <button onclick="filterSection('blender', this)">🥤 Blender Prep</button>
+    <button onclick="filterSection('toast', this)">🍞 Toast Prep</button>
+  </nav>
+  <div class="data-bar">
+    <button class="data-btn" onclick="exportData()">⬇ Export Recipes</button>
+    <button class="data-btn" onclick="document.getElementById('importFile').click()">⬆ Import Recipes</button>
+    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+    <button class="data-btn" onclick="resetToDefaults()">↺ Reset to Defaults</button>
+  </div>
+  <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
+</header>
+<button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
+
+<main id="mainContent"></main>
+
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal" style="position:relative">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <h2 id="modalTitle"></h2>
+      <p id="modalMeta"></p>
+    </div>
+    <div class="view-choice" id="viewChoice">
+      <button class="choice-btn selected" id="btnStepByStep" onclick="setView('steps')">
+        <div class="choice-icon">👣</div>
+        <div class="choice-label">Step by Step</div>
+        <div class="choice-sub">Guided, one step at a time</div>
+      </button>
+      <button class="choice-btn" id="btnFullRecipe" onclick="setView('full')">
+        <div class="choice-icon">📋</div>
+        <div class="choice-label">Full Recipe</div>
+        <div class="choice-sub">See everything at once</div>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- RECIPE FORM MODAL -->
+<div class="form-overlay" id="formOverlay">
+  <div class="form-modal">
+    <h2 id="formTitle">Add Recipe</h2>
+    <div class="form-row-2">
+      <div>
+        <label>Emoji</label>
+        <input type="text" id="fEmoji" maxlength="2" placeholder="🍴">
+      </div>
+      <div>
+        <label>Section</label>
+        <select id="fSection">
+          <option value="treats">Treats</option>
+          <option value="parfaits">Parfaits & Chia</option>
+          <option value="salads">Salads & Bowls</option>
+          <option value="dressings">Dressings</option>
+          <option value="soups">Soups</option>
+          <option value="blender">Blender Prep</option>
+          <option value="toast">Toast Prep</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Recipe Name</label>
+      <input type="text" id="fName" placeholder="e.g. Matcha Cup Filling">
+    </div>
+    <div class="form-row-2">
+      <div>
+        <label>Yield</label>
+        <input type="text" id="fYield" placeholder="e.g. Approx. 20 servings">
+      </div>
+      <div>
+        <label>Prep Time</label>
+        <input type="text" id="fPrepTime" placeholder="e.g. 15 min">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Tag (optional)</label>
+      <input type="text" id="fTag" placeholder="e.g. V · GF · DF">
+    </div>
+
+    <div class="form-section-label">Ingredients</div>
+    <ul class="dynamic-list" id="ingList"></ul>
+    <button class="add-row-btn" onclick="addIngRow()">+ Add Ingredient</button>
+
+    <div class="form-section-label">Steps / Directions</div>
+    <ul class="dynamic-list" id="stepList"></ul>
+    <button class="add-row-btn" onclick="addStepRow()">+ Add Step</button>
+
+    <div class="form-actions">
+      <button class="btn-cancel-form" onclick="closeRecipeForm()">Cancel</button>
+      <button id="btnDeleteRecipe" class="btn-danger" onclick="deleteCurrentRecipe()" style="display:none">🗑 Delete</button>
+      <button class="btn-save" onclick="saveRecipeForm()">Save Recipe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RECIPES = [
+  // ═══════════════════════════════════════
+  // TREATS
+  // ═══════════════════════════════════════
+  {
+    id: 'almond-butter-cup-filling',
+    name: 'Almond Butter Cup Filling',
+    section: 'treats',
+    emoji: '🍫',
+    yield: 'Approx. 20 fillings',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '2 cups almond butter'],
+      ['', '1 cup dates, fresh & chopped'],
+      ['', '½ tsp salt'],
+      ['', '1 tbsp maple syrup'],
+    ],
+    steps: [
+      'Roughly chop dates into smaller pieces to make sure there\'s no pit in any of them.',
+      'In a food processor, add dates and pulse until well ground.',
+      'Add the rest of the ingredients into the food processor and pulse until everything is mixed well.',
+      'Using a purple scoop, make a flat scoop then form a ball. Press down lightly to form a disk.',
+      'Place filling in a tall container alternating deli wax paper. Wrap, label, and refrigerate until needed.',
+    ]
+  },
+  {
+    id: 'coconut-tahini-protein-balls',
+    name: 'Coconut Tahini Protein Balls',
+    section: 'treats',
+    emoji: '🥥',
+    yield: 'Approx. 30 balls',
+    prepTime: '20 min',
+    ingredients: [
+      ['Mix', '1½ cups shredded coconut'],
+      ['Mix', '2 cups almond flour (blend almonds to fine powder)'],
+      ['Mix', '3 tbsp hemp seeds'],
+      ['Mix', '2 tbsp vegan vanilla protein powder (optional)'],
+      ['Mix', '⅓ cup tahini'],
+      ['Mix', '3 tbsp coconut oil'],
+      ['Mix', '¼ cup cacao nibs'],
+      ['Mix', '1 pinch sea salt'],
+      ['Mix', '¼ tsp ground cinnamon'],
+      ['Mix', '3 dates, chopped'],
+      ['Rolling Coat', '½ cup coconut flakes (blended to fine powder)'],
+    ],
+    steps: [
+      'In a food processor, add all Mix ingredients and blend until a thick paste or ball forms. Scrape down sides as needed.',
+      'If the mixture is too thick, add more coconut oil or tahini. If too thin, add more almond flour or shredded coconut and pulse. It should be thick and scoopable.',
+      'Use the purple scoop and roll into evenly sized balls. Refrigerate for about 30 minutes.',
+      'Take them out and roll in the coconut powder coating. Keep refrigerated.',
+    ]
+  },
+  {
+    id: 'espresso-energy-balls',
+    name: 'Espresso Energy Balls',
+    section: 'treats',
+    emoji: '☕',
+    yield: 'Approx. 30 balls',
+    prepTime: '20 min',
+    ingredients: [
+      ['A – Nuts', '1 cup walnuts'],
+      ['A – Nuts', '1 cup almonds'],
+      ['B – Spices', '1 tbsp instant coffee'],
+      ['B – Spices', '2 tbsp chocolate protein powder'],
+      ['B – Spices', '½ tsp salt'],
+      ['C – Wet', '2 cups dates, chopped'],
+      ['C – Wet', '3 tbsp almond butter'],
+      ['D – Rolling Coat', '½ cup almonds, ground'],
+      ['D – Rolling Coat', '1 tsp instant coffee'],
+    ],
+    steps: [
+      'In a food processor, pulse D ingredients until well ground. Set aside for rolling.',
+      'In the food processor, put A (walnuts + almonds) and pulse for 30 seconds until well ground.',
+      'Add B (instant coffee, chocolate protein, salt) and pulse until combined.',
+      'Add the dates (C) and pulse until well ground.',
+      'Add almond butter and pulse until everything combines well.',
+      'Using a #40 purple scoop (0.75oz), scoop mixture into evenly sized balls.',
+      'Coat each ball in the D mixture.',
+    ]
+  },
+  {
+    id: 'matcha-cup-assembly',
+    name: 'Matcha Cup Assembly',
+    section: 'treats',
+    emoji: '🍵',
+    yield: 'Approx. 12 cups',
+    prepTime: '30 min',
+    ingredients: [
+      ['', '~20 oz white chocolate (about 1 block)'],
+      ['', '2 tbsp matcha powder'],
+      ['', 'Matcha Cup Fillings (prepared)'],
+      ['', 'Chopped macadamia nuts (for topping)'],
+    ],
+    steps: [
+      'In a quart container, add 20oz of white chocolate and microwave in 30-second intervals, stirring between each, until fully melted.',
+      'Sift 2 tbsp of matcha powder into the white chocolate and whisk until fully incorporated.',
+      'Line a cupcake tray with cupcake liners and pour 2 oz of melted chocolate into each paper cup.',
+      'Place one matcha disk filling into the middle of each cup.',
+      'Pour remaining chocolate over the fillings until the cup is almost full.',
+      'Sprinkle chopped macadamia nuts on top.',
+      'Refrigerate for 20–30 minutes until hardened.',
+      'Peel back and remove cupcake liners. Pack into plastic bags and label.',
+    ]
+  },
+  {
+    id: 'matcha-cup-filling',
+    name: 'Matcha Cup Filling',
+    section: 'treats',
+    emoji: '🍵',
+    yield: 'Approx. 20 fillings',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '2 cups macadamia nuts'],
+      ['', '1 cup fresh dates, chopped'],
+      ['', '1 tbsp maple syrup'],
+      ['', '1 tbsp kosher salt'],
+    ],
+    steps: [
+      'Roughly chop dates into smaller pieces to make sure there\'s no pit in any of them.',
+      'In a food processor, add dates and pulse until well ground.',
+      'Add the rest of the ingredients and pulse until everything is mixed well.',
+      'Using a purple scoop, make a flat scoop then form a ball. Press down lightly to form a disk.',
+      'Place filling in a tall container alternating deli wax paper. Wrap, label, and refrigerate until needed.',
+    ]
+  },
+  {
+    id: 'no-bake-granola-bars',
+    name: 'No Bake Granola Bars',
+    section: 'treats',
+    emoji: '🌾',
+    missing: true,
+  },
+  {
+    id: 'oatmeal-craisin-energy-balls',
+    name: 'Oatmeal Craisin Energy Balls',
+    section: 'treats',
+    emoji: '🫐',
+    yield: 'Approx. 30 balls',
+    prepTime: '20 min',
+    ingredients: [
+      ['A – Base', '1 cup walnuts'],
+      ['A – Base', '1 cup almonds'],
+      ['A – Base', '2 tsp cinnamon powder'],
+      ['A – Base', '½ tsp salt'],
+      ['A – Base', '½ cup oats'],
+      ['B – Dates', '2 cups dates, chopped'],
+      ['C – Add-ins', '2 tbsp maple syrup'],
+      ['C – Add-ins', '½ cup craisins'],
+      ['D – Rolling Coat', '½ cup oats'],
+      ['D – Rolling Coat', '1 tsp cinnamon'],
+    ],
+    steps: [
+      'Grind D (oats + cinnamon) in food processor until well ground. Set aside for rolling.',
+      'In the food processor, put A (except oats) and pulse 30 seconds until well ground. Add the ½ cup oats.',
+      'Add dates (B) and pulse until well ground.',
+      'Add C (maple syrup + craisins) and pulse until combined.',
+      'Using a #40 purple scoop (0.75oz), scoop mixture into evenly sized balls.',
+      'Coat each ball in the D mixture.',
+    ]
+  },
+  {
+    id: 'pb-ab-cup-assembly',
+    name: 'PB/AB Cup Assembly',
+    section: 'treats',
+    emoji: '🥜',
+    yield: 'Approx. 12 cups',
+    prepTime: '30 min',
+    ingredients: [
+      ['', '~20 oz dark chocolate (about 1 block)'],
+      ['', 'PB or AB cup fillings (prepared)'],
+      ['For PB Cups', 'Chopped peanuts (halved)'],
+      ['For AB Cups', 'Sliced almonds'],
+    ],
+    steps: [
+      'Melt the chocolate using a double boiler, stirring until smooth and fully melted.',
+      'Prepare the cupcake tray by lining it with 12 cupcake liners.',
+      'Spoon 1 tablespoon of melted chocolate into the bottom of each liner. Gently tap the tray to spread evenly.',
+      'Place one PB or AB disk filling in the center of each cup.',
+      'Spoon 2 tablespoons of melted chocolate over each filling, ensuring it\'s fully covered.',
+      'Add toppings: for PB cups, sprinkle halved peanuts; for AB cups, sprinkle sliced almonds.',
+      'Refrigerate for 20–30 minutes until the chocolate has fully hardened.',
+      'Peel away the cupcake liners. Pack into plastic treat bags and label accordingly.',
+    ]
+  },
+  {
+    id: 'pb-energy-balls',
+    name: 'PB Energy Balls',
+    section: 'treats',
+    emoji: '🥜',
+    yield: 'Approx. 30 balls',
+    prepTime: '20 min',
+    ingredients: [
+      ['A – Nuts', '1 cup walnuts'],
+      ['A – Nuts', '1 cup almonds'],
+      ['B – Wet', '3 tbsp maple syrup'],
+      ['B – Wet', '6 tbsp "bowl" peanut butter'],
+      ['B – Wet', '½ tsp salt'],
+      ['C – Dates', '2 cups dates, chopped'],
+      ['D – Rolling Coat', '½ cup peanuts'],
+    ],
+    steps: [
+      'In a food processor, pulse D (peanuts) until well ground. Set aside for rolling.',
+      'In the food processor, put A (walnuts + almonds) and pulse 30 seconds until well ground.',
+      'Add dates (C) and pulse until well ground.',
+      'Add B (maple syrup, peanut butter, salt) and pulse until combined.',
+      'Using a #40 purple scoop (0.75oz), scoop mixture into evenly sized balls.',
+      'Coat each ball in the D peanut mixture.',
+    ]
+  },
+  {
+    id: 'peanut-butter-cup-filling',
+    name: 'Peanut Butter Cup Filling',
+    section: 'treats',
+    emoji: '🥜',
+    yield: 'Approx. 20 fillings',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '2 cups "bowl" peanut butter'],
+      ['', '1 cup dates, fresh & chopped'],
+      ['', '½ tsp salt'],
+      ['', '1 tbsp maple syrup'],
+    ],
+    steps: [
+      'Roughly chop dates into smaller pieces to make sure there\'s no pit in any of them.',
+      'In a food processor, add dates and pulse until well ground.',
+      'Add the rest of the ingredients into the food processor and pulse until everything is mixed well.',
+      'Using a purple scoop, make a flat scoop then form a ball. Press down lightly to form a disk.',
+      'Place filling in a tall container alternating deli wax paper. Wrap, label, and refrigerate until needed.',
+    ]
+  },
+  {
+    id: 'superfood-bar',
+    name: 'Superfood Bar',
+    section: 'treats',
+    emoji: '✨',
+    missing: true,
+  },
+
+  // ═══════════════════════════════════════
+  // PARFAITS & CHIA
+  // ═══════════════════════════════════════
+  {
+    id: 'blueberry-chia-pudding',
+    name: 'Blueberry Chia Pudding',
+    section: 'parfaits',
+    emoji: '🫐',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 can coconut milk'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '1 tbsp maple syrup'],
+      ['A – Blend', '1 tsp lime juice'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', '½ tsp blue spirulina powder'],
+      ['A – Blend', '¼ cup frozen blueberries'],
+      ['A – Blend', 'Coconut water (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '¼ cup fresh blueberries'],
+      ['2oz Insert', '1 tbsp each: granola, goji berries, coconut flakes'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with coconut water until 32oz (use the measurement on the blender pitcher).',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 3.5oz of pudding into a 12oz cup. Add 2 tbsp (1oz) of berry jam, then top with 2.5oz of chia pudding. Repeat for all 5 portions (7oz each). Pudding should reach the top of the Toastique logo.',
+      'Top each cup with ¼ cup of fresh blueberries.',
+      'Fill a 2oz insert with 1 tbsp each of granola, goji berries, and coconut flakes. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'coconut-cream-chia',
+    name: 'Coconut Cream Chia',
+    section: 'parfaits',
+    emoji: '🥥',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 can coconut milk'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '1 tbsp maple syrup'],
+      ['A – Blend', '1 tsp lime juice'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', 'Coconut water (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '¼ cup fresh diced pineapple'],
+      ['2oz Insert', '1 tbsp each: granola, goji berries, coconut flakes'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with coconut water until 32oz (use measurement on blender pitcher).',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 7oz of pudding into each of five 12oz cups. Pudding should reach the top of the Toastique logo.',
+      'Top each cup with ¼ cup fresh diced pineapple.',
+      'Fill a 2oz insert with 1 tbsp each of granola, goji berries, and coconut flakes. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'mango-tango-chia-pudding',
+    name: 'Mango Tango Chia Pudding',
+    section: 'parfaits',
+    emoji: '🥭',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 can coconut milk'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '1 tbsp maple syrup'],
+      ['A – Blend', '1 tsp lime juice'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', '1 tsp turmeric chai powder'],
+      ['A – Blend', '¼ cup frozen mango'],
+      ['A – Blend', 'Coconut water (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '¼ cup fresh diced pineapple'],
+      ['2oz Insert', '1 tbsp each: granola, goji berries, coconut flakes'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with coconut water until 32oz.',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 7oz of pudding into each of five 12oz cups.',
+      'Top each cup with ¼ cup fresh diced pineapple.',
+      'Fill a 2oz insert with 1 tbsp each of granola, goji berries, and coconut flakes. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'matcha-chia-pudding',
+    name: 'Matcha Chia Pudding',
+    section: 'parfaits',
+    emoji: '🍵',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 can coconut milk'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '1 tbsp maple syrup'],
+      ['A – Blend', '1 tsp lime juice'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', '1 tsp matcha powder'],
+      ['A – Blend', '¼ cup fresh spinach'],
+      ['A – Blend', 'Coconut water (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '¼ cup fresh diced pineapple'],
+      ['2oz Insert', '1 tbsp each: granola, goji berries, coconut flakes'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with coconut water until 32oz.',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 7oz of pudding into each of five 12oz cups.',
+      'Top each cup with ¼ cup fresh diced pineapple.',
+      'Fill a 2oz insert with 1 tbsp each of granola, goji berries, and coconut flakes. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'pb-banana-cacao-chia-pudding',
+    name: 'PB Banana Cacao Chia Pudding',
+    section: 'parfaits',
+    emoji: '🍌',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 tbsp PB drizzle'],
+      ['A – Blend', '1 ripe large banana (or 2 small)'],
+      ['A – Blend', '1 tbsp cacao powder'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '2 tbsp maple syrup'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', 'Almond milk (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '5 thick banana slices'],
+      ['2oz Insert', '1 tbsp each: granola, chocolate chips, sliced almonds'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with almond milk until 32oz.',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 7oz of pudding into each of five 12oz cups.',
+      'Top each cup with 5 thick banana slices.',
+      'Fill a 2oz insert with 1 tbsp each of granola, chocolate chips, and sliced almonds. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'strawberry-cream-chia-pudding',
+    name: 'Strawberry & Cream Chia Pudding',
+    section: 'parfaits',
+    emoji: '🍓',
+    yield: '5 servings (12oz cups)',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Blend', '1 can coconut milk'],
+      ['A – Blend', '1 tsp vanilla extract'],
+      ['A – Blend', '1 tbsp maple syrup'],
+      ['A – Blend', '1 tsp lime juice'],
+      ['A – Blend', '1 pinch salt'],
+      ['A – Blend', '¼ cup berry jam'],
+      ['A – Blend', '¼ cup fresh strawberry, cut'],
+      ['A – Blend', '¼ piece of pitaya'],
+      ['A – Blend', 'Coconut water (to 32oz total)'],
+      ['B – Chia', '¾ cup + 1 tbsp chia seeds'],
+      ['Toppings', '5 fresh strawberry slices'],
+      ['2oz Insert', '1 tbsp each: granola, goji berries, coconut flakes'],
+    ],
+    steps: [
+      'Put A ingredients in a blender and fill with coconut water until 32oz.',
+      'Blend on low speed for 30 seconds.',
+      'Place B (chia seeds) in a container and pour the blended liquid in.',
+      'Mix IMMEDIATELY and STIR every 5 minutes for 20–30 minutes, until thick.',
+      'Once thick, pour 3.5oz of pudding into a 12oz cup. Add 2 tbsp (1oz) of berry jam, then top with 2.5oz of chia pudding. Repeat for all 5 portions (7oz each).',
+      'Top each cup with 5 fresh strawberry slices.',
+      'Fill a 2oz insert with 1 tbsp each of granola, goji berries, and coconut flakes. Place on top.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today.',
+    ]
+  },
+  {
+    id: 'unicorn-yogurt-parfait',
+    name: 'Unicorn Yogurt Parfait',
+    section: 'parfaits',
+    emoji: '🦄',
+    yield: '4 parfaits (12oz cups)',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '1 tub vanilla Greek yogurt (Chobani preferred)'],
+      ['Pink layer', '¼ cup frozen pitaya'],
+      ['Blue layer', '½ tsp blue spirulina powder'],
+      ['Toppings', '3–4 strawberry slices + blueberries'],
+      ['2oz Insert', '¼ cup granola'],
+    ],
+    steps: [
+      'Split 1 tub of yogurt evenly into 2 blenders.',
+      'Add frozen pitaya to one blender and blue spirulina powder to the other. Blend on speed #7 until well combined. DON\'T OVER BLEND.',
+      'Put 2 tablespoons of pink yogurt into the cup and tap to even out.',
+      'Add 2 tablespoons of blue yogurt and tap to even out.',
+      'Repeat twice to create 4 total layers of alternating colors.',
+      'Top with 3–4 strawberry slices and some blueberries.',
+      'Fill a 2oz insert with ¼ cup granola and place on top of cup.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today. Place the label on top of the lid aligned with the Toastique logo.',
+    ]
+  },
+  {
+    id: 'yogurt-parfait',
+    name: 'Yogurt Parfait',
+    section: 'parfaits',
+    emoji: '🍓',
+    yield: '4 parfaits (12oz cups)',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '1 tub vanilla Greek yogurt (Chobani preferred)'],
+      ['', '2 tbsp berry jam'],
+      ['', 'Fresh strawberries & blueberries'],
+      ['2oz Insert', '¼ cup granola'],
+    ],
+    steps: [
+      'Option 1 – Bottom: 3.5oz yogurt. Middle: 2 tbsp (1oz) berry jam placed gently along the edges. Top: 4oz yogurt to the top of the logo. Toppings: 3 strawberry slices & 5–7 blueberries (~1oz). Full weight: 9.5oz with fruit.',
+      'Option 2 – Bottom: 2 tbsp (1oz) berry jam placed along the edges. Middle: 3.5oz yogurt with thinly sliced strawberries along edges at the toast line. Top: 4oz yogurt to the logo top. Toppings: 10–12 blueberries (~1oz). Full weight: 9.5oz with fruit.',
+      'Finish by filling a 2oz insert with ¼ cup granola and place it on top of the cup.',
+      'Close with lid. Date the bottom with an expiry of 5 DAYS from today. Place label on lid aligned with Toastique logo.',
+    ]
+  },
+
+  // ═══════════════════════════════════════
+  // SALADS & BOWLS
+  // ═══════════════════════════════════════
+  {
+    id: 'caesar-salad',
+    name: 'Caesar Salad (32oz)',
+    section: 'salads',
+    emoji: '🥗',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz chopped romaine & spring mix'],
+      ['', '5 cherry tomatoes'],
+      ['', '2oz croutons'],
+      ['', '2oz crispy prosciutto'],
+      ['', '2oz cucumber, diced'],
+      ['', '2oz parmesan cheese'],
+      ['', 'Caesar Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz of chopped romaine and spring mix as the salad base.',
+      'Add 5 cherry tomatoes and 2oz diced cucumber.',
+      'Add 2oz crispy prosciutto and 2oz parmesan cheese.',
+      'Top with 2oz croutons.',
+      'Pack Caesar Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'caprese-salad',
+    name: 'Caprese Salad (32oz)',
+    section: 'salads',
+    emoji: '🍅',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spinach'],
+      ['', '4 cucumbers, sliced'],
+      ['', '5 cherry tomatoes'],
+      ['', '4 mozzarella slices'],
+      ['', '3 basil leaves'],
+      ['', 'Balsamic Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spinach as the base.',
+      'Add 4 sliced cucumbers and 5 cherry tomatoes.',
+      'Add 4 mozzarella slices and 3 basil leaves.',
+      'Pack Balsamic Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'cobb-salad',
+    name: 'Cobb Salad (32oz)',
+    section: 'salads',
+    emoji: '🥚',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz romaine, chopped'],
+      ['', '1oz cucumber, diced'],
+      ['', '1 hard egg, sliced'],
+      ['', '1oz crispy prosciutto'],
+      ['', '3 cherry tomatoes, sliced in halves'],
+      ['', '1oz corn'],
+      ['', '1oz feta cheese'],
+      ['', 'Red Wine Vinaigrette in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz chopped romaine as the base.',
+      'Add 1oz diced cucumber and 3 halved cherry tomatoes.',
+      'Add 1 sliced hard egg and 1oz crispy prosciutto.',
+      'Add 1oz corn and 1oz feta cheese.',
+      'Pack Red Wine Vinaigrette in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'fiesta-salad',
+    name: 'Fiesta Salad (32oz)',
+    section: 'salads',
+    emoji: '🌽',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix'],
+      ['', '2oz corn'],
+      ['', '2oz black beans'],
+      ['', '5 cherry tomatoes'],
+      ['', '2oz cucumbers, diced'],
+      ['', '2oz carrots, shaved'],
+      ['', '2oz red onions, sliced'],
+      ['', '2oz red pepper, sliced'],
+      ['', '1 lime wedge'],
+      ['', 'Avocado Lime Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix as the base.',
+      'Add corn, black beans, cherry tomatoes, cucumber, shaved carrots, red onions, and sliced red pepper.',
+      'Add a lime wedge to the bowl.',
+      'Pack Avocado Lime Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'garden-salad-bowl',
+    name: 'Garden Salad Bowl (16oz)',
+    section: 'salads',
+    emoji: '🥬',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '1½oz spring mix'],
+      ['', '1oz shaved carrot'],
+      ['', '1oz diced cucumber'],
+      ['', '1oz shaved red cabbage'],
+      ['', '3 cherry tomatoes'],
+      ['', 'Red Wine Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 1½oz spring mix as the base.',
+      'Add shaved carrot, diced cucumber, and shaved red cabbage.',
+      'Add 3 cherry tomatoes.',
+      'Pack Red Wine Dressing in a 2oz cup on the side.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'greek-salad',
+    name: 'Greek Salad (32oz)',
+    section: 'salads',
+    emoji: '🫒',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix'],
+      ['', '2oz cucumbers, diced'],
+      ['', '5 cherry tomatoes'],
+      ['', '9 kalamata olives'],
+      ['', '2½oz feta cheese'],
+      ['', '1oz red pepper, sliced'],
+      ['', '1oz red onions, sliced'],
+      ['', '1 lemon twist'],
+      ['', 'Greek Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix as the base.',
+      'Add diced cucumbers, cherry tomatoes, kalamata olives, sliced red pepper, and sliced red onions.',
+      'Add 2½oz feta cheese and a lemon twist.',
+      'Pack Greek Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'hummus-veggies-bowl',
+    name: 'Hummus & Veggies Bowl (16oz)',
+    section: 'salads',
+    emoji: '🥕',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['Veggies (8oz total, 2" strips)', 'Red peppers'],
+      ['Veggies', 'Cucumbers'],
+      ['Veggies', 'Carrots'],
+      ['Veggies', 'Celery'],
+      ['', 'Hummus topped with EVOO & paprika in a 4oz cup'],
+    ],
+    steps: [
+      'Cut all vegetables into 2-inch strips totaling 8oz.',
+      'Fill a 4oz cup with hummus and top with a drizzle of EVOO and a sprinkle of paprika.',
+      'Pack vegetables alongside the hummus cup.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'italian-chop-salad',
+    name: 'Italian Chop Salad (32oz)',
+    section: 'salads',
+    emoji: '🫙',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix & arugula'],
+      ['', '5 cherry tomatoes'],
+      ['', '2oz cucumber, diced'],
+      ['', '1oz red onion, sliced'],
+      ['', '2oz chickpeas'],
+      ['', '2oz artichoke'],
+      ['', '2 pepperoncini peppers'],
+      ['', 'Italian Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix and arugula as the base.',
+      'Add cherry tomatoes, diced cucumber, and sliced red onion.',
+      'Add chickpeas, artichoke, and pepperoncini peppers.',
+      'Pack Italian Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'kale-krunch',
+    name: 'Kale Krunch (32oz)',
+    section: 'salads',
+    emoji: '🥦',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz kale, massaged & chopped'],
+      ['', '1oz red cabbage'],
+      ['', '1oz carrot, shaved'],
+      ['', '5 green apple thin slices'],
+      ['', '2oz feta cheese'],
+      ['', '2oz cranberry'],
+      ['', '2oz walnuts in a 2oz cup'],
+      ['', 'Citrus Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Massage and chop 3oz kale as the base.',
+      'Add red cabbage, shaved carrot, thin green apple slices, and cranberry.',
+      'Add 2oz feta cheese.',
+      'Pack walnuts in a 2oz cup and Citrus Dressing in a separate 2oz cup.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'mixed-berries-bowl',
+    name: 'Mixed Berries Bowl (16oz)',
+    section: 'salads',
+    emoji: '🍓',
+    yield: '1 serving (16oz)',
+    prepTime: '2 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['12oz mixed', 'Strawberries'],
+      ['', 'Blueberries'],
+      ['', 'Blackberries'],
+      ['', 'Raspberries'],
+    ],
+    steps: [
+      'Combine 12oz of mixed strawberries, blueberries, blackberries, and raspberries.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'mixed-seasonal-fruit-bowl',
+    name: 'Mixed Seasonal Fruit Bowl (16oz)',
+    section: 'salads',
+    emoji: '🍉',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['12oz cubed/sliced', 'Pineapple'],
+      ['', 'Cantaloupe'],
+      ['', 'Grapes'],
+      ['', 'Kiwi'],
+      ['', 'Watermelon'],
+      ['', 'Strawberries'],
+    ],
+    steps: [
+      'Cube or slice 12oz of seasonal fruit (pineapple, cantaloupe, grapes, kiwi, watermelon, strawberries).',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'nicoise-salad',
+    name: 'Niçoise Salad (32oz)',
+    section: 'salads',
+    emoji: '🐟',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix'],
+      ['', '3–4 marble potatoes, halved'],
+      ['', '1 hard egg, halved'],
+      ['', '5 cherry tomatoes'],
+      ['', '2oz red onion, sliced'],
+      ['', '2oz green beans'],
+      ['', '9 kalamata olives'],
+      ['', '1 scoop Tuscan Tuna in a 4oz cup'],
+      ['', 'French Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix as the base.',
+      'Add halved marble potatoes, cherry tomatoes, sliced red onion, green beans, and kalamata olives.',
+      'Add 1 halved hard egg.',
+      'Pack Tuscan Tuna in a 4oz cup and French Dressing in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'protein-salad-swiss',
+    name: 'Protein Salad w/ Swiss Cheese (32oz)',
+    section: 'salads',
+    emoji: '🧀',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix'],
+      ['', '1oz ham, cubed'],
+      ['', '1oz turkey, cubed'],
+      ['', '1oz Swiss cheese, cubed (sub hard egg for Protein Salad w/ Egg)'],
+      ['', '1oz cucumber, diced'],
+      ['', '5 cherry tomatoes'],
+      ['', '1oz shaved red cabbage'],
+      ['', '1oz shaved carrot'],
+      ['', '2 watermelon radish slices'],
+      ['', 'French Vinaigrette in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix as the base.',
+      'Add cubed ham, turkey, and Swiss cheese (or hard egg for the egg variation).',
+      'Add diced cucumber, cherry tomatoes, shaved red cabbage, shaved carrot, and watermelon radish slices.',
+      'Pack French Vinaigrette in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'quinoa-salad-bowl',
+    name: 'Quinoa Salad Bowl (16oz)',
+    section: 'salads',
+    emoji: '🌿',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '1oz spinach'],
+      ['', '1oz shaved red cabbage'],
+      ['', '1oz shaved carrot'],
+      ['', '1oz diced cucumber'],
+      ['', '4oz Quinoa Salad (prepared)'],
+      ['', 'Red Wine Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 1oz spinach as the base.',
+      'Add shaved red cabbage, shaved carrot, and diced cucumber.',
+      'Add 4oz of prepared Quinoa Salad.',
+      'Pack Red Wine Dressing in a 2oz cup on the side.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'rainbow-salad',
+    name: 'Rainbow Salad (32oz)',
+    section: 'salads',
+    emoji: '🌈',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix'],
+      ['', '5 cherry tomatoes'],
+      ['', '1oz cucumber, diced'],
+      ['', '1oz red cabbage, shaved'],
+      ['', '1oz carrot, shaved'],
+      ['', 'Pinch of microgreens'],
+      ['', '2 watermelon radish slices'],
+      ['', 'Walnuts in a 2oz cup'],
+      ['', 'French Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix as the base.',
+      'Add cherry tomatoes, diced cucumber, shaved red cabbage, shaved carrot, and a pinch of microgreens.',
+      'Add 2 watermelon radish slices.',
+      'Pack walnuts and French Dressing each in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'salmon-power-bowl',
+    name: 'Salmon Power Bowl (16oz)',
+    section: 'salads',
+    emoji: '🐟',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '2oz spinach'],
+      ['', '2.8oz smoked salmon'],
+      ['', '1 hard boiled egg, sliced'],
+    ],
+    steps: [
+      'Layer 2oz spinach as the base.',
+      'Add 2.8oz smoked salmon.',
+      'Top with a sliced hard boiled egg.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'seasoned-croutons',
+    name: 'Seasoned Croutons',
+    section: 'salads',
+    emoji: '🍞',
+    missing: true,
+  },
+  {
+    id: 'spicy-mango-bowl',
+    name: 'Spicy Mango Bowl (16oz)',
+    section: 'salads',
+    emoji: '🥭',
+    yield: '1 serving (16oz)',
+    prepTime: '2 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '7oz chopped mango'],
+      ['', 'Valentina hot sauce in a 2oz cup'],
+      ['', 'Tajin powder in a 2oz cup'],
+      ['', '¼ lime wedge'],
+    ],
+    steps: [
+      'Place 7oz of chopped mango in a bowl.',
+      'Pack Valentina hot sauce and Tajin powder each in separate 2oz cups.',
+      'Add a ¼ lime wedge.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'spicy-noodle-salad',
+    name: 'Spicy Noodle Salad (32oz)',
+    section: 'salads',
+    emoji: '🍜',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spinach'],
+      ['', '1oz red cabbage, shaved'],
+      ['', '1oz carrot, shaved'],
+      ['', '6oz Spicy Noodles (prepared)'],
+      ['', 'Peanuts in a 2oz cup'],
+      ['', 'Sesame Lime Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spinach as the base.',
+      'Add shaved red cabbage and shaved carrot.',
+      'Add 6oz prepared Spicy Noodles.',
+      'Pack peanuts and Sesame Lime Dressing each in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'spicy-noodles-bowl',
+    name: 'Spicy Noodles Bowl (16oz)',
+    section: 'salads',
+    emoji: '🍜',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '1oz spinach'],
+      ['', '8½oz Spicy Noodles (prepared)'],
+    ],
+    steps: [
+      'Layer 1oz spinach as the base.',
+      'Add 8½oz prepared Spicy Noodles.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'spicy-noodles-recipe',
+    name: 'Spicy Noodles (Prep Recipe)',
+    section: 'salads',
+    emoji: '🍜',
+    yield: 'Approx. 3 QT',
+    prepTime: '20 min',
+    tag: 'Prep Recipe',
+    ingredients: [
+      ['A – Pasta', '2 lbs linguine pasta'],
+      ['B – Sauce', '1¼ cup soy sauce'],
+      ['B – Sauce', '½ cup sesame oil'],
+      ['B – Sauce', '1 tbsp crushed red pepper'],
+      ['B – Sauce', '⅛ tsp ground black pepper'],
+      ['B – Sauce', '2 tbsp garlic, pressed'],
+      ['B – Sauce', '½ cup chili oil'],
+      ['C – Vegetables', '¾ cup scallions, thinly sliced'],
+      ['C – Vegetables', '½ cup red bell pepper, thinly sliced (~2 inches)'],
+      ['C – Vegetables', '¾ cup carrots, grated'],
+    ],
+    steps: [
+      'In a large pot, bring unsalted water to a rapid boil. In a large bowl, combine all B sauce ingredients and stir until well combined. Set aside.',
+      'Add 2 lbs linguine to the pot and stir to prevent sticking.',
+      'Cook pasta for 4 minutes until al dente/chewy. Test before draining. Drain water.',
+      'Add pasta to the large bowl and coat well with the sauce.',
+      'Let cool to room temperature. Then add C vegetables and mix well.',
+      '⚠️ Do NOT add vegetables while noodles are hot — this cooks the vegetables. Noodles will continue to cook in the dressing.',
+    ]
+  },
+  {
+    id: 'teriyaki-tofu-brown-rice',
+    name: 'Teriyaki Tofu & Brown Rice',
+    section: 'salads',
+    emoji: '🍚',
+    missing: true,
+  },
+  {
+    id: 'thai-salad',
+    name: 'Thai Salad (32oz)',
+    section: 'salads',
+    emoji: '🌶️',
+    yield: '1 serving (32oz)',
+    prepTime: '5 min',
+    tag: 'Large Salad',
+    ingredients: [
+      ['', '3oz spring mix & spinach'],
+      ['', '2oz green cabbage'],
+      ['', '2oz green beans'],
+      ['', '2oz red pepper, sliced'],
+      ['', '1oz scallion, sliced'],
+      ['', '1oz cilantro, chopped'],
+      ['', '2oz carrots, shaved'],
+      ['', '2oz red cabbage, shaved'],
+      ['', '2oz grilled eggplant pieces'],
+      ['', 'Crushed peanuts & crispy onion in a 2oz cup'],
+      ['', 'Sticky Peanut Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 3oz spring mix and spinach as the base.',
+      'Add green cabbage, green beans, sliced red pepper, scallion, chopped cilantro, shaved carrots, shaved red cabbage, and grilled eggplant pieces.',
+      'Pack crushed peanuts & crispy onion and Sticky Peanut Dressing each in a 2oz cup on the side.',
+      'Shelf life: 3 days.',
+    ]
+  },
+  {
+    id: 'tofu-brown-rice-bowl',
+    name: 'Tofu Brown Rice Bowl (16oz)',
+    section: 'salads',
+    emoji: '🍚',
+    yield: '1 serving (16oz)',
+    prepTime: '5 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '6oz brown rice'],
+      ['', '1oz spinach'],
+      ['', '4–5 cubes Teriyaki Tofu'],
+      ['', '1oz shaved carrot'],
+      ['', '1oz sliced scallion'],
+      ['', 'Teriyaki Dressing in a 2oz cup'],
+    ],
+    steps: [
+      'Layer 6oz of brown rice as the base.',
+      'Add 1oz spinach, 4–5 cubes of Teriyaki Tofu, shaved carrot, and sliced scallion.',
+      'Pack Teriyaki Dressing in a 2oz cup on the side.',
+      'Shelf life: 5 days.',
+    ]
+  },
+  {
+    id: 'umami-chili-soy-eggs',
+    name: 'Umami (Chili Soy) Eggs',
+    section: 'salads',
+    emoji: '🥚',
+    yield: '6 portions',
+    prepTime: '35 min',
+    tag: 'Prep Recipe',
+    ingredients: [
+      ['A – Eggs', '12 hard boiled eggs'],
+      ['B – Chili Soy Sauce', '2 cups soy sauce'],
+      ['B – Chili Soy Sauce', '1 cup filtered water'],
+      ['B – Chili Soy Sauce', '1 tbsp sesame oil'],
+      ['B – Chili Soy Sauce', '1 tbsp red chili flakes'],
+      ['B – Chili Soy Sauce', '1 scallion, thinly sliced'],
+      ['B – Chili Soy Sauce', '1 tbsp agave'],
+      ['To Serve', '2oz arugula per portion + 2 eggs + 2oz Chili Soy Sauce'],
+    ],
+    steps: [
+      'In a bowl, mix together all B ingredients to make the Chili Soy Sauce.',
+      'Place the hard boiled eggs in the Chili Soy Sauce and let marinate for 30 minutes.',
+      'After 30 minutes, portion sauce into 2oz containers.',
+      'To serve: use a 16oz bowl with 2oz arugula, 2 marinated eggs, and a 2oz cup of Chili Soy Sauce.',
+    ]
+  },
+  {
+    id: 'watermelon-bowl',
+    name: 'Watermelon Bowl (16oz) – Seasonal',
+    section: 'salads',
+    emoji: '🍉',
+    yield: '1 serving (16oz)',
+    prepTime: '2 min',
+    tag: 'Small Bowl',
+    ingredients: [
+      ['', '12oz cubed watermelon'],
+    ],
+    steps: [
+      'Fill a 16oz bowl with 12oz of cubed watermelon.',
+      'Shelf life: 5 days.',
+    ]
+  },
+
+  // ═══════════════════════════════════════
+  // DRESSINGS
+  // ═══════════════════════════════════════
+  {
+    id: 'avocado-lime-dressing',
+    name: 'Avocado Lime Dressing',
+    section: 'dressings',
+    emoji: '🥑',
+    yield: '1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['', '1 avocado, pitted'],
+      ['', '½ cup cilantro (with stems)'],
+      ['', '1 clove garlic, medium'],
+      ['', '1 cup lime juice'],
+      ['', '½ tsp Himalayan pink salt'],
+      ['', '1 cup extra virgin olive oil'],
+      ['', '2 cups canola oil blend'],
+      ['', '¼ cup + 2 tbsp agave'],
+      ['', '¼ cup water'],
+      ['', '1 tsp cumin'],
+      ['', '½ tsp ground black pepper'],
+    ],
+    steps: [
+      'Put all ingredients in a blender and blend until smooth.',
+    ]
+  },
+  {
+    id: 'balsamic-dressing',
+    name: 'Balsamic Dressing',
+    section: 'dressings',
+    emoji: '🍶',
+    yield: 'Approx. 1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['A – Base', '2 cups balsamic glaze'],
+      ['A – Base', '1 cup water'],
+      ['A – Base', '1 tsp kosher salt'],
+      ['A – Base', '½ tsp garlic powder'],
+      ['A – Base', '½ tsp onion powder'],
+      ['A – Base', '⅛ tsp ground black pepper'],
+      ['B – Oil', '2 cups canola oil blend'],
+    ],
+    steps: [
+      'In a bowl, add A ingredients and whisk vigorously until well combined.',
+      'Add B (canola oil) slowly and whisk until the mixture becomes thick.',
+      'Add salt if needed.',
+    ]
+  },
+  {
+    id: 'caesar-dressing',
+    name: 'Caesar Dressing',
+    section: 'dressings',
+    emoji: '🧄',
+    yield: '1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['', '2 cups mayonnaise'],
+      ['', '¼ cup Dijon mustard'],
+      ['', '2 large garlic cloves, pressed'],
+      ['', '2 tbsp lemon juice'],
+      ['', '½ tsp kosher salt'],
+      ['', '½ tsp ground black pepper'],
+      ['', '1 cup canola oil'],
+      ['', '1 cup shredded parmesan cheese'],
+      ['', '¼ cup capers, drained'],
+    ],
+    steps: [
+      'Put all ingredients in a blender and blend until combined.',
+      'Add salt and pepper to taste.',
+    ]
+  },
+  {
+    id: 'citrus-vinaigrette',
+    name: 'Citrus Vinaigrette',
+    section: 'dressings',
+    emoji: '🍋',
+    yield: 'Approx. 1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['A – Base', '1 cup Dijon mustard'],
+      ['A – Base', '1 cup honey'],
+      ['A – Base', '1¼ cup lemon juice'],
+      ['A – Base', '1 tsp kosher salt'],
+      ['A – Base', '⅛ tsp ground black pepper'],
+      ['B – Oil', '5 cups canola oil blend'],
+    ],
+    steps: [
+      'In a bowl, add A ingredients and whisk vigorously until well combined.',
+      'Add B (canola oil) slowly and whisk until the mixture becomes thick.',
+    ]
+  },
+  {
+    id: 'french-vinaigrette',
+    name: 'French Vinaigrette',
+    section: 'dressings',
+    emoji: '🇫🇷',
+    yield: 'Approx. 1 QT',
+    prepTime: '15 min',
+    ingredients: [
+      ['A – Steep', '2 tbsp shallot, finely diced'],
+      ['A – Steep', '½ cup red wine vinegar'],
+      ['A – Steep', '½ cup lemon juice'],
+      ['B – Mix', '¼ cup Dijon mustard'],
+      ['B – Mix', '½ cup agave'],
+      ['B – Mix', '¼ cup + 2 tbsp soy sauce'],
+      ['B – Mix', '⅛ tsp kosher salt'],
+      ['B – Mix', '⅛ tsp ground black pepper'],
+      ['C – Oils', '1 cup extra virgin olive oil'],
+      ['C – Oils', '1 cup canola oil blend'],
+    ],
+    steps: [
+      'In a bowl, add A (shallots, red wine vinegar, lemon juice) and set aside for 10 minutes.',
+      'Add B to the bowl and whisk.',
+      'Add C (oils) and whisk until well combined.',
+      'Taste and add salt and black pepper accordingly.',
+    ]
+  },
+  {
+    id: 'greek-dressing',
+    name: 'Greek Dressing',
+    section: 'dressings',
+    emoji: '🫒',
+    yield: 'Approx. 1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['A – Base', '1 cup red wine vinegar'],
+      ['A – Base', '2 tsp oregano'],
+      ['A – Base', '1 cup lemon juice'],
+      ['A – Base', '⅓ cup agave'],
+      ['A – Base', '1 tsp kosher salt'],
+      ['A – Base', '2 tsp garlic, pressed'],
+      ['A – Base', '⅛ tsp ground black pepper'],
+      ['B – Oils', '3½ cups canola oil blend'],
+      ['B – Oils', '1 cup extra virgin olive oil'],
+    ],
+    steps: [
+      'In a bowl, add A ingredients and whisk vigorously until well combined.',
+      'Add B (oils) slowly and whisk until mixture becomes thick.',
+    ]
+  },
+  {
+    id: 'red-wine-dressing',
+    name: 'Red Wine Dressing',
+    section: 'dressings',
+    emoji: '🍷',
+    yield: 'Approx. 1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['', '8 oz honey'],
+      ['', '8 oz red wine vinegar'],
+      ['', '32 oz canola oil'],
+      ['', '1 tbsp kosher salt'],
+      ['', '⅛ tsp ground black pepper'],
+    ],
+    steps: [
+      'In a blender, mix honey, red wine vinegar, salt, and pepper.',
+      'Blend on speed 20% until combined. Remove cap from blender and drizzle in 32oz canola oil.',
+      'Gradually increase speed until an aioli consistency forms.',
+      'Add more salt and pepper if needed.',
+    ]
+  },
+  {
+    id: 'sesame-lime-dressing',
+    name: 'Sesame Lime Dressing',
+    section: 'dressings',
+    emoji: '🌿',
+    yield: 'Approx. 1 QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['A – Base', '1 cup lime juice'],
+      ['A – Base', '1 cup agave'],
+      ['A – Base', '1 cup soy sauce'],
+      ['A – Base', '½ tsp onion powder'],
+      ['A – Base', '½ tsp garlic powder'],
+      ['A – Base', '2 tsp ginger powder'],
+      ['A – Base', '⅛ tsp ground black pepper'],
+      ['B – Oils', '1½ cups canola blend oil'],
+      ['B – Oils', '¾ cup sesame oil'],
+    ],
+    steps: [
+      'In a bowl, add A ingredients and whisk vigorously until well combined.',
+      'Add B (oils) slowly and whisk until the mixture becomes thick.',
+    ]
+  },
+  {
+    id: 'sticky-peanut-dressing',
+    name: 'Sticky Peanut Dressing',
+    section: 'dressings',
+    emoji: '🥜',
+    yield: '½ QT',
+    prepTime: '5 min',
+    ingredients: [
+      ['', '1 cup "bowl" peanut butter'],
+      ['', '½ cup sesame oil'],
+      ['', '¼ cup soy sauce'],
+      ['', '½ cup water'],
+      ['', '2 tbsp fish sauce'],
+      ['', '2 tbsp chili sauce'],
+      ['', '1 clove garlic'],
+      ['', '1 shallot'],
+      ['', '⅛ tsp kosher salt'],
+      ['', '⅛ tsp ground black pepper'],
+    ],
+    steps: [
+      'Place all ingredients in a blender and blend until smooth.',
+      'Add salt and pepper to taste.',
+    ]
+  },
+
+  // ═══════════════════════════════════════
+  // SOUPS
+  // ═══════════════════════════════════════
+  {
+    id: 'butternut-wild-rice-soup',
+    name: 'Butternut & Wild Rice Soup',
+    section: 'soups',
+    emoji: '🎃',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['', '½ QT onion, small dice'],
+      ['', '½ QT celery, small dice'],
+      ['', '½ QT carrot, small dice'],
+      ['', '½ QT tomatoes, small dice'],
+      ['', '2 QT butternut squash, medium dice'],
+      ['', '5–6 garlic cloves, minced'],
+      ['', '2 QT vegetable broth'],
+      ['', '½ QT long grain & wild rice, cooked and cooled'],
+      ['', '1 tbsp ground cumin'],
+      ['', '1 pack soup bomb'],
+      ['', '½ tsp ground black pepper'],
+    ],
+    steps: [
+      'Set the pressure cooker to the sauté setting. Sauté onions until almost translucent.',
+      'Add celery, carrots, and garlic. Cook for approximately 2 minutes.',
+      'Add tomatoes, butternut squash, seasonings, and broth. Do NOT add rice to the pressure cooker.',
+      'Cook on soup/vegetable setting.',
+      'Add the cooked wild rice only when the soup is warmed on the day it is served.',
+    ]
+  },
+  {
+    id: 'chili-spice-bomb',
+    name: 'Chili Spice Bomb',
+    section: 'soups',
+    emoji: '🌶️',
+    yield: '3 Cups',
+    tag: 'Spice Blend',
+    ingredients: [
+      ['', '1 cup chili powder'],
+      ['', '½ cup paprika powder'],
+      ['', '2 tbsp cayenne pepper'],
+      ['', '1 tbsp ground black pepper'],
+      ['', '¼ cup onion powder'],
+      ['', '¼ cup garlic powder'],
+      ['', '¼ cup Italian seasoning'],
+      ['', '¼ cup cumin powder'],
+      ['', '¼ cup dried oregano'],
+      ['', '2 tbsp kosher salt'],
+    ],
+    steps: [
+      'Mix all ingredients together thoroughly.',
+      'Portion into 2oz containers. Store and use when needed.',
+    ]
+  },
+  {
+    id: 'chunky-roasted-tomato-soup',
+    name: 'Chunky Roasted Tomato Soup',
+    section: 'soups',
+    emoji: '🍅',
+    missing: true,
+  },
+  {
+    id: 'clam-chowder',
+    name: 'Clam Chowder',
+    section: 'soups',
+    emoji: '🦪',
+    missing: true,
+  },
+  {
+    id: 'classic-mushroom-soup',
+    name: 'Classic Mushroom Soup',
+    section: 'soups',
+    emoji: '🍄',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['', '2 QT white button mushrooms, sliced'],
+      ['', '2 QT brown button mushrooms, sliced'],
+      ['', '2 tbsp canola oil or olive oil'],
+      ['', '1 large white onion, diced'],
+      ['', '2 garlic cloves, minced'],
+      ['', '1 packet soup bomb'],
+      ['', '2 QT water'],
+      ['', '1 can coconut milk'],
+      ['', '½ tsp ground black pepper'],
+    ],
+    steps: [
+      'Set pressure cooker to BROWN. Sauté onions and garlic until fragrant. Add mushrooms.',
+      'Sauté mixture for 5 minutes. Add all dry seasonings (soup bomb, black pepper). Add water. Close lid and set to soup/rice setting. Press start.',
+      'Once steam is released, add 1 can of coconut milk. Transfer to a container.',
+      'Using an immersion/hand blender, blend until smooth.',
+      'Season with more salt and pepper to taste.',
+    ]
+  },
+  {
+    id: 'creamy-broccoli-soup',
+    name: 'Creamy Broccoli (& Cheddar) Soup',
+    section: 'soups',
+    emoji: '🥦',
+    missing: true,
+  },
+  {
+    id: 'creamy-butternut-squash-soup',
+    name: 'Creamy Butternut Squash (& Pumpkin) Soup',
+    section: 'soups',
+    emoji: '🎃',
+    missing: true,
+  },
+  {
+    id: 'curried-coconut-wild-rice-soup',
+    name: 'Curried Coconut & Wild Rice Soup',
+    section: 'soups',
+    emoji: '🍛',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['', '3 cups onion, small dice'],
+      ['', '4 cups celery, small dice'],
+      ['', '2 cups carrots, small dice'],
+      ['', '3 cups tomatoes, fresh small diced'],
+      ['', '4–5 garlic cloves, minced'],
+      ['', '12 cups veggie broth'],
+      ['', '2 (13.5oz) cans coconut milk'],
+      ['', '3–4 cups long grain & wild rice, cooked separately'],
+      ['', '3 cups fresh green beans, 2" pieces'],
+      ['', '2–3 handfuls fresh spinach leaves, roughly torn'],
+      ['', '3–4 tbsp curry powder (to taste)'],
+      ['', '2 tbsp Italian seasoning'],
+      ['', '2 tbsp onion powder'],
+      ['', '1 tbsp garlic powder'],
+      ['', '½ tsp ground black pepper'],
+      ['', '½ tsp kosher salt'],
+    ],
+    steps: [
+      'Set pressure cooker to the sauté setting. Sauté onions in oil until translucent.',
+      'Sauté celery, carrots, and garlic for a few minutes.',
+      'Add tomatoes, coconut milk, broth, and all seasonings. Set pressure cooker to a 5-minute cook time.',
+      'After the soup is cooked, add the green beans and spinach.',
+      'Cook the long grain & wild rice separately. Add cooked rice to individual cups only when serving — rice will overcook in the soup warmer.',
+    ]
+  },
+  {
+    id: 'gazpacho',
+    name: 'Gazpacho (Cold Soup)',
+    section: 'soups',
+    emoji: '🍅',
+    tag: 'V · GF · DF · Cold',
+    ingredients: [
+      ['', '2 QT fresh tomatoes, roughly chopped'],
+      ['', 'Half a cucumber, peeled and roughly chopped'],
+      ['', '¼ of a small onion, roughly chopped'],
+      ['', 'Half a red bell pepper, seeded and roughly chopped'],
+      ['', '1 small garlic clove'],
+      ['', '½ cup olive oil'],
+      ['', '¼ cup red wine vinegar'],
+      ['', '1 tsp ground cumin'],
+      ['', '2 tbsp fresh lime juice'],
+      ['', '1 tsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Add all ingredients to a blender (make in batches as needed).',
+      'Using a large container, mix all batches together until well combined. Add salt and pepper to taste.',
+      'To serve: drizzle some extra virgin olive oil, sprinkle Maldon salt and fresh black pepper on top.',
+    ]
+  },
+  {
+    id: 'hearty-vegetable-soup',
+    name: 'Hearty Vegetable Soup',
+    section: 'soups',
+    emoji: '🥕',
+    tag: 'V · GF · DF',
+    ingredients: [
+      ['', '3 cups onions, small dice'],
+      ['', '4 cups celery, small dice'],
+      ['', '4 cups carrots, small dice'],
+      ['', '4 cups Yukon gold potato, small dice'],
+      ['', '2–3 cups fresh tomatoes or canned (with juice), small dice'],
+      ['', '2 cups frozen peas'],
+      ['', '2 cups corn'],
+      ['', '3 cups green beans'],
+      ['', '2 cups lima beans (optional)'],
+      ['', '3–4 garlic cloves, minced'],
+      ['', '12 cups vegetable broth'],
+      ['', '2 tbsp Italian seasoning'],
+      ['', '1 tbsp garlic powder'],
+      ['', '1½ tbsp onion powder'],
+      ['', '5–6 sprigs fresh thyme'],
+      ['', '1 tbsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Set pressure cooker to sauté. Sauté onions until somewhat translucent.',
+      'Add celery, carrots, and garlic. Cook for another few minutes.',
+      'Add green beans, potatoes, tomatoes, seasonings, and broth. Cook for 5 minutes (vegetable setting).',
+      'After cooking, add peas and corn. Adjust seasoning if adding more water.',
+    ]
+  },
+  {
+    id: 'lentil-soup',
+    name: 'Lentil Soup (With or Without Ham)',
+    section: 'soups',
+    emoji: '🥣',
+    tag: 'V (without ham) · GF · DF',
+    ingredients: [
+      ['', '3 tbsp olive oil'],
+      ['', '4 cups onion, small dice'],
+      ['', '3 cups celery, small dice'],
+      ['', '3 cups carrots, small dice'],
+      ['', '5–6 cloves garlic, small chop'],
+      ['', '2 lbs brown lentils, dried (rinsed and drained)'],
+      ['', '2–3 tbsp Italian seasoning'],
+      ['', '2 tbsp salt'],
+      ['', '1½ tbsp onion powder'],
+      ['', '1½ tbsp garlic powder'],
+      ['', '6–7 fresh thyme sprigs'],
+      ['', '1 tsp ground black pepper'],
+      ['Optional (for ham version)', '2 cups ham, medium dice'],
+    ],
+    steps: [
+      'Set pressure cooker to sauté. Sauté onions in oil until translucent.',
+      'Add celery, carrots, and garlic. Cook a few minutes. If using ham, add now and cook a few more minutes.',
+      'Add dried lentils and all spices with enough broth or water to the fill line. Stir.',
+      'Secure lid and set timer for 5 minutes (vegetable setting).',
+      'Once done, add more broth and seasoning as needed — lentils absorb a lot of liquid.',
+    ]
+  },
+  {
+    id: 'potato-leek-soup',
+    name: 'Potato & Leek Soup',
+    section: 'soups',
+    emoji: '🧅',
+    tag: 'GF · DF · V',
+    ingredients: [
+      ['', '3 tbsp canola oil'],
+      ['', '2 cups onion, small dice'],
+      ['', '3 cups leeks, rinsed and cut into half moons'],
+      ['', '2 cups celery, small dice'],
+      ['', '3 cups carrots, small dice'],
+      ['', '3–4 garlic cloves, minced'],
+      ['', '8–9 cups Yukon gold potatoes, 1-inch cubes'],
+      ['', '12 cups veggie broth (watch salt content)'],
+      ['', '2 (13.5oz) cans coconut milk'],
+      ['', '2 tbsp Italian seasoning'],
+      ['', '2 tbsp garlic powder'],
+      ['', '2 tbsp onion powder'],
+      ['', '4–5 sprigs fresh thyme'],
+      ['', '1 tsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+      ['Optional add-ins', '4 cups canned/frozen corn, white cannellini beans, or butternut squash'],
+      ['Optional add-ins', '5–6 cups fresh spinach or kale'],
+      ['Optional add-ins', '2–3 cups ham or sausage (not vegetarian)'],
+    ],
+    steps: [
+      'Set pressure cooker to sauté. Sauté onions and leeks in oil until translucent (about 4–5 minutes).',
+      'Add celery, carrots, potatoes, garlic, and seasonings. Mix well.',
+      'Add broth and coconut milk. Close lid and set timer for 5-minute cook time.',
+      'After cooking, stir in any optional add-ins (corn, beans, greens, or meat).',
+    ]
+  },
+  {
+    id: 'sausage-potato-kale-soup',
+    name: 'Sausage Potato Kale Soup',
+    section: 'soups',
+    emoji: '🌿',
+    tag: 'GF · DF',
+    ingredients: [
+      ['', '6 Italian sausages, chopped into bite-sized pieces'],
+      ['', '4 cups celery, small dice'],
+      ['', '4 cups onion, small dice'],
+      ['', '5 cups carrots, small dice'],
+      ['', '7–8 cups Yukon gold potato, medium dice'],
+      ['', '4–5 garlic cloves, minced'],
+      ['', '8 cups kale, roughly chopped'],
+      ['', '12 cups veggie broth (water can substitute)'],
+      ['', '2 tbsp Italian seasoning'],
+      ['', '1½ tbsp garlic powder'],
+      ['', '1½ tbsp onion powder'],
+      ['', '2 tbsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Set pressure cooker to sauté. Sauté sausage until almost cooked, then add onions and cook until nearly translucent.',
+      'Add celery, carrots, and garlic. Cook for a few minutes.',
+      'Add potatoes and all seasonings to the broth. Cook for 5 minutes (vegetable setting).',
+      'After cooking, add kale to the soup. DO NOT add kale while still in the pressure cooker — it will overcook.',
+      'Add more water and seasoning as needed.',
+    ]
+  },
+  {
+    id: 'soup-bomb',
+    name: 'Soup Bomb (Spice Blend)',
+    section: 'soups',
+    emoji: '💣',
+    yield: '3 Cups',
+    tag: 'Spice Blend',
+    ingredients: [
+      ['', '1 cup onion powder'],
+      ['', '1 cup garlic powder'],
+      ['', '½ cup Italian seasoning'],
+      ['', '½ cup dried oregano'],
+      ['', '2 tbsp kosher salt'],
+      ['', '2 tbsp ground black pepper'],
+    ],
+    steps: [
+      'Mix all ingredients together thoroughly.',
+      'Portion into 2oz containers. Store and use when needed.',
+    ]
+  },
+  {
+    id: 'tortilla-chips',
+    name: 'Tortilla Chips',
+    section: 'soups',
+    emoji: '🌮',
+    ingredients: [
+      ['', '2 corn tortillas'],
+      ['', '2 tbsp EVOO'],
+      ['', '1 tsp kosher salt'],
+    ],
+    steps: [
+      'Cut tortillas into 1-inch strips.',
+      'Cook in EVOO until crispy.',
+      'Once crispy, transfer to a bowl lined with a paper towel to absorb excess oil.',
+      'Add salt while tortilla strips are still hot.',
+    ]
+  },
+  {
+    id: 'tortilla-soup',
+    name: 'Tortilla Soup',
+    section: 'soups',
+    emoji: '🫘',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['A – Aromatics', '2 tbsp EVOO'],
+      ['A – Aromatics', '2–3 garlic cloves, small chop'],
+      ['A – Aromatics', '1 yellow onion, small dice'],
+      ['A – Aromatics', '1½ cup celery'],
+      ['A – Aromatics', '½ green pepper'],
+      ['A – Aromatics', '1 tsp onion powder'],
+      ['A – Aromatics', '1 tsp garlic powder'],
+      ['A – Aromatics', '1 tbsp chipotle peppers, chopped'],
+      ['B – Spices', '1 tsp thyme'],
+      ['B – Spices', '1 tsp oregano'],
+      ['B – Spices', '2 tsp cumin'],
+      ['C – Bulk', '2–3 (15.5oz) cans black beans'],
+      ['C – Bulk', '2 (28oz) cans crushed tomatoes'],
+      ['C – Bulk', '1½ cup corn'],
+      ['C – Bulk', '3–4 cups veggie broth'],
+      ['C – Bulk', '1½ tbsp salt'],
+      ['C – Bulk', '1 handful cilantro'],
+    ],
+    steps: [
+      'Combine A ingredients in a slow cooker on low, starting with EVOO and garlic, then slowly adding the rest.',
+      'When vegetables are cooked (~2–3 minutes), add B spices and mix well.',
+      'Stir in black beans and cook for 5 minutes.',
+      'After 5 minutes, stir in crushed tomatoes and corn.',
+      'Add 3–4 cups of veggie broth depending on desired consistency.',
+      'Add salt to taste.',
+      'Once all ingredients are combined, let sit for 5 minutes.',
+      'Top with cilantro and serve with tortilla chips on the side.',
+    ]
+  },
+  {
+    id: 'tuscan-white-bean-soup',
+    name: 'Tuscan White Bean Soup',
+    section: 'soups',
+    emoji: '🫘',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['', '3 tbsp olive oil'],
+      ['', '3 cups white onion, medium dice'],
+      ['', '4 cups celery, medium dice'],
+      ['', '5 cups carrots, medium dice'],
+      ['', '2–3 cups ham, medium dice (optional)'],
+      ['', '4–5 garlic cloves, small dice'],
+      ['', '4 cups fresh or canned whole tomatoes, medium dice'],
+      ['', '10 lb can white cannellini beans, rinsed and drained'],
+      ['', '12 cups veggie broth (or chicken broth if using ham)'],
+      ['', '2 tbsp Italian seasoning'],
+      ['', '1½ tbsp onion powder'],
+      ['', '1 tbsp garlic powder'],
+      ['', '2 tbsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Sauté onion, celery, carrots, garlic (and ham if using) until onions are almost translucent.',
+      'Add all other ingredients EXCEPT beans.',
+      'Use pressure cooker for a 15–16 minute cook time.',
+      'Add cannellini beans to the cooked soup OUTSIDE the pressure cooker. DO NOT add beans to the pressure cooker — they will turn to mush.',
+      'Taste and season. Do not over salt.',
+    ]
+  },
+  {
+    id: 'vegan-sweet-potato-black-bean-chili',
+    name: 'Vegan Sweet Potato & Black Bean Chili',
+    section: 'soups',
+    emoji: '🍠',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['', '2 tbsp canola oil'],
+      ['', '1 QT white onion, diced'],
+      ['', '2 garlic cloves, minced'],
+      ['', '1 QT celery, chopped'],
+      ['', '1 QT carrots, diced'],
+      ['', '1 QT tomato ends, roasted (optional)'],
+      ['', '2 QT sweet potato, big dice'],
+      ['', '1 QT crushed tomatoes'],
+      ['', '2 QT water'],
+      ['', '1 pint black beans, canned or fresh (if fresh, cook separately)'],
+      ['', '2 packs chili bomb'],
+      ['', '1 tbsp kosher salt'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Set pressure cooker to SEAR. Heat oil and sauté onions and garlic until fragrant.',
+      'Add carrots, celery, tomato ends, and sweet potato. Stir.',
+      'Add chili bomb, salt, and pepper. Mix well.',
+      'Add 1 QT crushed tomatoes and 1 QT water or vegetable stock.',
+      'Set pressure cooker to RICE/BEANS setting. Press START.',
+      'Once complete, open the pressure cooker and add 1 pint of black beans.',
+      'Stir and season to taste.',
+    ]
+  },
+  {
+    id: 'vegetable-curry',
+    name: 'Vegetable Curry',
+    section: 'soups',
+    emoji: '🍛',
+    tag: 'V · DF · GF',
+    ingredients: [
+      ['A – Vegetables', '2 tbsp canola oil'],
+      ['A – Vegetables', '½ QT onions, diced'],
+      ['A – Vegetables', '½ QT carrots, diced'],
+      ['A – Vegetables', '½ QT celery, diced'],
+      ['A – Vegetables', '½ QT white potato, peeled and diced'],
+      ['A – Spices', '1 packet soup bomb'],
+      ['A – Spices', '1 tsp turmeric'],
+      ['A – Spices', '1 tbsp chili powder'],
+      ['A – Spices', '2 tbsp cumin'],
+      ['A – Spices', '1 tbsp curry powder'],
+      ['B – Liquid', '2 QT vegetable stock or water'],
+      ['C – Add-ins', '½ QT green beans (2-inch pieces, optional)'],
+      ['C – Add-ins', '½ QT frozen corn'],
+      ['C – Add-ins', '½ QT frozen peas (optional)'],
+      ['C – Add-ins', '1 can coconut milk'],
+    ],
+    steps: [
+      'Set cooker to SEAR/BROWN. Sauté A ingredients (vegetables + spices) for 5 minutes.',
+      'Add B (vegetable stock or water) and stir well.',
+      'Set pressure cooker to RICE/GRAINS setting.',
+      'Once ready, add C (green beans, corn, peas, coconut milk) and season to taste.',
+      'Variation — Curry & Wild Rice: stir in 1 QT of cooked wild rice to the soup mixture.',
+    ]
+  },
+
+  // ═══════════════════════════════════════
+  // BLENDER PREP
+  // ═══════════════════════════════════════
+  {
+    id: 'almond-butter-homemade',
+    name: 'Almond Butter (Homemade)',
+    section: 'blender',
+    emoji: '🌰',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '20–30 min',
+    ingredients: [
+      ['', '5 cups whole almonds'],
+    ],
+    steps: [
+      'Place whole almonds on a sheet tray and roast on the BOTTOM shelf of the cheese melter for about 15 minutes, or until dark brown on all sides. (Note: They may burn on the top shelf.) Periodically rotate the pan and shake the almonds so they roast on all sides.',
+      'Remove tray from cheese melter and let cool to room temperature.',
+      'Place roasted almonds in the food processor and blend for about 10 minutes, or until you achieve a smooth consistency.',
+      'Store in a short 1/6 pan. Wrap, label, date, and initial.',
+      '💡 For drizzle: blend until very smooth and pourable. Do not over-blend — the processor may overheat. Do NOT use a rubber spatula while making almond butter.',
+    ]
+  },
+  {
+    id: 'berry-jam',
+    name: 'Berry Jam',
+    section: 'blender',
+    emoji: '🍓',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '20 min',
+    ingredients: [
+      ['A', '1/6 tall pan frozen strawberries'],
+      ['A', '6 tbsp sugar'],
+      ['A', '1 tsp lemon juice'],
+      ['B', '1 tsp Xanthan gum'],
+      ['B', '1½ cups frozen blueberries'],
+    ],
+    steps: [
+      'In a medium pot, combine A (strawberries, sugar, lemon juice) and bring to a boil.',
+      'Once boiling, lower heat and let the fruit simmer for 5 minutes.',
+      'Turn heat off.',
+      'With a hand blender, blend until smooth.',
+      'Add 1 tsp Xanthan gum and blend until well combined.',
+      'Add blueberries and blend for only 10 seconds so they remain slightly chunky.',
+      'Transfer jam into a short 1/6 pan and let cool. Wrap, label, date, and initial. Store under the blender station.',
+    ]
+  },
+  {
+    id: 'booster-shot',
+    name: 'Booster Wellness Shot',
+    section: 'blender',
+    emoji: '💪',
+    yield: '~12 shots',
+    tag: 'Wellness Shot',
+    ingredients: [
+      ['', '1 cup pineapple juice'],
+      ['', '1 cup ginger juice'],
+      ['', '1 cup turmeric juice'],
+      ['', '½ cup apple cider vinegar'],
+      ['', '¼ tsp kosher salt'],
+    ],
+    steps: [
+      'Mix all ingredients in a pitcher or quart container until well combined.',
+      'Stir shots as you bottle them so spices don\'t settle to the bottom.',
+      'Using the date gun, print a label 14 days out from the oldest juice used. Place label on the bottom of the bottle.',
+    ]
+  },
+  {
+    id: 'chai-spice-blend',
+    name: 'Chai Spice Blend',
+    section: 'blender',
+    emoji: '🫖',
+    yield: '2 cups',
+    prepTime: '5 min',
+    tag: 'Spice Blend',
+    ingredients: [
+      ['', '6 tbsp cardamom, ground'],
+      ['', '6 tbsp cloves, ground'],
+      ['', '6 tbsp cinnamon, ground'],
+      ['', '3 tbsp coriander, ground'],
+      ['', '3 tbsp ginger, ground'],
+      ['', '1 tbsp ground black pepper'],
+    ],
+    steps: [
+      'In a bowl, mix everything until well combined.',
+      'Store in a pint container. Label, date, and initial.',
+    ]
+  },
+  {
+    id: 'coconut-whipped-cream',
+    name: 'Coconut Whipped Cream',
+    section: 'blender',
+    emoji: '🥥',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '1 hr 10 min',
+    ingredients: [
+      ['', '1 cup coconut milk fat (from 2 cans – NOT lite)'],
+      ['', '3 tbsp confectioners (powdered) sugar'],
+      ['', '1 tbsp vanilla extract'],
+    ],
+    steps: [
+      'Open the cans and pour into a 1/6 S container with a lid.',
+      'Place the container in the freezer for exactly 1 hour. Do NOT freeze longer than an hour — it will be hard to separate the fat from the liquid.',
+      'After an hour, the coconut milk fat rises to the top and hardens while liquid settles to the bottom.',
+      'Carefully scoop out the milk fat and place it in a mixing bowl. Save the liquid for a recipe that uses coconut water (e.g., Green Machine Smoothie).',
+      'Add confectioners sugar and vanilla extract to the bowl.',
+      'Whisk until firm peaks form. (By hand: 6–8 min. Handheld blender: 2–3 min.)',
+      'Place coconut whipped cream into a container, wrap, date, and label.',
+    ]
+  },
+  {
+    id: 'detox-shot',
+    name: 'Detox Wellness Shot',
+    section: 'blender',
+    emoji: '🌿',
+    yield: '~15 shots',
+    prepTime: '20 min',
+    tag: 'Wellness Shot',
+    ingredients: [
+      ['', '2.5 cups aloe vera gel (about 3 stalks)'],
+      ['', '1¼ cups lemon juice'],
+      ['', '1¼ cups lime juice'],
+      ['', '1¼ tsp activated charcoal'],
+    ],
+    steps: [
+      'Using a large kitchen knife, cut the ends and spiky sides off the aloe vera stalks.',
+      'Cut ALL the skin off both sides of the aloe vera so you are only left with gel.',
+      'Place 2.5 cups of aloe vera gel into a blender (it will be at the 20oz line).',
+      'Add lemon juice, lime juice, and charcoal into the blender.',
+      'Blend all for 15–20 seconds at 20% speed.',
+      'Pour the mixture into a Cambro using a colander as you pour. Whisk the gel rapidly during this process to strain properly.',
+      'Whisk the entire mixture once more.',
+      'Distribute into labeled shot bottles using a funnel or measuring cup with a spout.',
+      'Label: use the date gun to print a label 14 days out from the oldest juice used. Place on the bottom of the bottle.',
+    ]
+  },
+  {
+    id: 'housemade-syrups',
+    name: 'Housemade Syrups',
+    section: 'blender',
+    emoji: '🍯',
+    yield: '~146 servings per batch',
+    prepTime: '10 min',
+    tag: 'Shelf life: 4 weeks',
+    ingredients: [
+      ['All syrups', '3100g sugar (109.35oz)'],
+      ['All syrups', '2080g filtered HOT water (73.37oz)'],
+      ['Vanilla', '25g vanilla bean paste (0.88oz)'],
+      ['Caramel', '15g caramel flavor (0.53oz)'],
+      ['Lavender', '4g lavender extract (0.14oz)'],
+      ['Cardamom', '3g cardamom extract (0.106oz)'],
+      ['Hazelnut', '10g hazelnut extract (0.353oz)'],
+      ['Mocha (different ratio)', '2800g sugar · 1650g hot water · 480g cocoa powder (shelf life 3 wks)'],
+    ],
+    steps: [
+      'Combine sugar, hot water, and the flavored extract in a 6qt Cambro.',
+      'Mix with an immersion blender until well combined.',
+      'Keep syrups refrigerated overnight before use.',
+      'For Mocha Syrup: same process using 2800g sugar, 1650g hot water, and 480g cocoa powder. Shelf life is 3 weeks.',
+    ]
+  },
+  {
+    id: 'immunity-plus-shot',
+    name: 'Immunity+ Wellness Shot',
+    section: 'blender',
+    emoji: '🛡️',
+    yield: '~15 shots',
+    tag: 'Wellness Shot',
+    ingredients: [
+      ['', '1½ cups turmeric juice'],
+      ['', '1½ cups ginger juice'],
+      ['', '1½ cups lemon juice'],
+      ['', '½ tbsp ground black pepper'],
+    ],
+    steps: [
+      'Mix all ingredients in a pitcher or quart container until well combined.',
+      'Stir shots as you bottle them so spices don\'t settle to the bottom.',
+      'Label: date gun, 14 days out from oldest juice. Place on bottom of bottle.',
+    ]
+  },
+  {
+    id: 'mulling-spice',
+    name: 'Mulling Spice',
+    section: 'blender',
+    emoji: '🍊',
+    tag: 'Seasonal · Spice Blend',
+    ingredients: [
+      ['', '6 cups whole cloves'],
+      ['', '2 cups whole star anise'],
+      ['', '4 tbsp cinnamon, ground'],
+      ['', '4 tbsp allspice, ground'],
+      ['', '1½ cups dried orange peel'],
+    ],
+    steps: [
+      'Mix all ingredients until well combined.',
+      'To make dried orange peel: use a peeler to peel oranges. Place peel on a foil-lined sheet pan. Place in the cheese melter on the bottom shelf and stir every 5 minutes. Takes approximately 20 minutes. Once dried and cooled, chop and store in a container.',
+    ]
+  },
+  {
+    id: 'overnight-oats',
+    name: 'Overnight Oats',
+    section: 'blender',
+    emoji: '🥣',
+    yield: '4 QTs (~8 portions)',
+    prepTime: '10 min + soak time',
+    ingredients: [
+      ['', '1 tin traditional oats (42oz)'],
+      ['', '½ cup chia seeds'],
+      ['', '96oz almond milk (three 32oz cartons)'],
+    ],
+    steps: [
+      'Place oats into a 6QT container right at the cutoff line.',
+      'Sprinkle ½ cup of chia seeds on top of oats.',
+      'Tap the container a few times to disperse the chia seeds through the oats.',
+      'Pour the almond milk.',
+      'Mix well and let soak for at least 1 hour or overnight.',
+      'Wrap and label with name and date.',
+      'To portion: stir with a spatula until chia and oats are well mixed. Add more almond milk if needed to reach a pudding consistency. Weigh out 8oz portions into 12oz cups using a food scale.',
+    ]
+  },
+  {
+    id: 'pb-bowls-smoothies',
+    name: 'Peanut Butter for Bowls/Smoothies',
+    section: 'blender',
+    emoji: '🥜',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '10–15 min',
+    tag: 'Label: "Bowl PB"',
+    ingredients: [
+      ['', '8 cups roasted unsalted peanuts'],
+    ],
+    steps: [
+      'Place 4 cups of peanuts in the food processor and blend until smooth but thick.',
+      'Repeat with the remaining 4 cups.',
+      'Transfer to a short 1/6 pan. Wrap and label with name, date, and "Bowl PB".',
+      '💡 This consistency can be a little thicker since it will be blended again for smoothies and bowls. Do NOT use a rubber spatula to scoop out PB.',
+    ]
+  },
+  {
+    id: 'pb-drizzle',
+    name: 'Peanut Butter for Drizzle',
+    section: 'blender',
+    emoji: '🥜',
+    yield: '1 QT',
+    prepTime: '10–15 min',
+    tag: 'Label: "Drizzle PB"',
+    ingredients: [
+      ['', '6 cups honey roasted peanuts'],
+    ],
+    steps: [
+      'Place half the peanuts in the food processor and blend until smooth and creamy.',
+      'Scrape the sides to get all pieces, then repeat with the remaining peanuts.',
+      'Transfer to a quart container. Wrap and label with name, date, and "Drizzle PB".',
+      '⚠️ Make sure ALL peanuts are completely blended — any whole pieces will jam the squeeze bottle. Consistency needs to be a "runny" drizzle.',
+    ]
+  },
+  {
+    id: 'pb-toast',
+    name: 'Peanut Butter for Toast',
+    section: 'blender',
+    emoji: '🥜',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '10–15 min',
+    tag: 'Label: "Toast PB"',
+    ingredients: [
+      ['', '4 cups honey roasted peanuts'],
+      ['', '4 cups roasted unsalted peanuts'],
+    ],
+    steps: [
+      'Place ½ of the honey roasted peanuts and ½ of the regular peanuts in the food processor. Blend until spreadable and slightly chunky.',
+      'Repeat with the remaining peanuts.',
+      'Transfer to a short 1/6 pan. Wrap and label with name, date, and "Toast PB".',
+      '💡 Consistency should not be too runny. If too runny, add more peanuts and grind for 30 seconds to 1 minute.',
+    ]
+  },
+  {
+    id: 'protein-waffle-batter',
+    name: 'Protein Waffle Batter',
+    section: 'blender',
+    emoji: '🧇',
+    yield: '~8 waffles',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '4 cups oats (blend 10 seconds in blender to make flour)'],
+      ['', '16 eggs'],
+      ['', '4 cups vanilla Greek yogurt'],
+      ['', '8 scoops vanilla protein powder'],
+      ['', '4 tsp baking powder'],
+      ['', '4 tsp vanilla extract'],
+      ['', '4 tsp cinnamon'],
+    ],
+    steps: [
+      'Blend oats in the blender for about 10 seconds to make oat flour.',
+      'In a mixing bowl, combine all ingredients and mix until you achieve a thick, soft texture.',
+    ]
+  },
+  {
+    id: 'refresh-shot',
+    name: 'Refresh Wellness Shot',
+    section: 'blender',
+    emoji: '💙',
+    yield: '~9 shots',
+    tag: 'Wellness Shot',
+    ingredients: [
+      ['', '1½ cups ginger juice'],
+      ['', '1½ cups lime juice'],
+      ['', '1½ tsp blue spirulina'],
+    ],
+    steps: [
+      'Mix all ingredients in a pitcher or quart container until well combined.',
+      'Stir shots as you bottle them so the spirulina doesn\'t settle to the bottom.',
+      'Label: date gun, 14 days out from oldest juice. Place on bottom of bottle.',
+    ]
+  },
+  {
+    id: 'spiced-apple-juice',
+    name: 'Spiced Apple Juice',
+    section: 'blender',
+    emoji: '🍎',
+    yield: '2 QTs',
+    prepTime: '40 min',
+    tag: 'Seasonal',
+    ingredients: [
+      ['', '2 quarts apple juice'],
+      ['', '8 oz mulling spice (use 4oz cups to measure — not a scale)'],
+      ['', '8 pieces cinnamon stick (~4 inches each)'],
+      ['', '6 oz fresh ginger, sliced'],
+      ['', '5 oranges, sliced'],
+      ['', '3 cups dried cranberries'],
+    ],
+    steps: [
+      'On the stove, heat 2 quarts of apple juice on medium-low.',
+      'Add Mulling Spice into 2 tea bags.',
+      'Put tea bags along with all other ingredients EXCEPT cranberries into the pot.',
+      'Simmer on low heat for 10 minutes.',
+      'After 10 minutes, add dried cranberries and simmer for another 30 minutes.',
+      'Strain all ingredients and use your hands to press out all remaining juice.',
+      'Cool completely before storing or mixing with pear juice.',
+    ]
+  },
+  {
+    id: 'spiced-asian-pear-juice',
+    name: 'Spiced Asian Pear Juice',
+    section: 'blender',
+    emoji: '🍐',
+    yield: '8 QTs',
+    tag: 'Seasonal',
+    ingredients: [
+      ['', '6 quarts Asian pear juice'],
+      ['', '1½ cups fresh ginger juice'],
+      ['', '1 quart Spiced Apple Juice (prepared)'],
+    ],
+    steps: [
+      'Mix all ingredients until well incorporated.',
+    ]
+  },
+  {
+    id: 'turmeric-spice-blend',
+    name: 'Turmeric Spice Blend',
+    section: 'blender',
+    emoji: '🟡',
+    yield: '1½ cups',
+    prepTime: '5 min',
+    tag: 'Spice Blend',
+    ingredients: [
+      ['', '1 cup turmeric powder'],
+      ['', '2½ tbsp cinnamon'],
+      ['', '2 tsp ground black pepper'],
+      ['', '2 tsp cardamom, ground'],
+    ],
+    steps: [
+      'In a bowl, mix everything until well combined.',
+      'Store in a pint container. Label, date, and initial.',
+    ]
+  },
+  {
+    id: 'vita-c-punch-shot',
+    name: 'Vita-C Punch Wellness Shot',
+    section: 'blender',
+    emoji: '🍋',
+    yield: '~15 shots',
+    tag: 'Wellness Shot',
+    ingredients: [
+      ['', '1½ cups lemon juice'],
+      ['', '1½ cups lime juice'],
+      ['', '1½ cups orange juice'],
+      ['', '½ tbsp cayenne'],
+    ],
+    steps: [
+      'Mix all ingredients in a pitcher or quart container until well combined.',
+      'Stir shots as you bottle them so cayenne doesn\'t settle to the bottom.',
+      'Label: date gun, 14 days out from oldest juice. Place on bottom of bottle.',
+    ]
+  },
+
+  // ═══════════════════════════════════════
+  // TOAST PREP
+  // ═══════════════════════════════════════
+  {
+    id: 'avocado-smash-toast',
+    name: 'Avocado Smash',
+    section: 'toast',
+    emoji: '🥑',
+    yield: '3 × 1/6 Tall Pans (6 QT)',
+    prepTime: '30 min',
+    ingredients: [
+      ['', '1 box ripe avocados (25 lbs)'],
+      ['', '2 tbsp kosher salt'],
+      ['', '⅓ cup lime juice'],
+      ['', '1 tbsp chili flakes'],
+      ['', '¾ cup extra virgin olive oil'],
+    ],
+    steps: [
+      'Remove avocado pits and stems.',
+      'With a spoon, scoop out avocado. If the avocado is brown or bruised, remove those parts and discard.',
+      'In a large bowl, combine all ingredients and mash the avocado. DO NOT OVER MASH.',
+      'To store: fill into a tall 1/6 pan to the line. Push down the sides with a spatula to remove air pockets.',
+      'Fold a paper towel to fit the top of the container. Squeeze lime juice evenly over the surface — do not over-pour.',
+      'Wrap with plastic wrap. Date the avocado with the day it was made and write initials.',
+      'Store in the toast station low-boy using FIFO.',
+    ]
+  },
+  {
+    id: 'basil-pesto',
+    name: 'Basil Pesto',
+    section: 'toast',
+    emoji: '🌿',
+    yield: '2 QTs',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '16 oz basil'],
+      ['', '32 oz spinach'],
+      ['', '4 cups grated parmesan cheese'],
+      ['', '1 tbsp ground black pepper'],
+      ['', '2 cups extra virgin olive oil'],
+      ['', '2 cups canola oil blend'],
+    ],
+    steps: [
+      'Put the grated parmesan cheese in the food processor.',
+      'Add ground black pepper.',
+      'Add half of the basil and spinach.',
+      'Slowly add oils ONLY until there is room to add the rest of the basil and spinach. ⚠️ Do not add too much oil too soon — it will emulsify into a thick paste.',
+      'Add remaining basil and spinach. Continue adding oils until everything is well combined.',
+      'Store basil pesto in quart containers in the freezer and defrost as needed.',
+    ]
+  },
+  {
+    id: 'chili-oil-toast',
+    name: 'Chili Oil',
+    section: 'toast',
+    emoji: '🌶️',
+    yield: '1 gallon',
+    prepTime: '1 hour',
+    ingredients: [
+      ['', '1 gallon canola oil blend (1 full bottle)'],
+      ['', '1 cup red pepper flakes'],
+    ],
+    steps: [
+      'In a LARGE pot, pour the whole bottle of canola oil blend. Do NOT throw away the bottle.',
+      'Heat oil on heat setting "10" for 15 minutes, then remove from heat.',
+      'Add 1 cup of red pepper flakes.',
+      'Leave the pot on the hot plate at setting "1", or place on top of the cheese melter for 45 minutes to steep.',
+      'After steeping, strain pepper flakes out of the oil.',
+      'Let cool and store in the original bottle. Label and date.',
+    ]
+  },
+  {
+    id: 'crab-how-to-pack',
+    name: 'Crab – How to Pack',
+    section: 'toast',
+    emoji: '🦀',
+    yield: '8 portions of 2oz',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '1 can of crab'],
+    ],
+    steps: [
+      'Open can of crab and put into a 1/6S container.',
+      'Place plastic wrap over the scale to avoid cross-contamination.',
+      'Tare a 4oz cup to weight 0.',
+      'Weigh crab out to 2oz per portion (within ±0.05oz is fine).',
+      'Label 4oz lids with the date opened and expiry date.',
+      'Store in a 1/6T container. Place backup portions in a 1/3 pan in the refrigerator.',
+    ]
+  },
+  {
+    id: 'cream-cheese-spread',
+    name: 'Cream Cheese Spread',
+    section: 'toast',
+    emoji: '🧀',
+    yield: '1 × 1/6 Tall Pan',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '1 tub whipped cream cheese (3 lbs)'],
+      ['', '1.5 lemons, zested'],
+      ['', '2 tbsp scallions, thinly sliced'],
+      ['', '2 tbsp dill, finely chopped'],
+      ['', '¼ tsp cracked black pepper'],
+    ],
+    steps: [
+      'In a bowl, combine all ingredients and mix until well incorporated.',
+      'Transfer to 1 tall 1/6 pan. Wrap with plastic, date, and initial.',
+    ]
+  },
+  {
+    id: 'grated-cheese',
+    name: 'Grated Cheese (Swiss & Fontina)',
+    section: 'toast',
+    emoji: '🧀',
+    yield: '6 × 1/6 Tall Pans',
+    prepTime: '20 min',
+    ingredients: [
+      ['', '1 block Swiss cheese (~8 lbs)'],
+      ['', '1 block Fontina cheese (~6 lbs)'],
+    ],
+    steps: [
+      'Set up the food processor. For the blade disk, use the side with the BIGGER holes for grated cheese.',
+      'Cut Swiss and Fontina blocks small enough to fit the top of the food processor slot.',
+      'Alternate grating Swiss and Fontina at a 50/50 ratio. Repeat until the food processor is full.',
+      'Transfer grated cheese to a tall 1/6 pan. Continue grating until the desired preparation amount is reached.',
+      'Wrap containers with plastic wrap, label, date, and initial. Store under the toast station.',
+    ]
+  },
+  {
+    id: 'hard-boiled-eggs',
+    name: 'Hard Boiled Eggs',
+    section: 'toast',
+    emoji: '🥚',
+    yield: '10–15 eggs',
+    prepTime: '20 min',
+    ingredients: [
+      ['', '10–15 eggs'],
+      ['', 'Water'],
+    ],
+    steps: [
+      'In a medium pot, fill with water and bring to a boil.',
+      'Once boiling, put eggs in GENTLY.',
+      'Set timer for 15 minutes.',
+      'After 15 minutes, crack one egg open to ensure the yolk is fully cooked (one solid yellow color). If not, leave boiling for another 3–5 minutes.',
+      'Remove from heat and give eggs an ice bath.',
+      'Once cooled, peel eggs carefully to ensure no chunks are taken out. Dip peeled egg in water to remove any shell fragments.',
+      'Place a paper towel at the bottom of a tall 1/6 pan. Stack eggs gently.',
+      'Plastic wrap, label, date, initial, and place under toast station.',
+    ]
+  },
+  {
+    id: 'herb-aioli',
+    name: 'Herb Aioli',
+    section: 'toast',
+    emoji: '🌿',
+    yield: '1.5 QT',
+    prepTime: '20 min',
+    ingredients: [
+      ['A – Blend', '3 garlic cloves, medium size'],
+      ['A – Blend', '½ cup Dijon mustard'],
+      ['A – Blend', '½ cup honey'],
+      ['A – Blend', '¼ cup white vinegar'],
+      ['A – Blend', '½ oz parsley (~½ cup), roughly chopped'],
+      ['B – Drizzle in', '3 cups canola oil blend'],
+      ['B – Drizzle in', '1 cup extra virgin olive oil'],
+      ['B – Drizzle in', '½ tsp kosher salt'],
+      ['B – Drizzle in', '5 turns black pepper mill'],
+    ],
+    steps: [
+      'In a blender, combine A and blend on setting #1 until everything is well incorporated.',
+      'Remove the small cap from the blender top. Trickle in B while blending on medium speed (18–25%). Ensure oil goes in slowly. Blend until thick and aioli/mayonnaise consistency — about 5–7 minutes.',
+      'Transfer to quart containers. Label, date, and initial.',
+      'Store under the toast station lowboy.',
+    ]
+  },
+  {
+    id: 'hummus-toast',
+    name: 'Hummus',
+    section: 'toast',
+    emoji: '🫘',
+    yield: '1½ QT',
+    prepTime: '15 min',
+    ingredients: [
+      ['', '½ can chickpeas/garbanzo (#10 can or 6 cups, rinsed and drained)'],
+      ['', '3 cloves garlic, minced'],
+      ['', '¼ cup tahini paste'],
+      ['', '¼ cup lemon juice'],
+      ['', '½ cup extra virgin olive oil'],
+      ['', '1 tbsp cumin powder'],
+      ['', '1 tbsp kosher salt'],
+      ['', '½ tsp ground black pepper'],
+      ['', '½ cup + 2 tbsp water'],
+    ],
+    steps: [
+      'In a food processor, combine all ingredients and blend until smooth.',
+      'Add more salt and cumin powder if needed.',
+      'Transfer to quart containers and label. Date and initial.',
+      'Store under the toast station lowboy.',
+    ]
+  },
+  {
+    id: 'marinated-cherry-tomatoes',
+    name: 'Marinated Cherry Tomatoes',
+    section: 'toast',
+    emoji: '🍅',
+    yield: '3 × 1/6 Tall Pans (6 QT)',
+    prepTime: '30 min',
+    ingredients: [
+      ['', '3 tall 1/6 pans sliced cherry tomatoes (or one 10 lb case)'],
+      ['', '½ cup red onions, thinly sliced (half-moon on mandolin)'],
+      ['', '1 tbsp kosher salt'],
+      ['', '2 tbsp fresh thyme, picked'],
+      ['', '2 tsp dried oregano'],
+      ['', '1 cup red wine vinegar'],
+      ['', '1½ cups extra virgin olive oil'],
+      ['', '1 cup olive oil blend'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Combine all ingredients in a large mixing bowl.',
+      'Add more salt and black pepper if needed.',
+      'Evenly distribute the tomatoes into tall 1/6 pans. Pour remaining liquid evenly on top.',
+    ]
+  },
+  {
+    id: 'onion-jam',
+    name: 'Onion Jam',
+    section: 'toast',
+    emoji: '🧅',
+    yield: '1/6 Short Pan',
+    prepTime: '30–40 min',
+    ingredients: [
+      ['', '6 large sweet onions'],
+      ['', '6 tbsp extra virgin olive oil'],
+      ['', '6 tbsp butter'],
+      ['', '9 cloves garlic, peeled & roasted'],
+      ['', '¾ cup packed brown sugar'],
+      ['', '½ cup + 1 tbsp balsamic vinegar'],
+      ['', '1 tsp ground black pepper'],
+    ],
+    steps: [
+      'Peel onions and roughly chop for a variety of sizes.',
+      'Place olive oil and butter in a medium saucepan over medium-high heat (setting "7").',
+      'Add onions and cook for 5 minutes until soft and translucent.',
+      'Roast garlic cloves in the cheese melter until golden brown. Add them to the pan. Continue cooking for 10–15 minutes until caramelized.',
+      'Add brown sugar, balsamic vinegar, and black pepper. Reduce heat to setting "2". Cook, stirring often, for another 15–20 minutes until the mixture is thick and deep golden.',
+      'Cool and refrigerate. Freeze any you\'ll be storing for over a week.',
+    ]
+  },
+  {
+    id: 'pickled-red-onions',
+    name: 'Pickled Red Onions',
+    section: 'toast',
+    emoji: '🧅',
+    yield: '1 × 1/6 Tall Pan',
+    prepTime: '20 min',
+    tag: 'Shelf life: 30 days',
+    ingredients: [
+      ['Onions', '1 tall 1/6 pan sliced red onions (thinly sliced in half-moons on mandoline)'],
+      ['A – Pickling Liquid', '5 cups white vinegar'],
+      ['A – Pickling Liquid', '1 cup sugar'],
+      ['A – Pickling Liquid', '1 tbsp kosher salt'],
+      ['B – Herb Pouch', '1 tbsp whole black peppercorns'],
+      ['B – Herb Pouch', '1 sprig fresh thyme'],
+    ],
+    steps: [
+      'In a medium pot, combine all pickling liquid ingredients (A). Bring to a boil, then turn off heat.',
+      'Pour hot pickling liquid over the tall 1/6 pan of sliced onions.',
+      'Submerge the herb pouch (B) into the pan. Let cool.',
+      'Store in the fridge once cooled. Label and date.',
+    ]
+  },
+  {
+    id: 'ricotta-cheese',
+    name: 'Ricotta Cheese',
+    section: 'toast',
+    emoji: '🧀',
+    yield: '1 × 1/6 Tall Pan',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '1 tub ricotta cheese (5 lb container)'],
+      ['', '1¼ cup basil, roughly chopped'],
+      ['', '¾ tsp ground black pepper'],
+    ],
+    steps: [
+      'Combine everything in a bowl and mix well.',
+      'Transfer to a 1/6 pan or quart containers. Label, date, and initial.',
+    ]
+  },
+  {
+    id: 'roasted-chicken-salad',
+    name: 'Roasted Chicken Salad',
+    section: 'toast',
+    emoji: '🐔',
+    yield: '1 × 1/6 Short Pan',
+    prepTime: '20 min',
+    tag: 'Shelf life: 5 days',
+    ingredients: [
+      ['Salad Mix', '1 cup mayonnaise'],
+      ['Salad Mix', '2 tbsp dill, chopped'],
+      ['Salad Mix', '2 tbsp parsley, chopped'],
+      ['Salad Mix', '2 tsp lemon zest'],
+      ['Salad Mix', '1 tsp paprika'],
+      ['Salad Mix', '½ cup celery, diced'],
+      ['Salad Mix', '½ cup green apple, diced'],
+      ['Salad Mix', '2 scallions, sliced on bias'],
+      ['Salad Mix', '¼ cup toasted walnuts'],
+      ['Salad Mix', '½ tsp salt + ½ tsp cracked pepper'],
+      ['Chicken', '6 chicken breasts, fully thawed, diced into ½" pieces'],
+      ['To Serve', 'Toasted sourdough · 2–3 bibb lettuce · 4 tomato slices · 2 scoops chicken salad · chopped walnuts · microgreens'],
+    ],
+    steps: [
+      'Fully thaw frozen chicken breasts. Dice into ½-inch pieces.',
+      'In a small mixing bowl, combine all Salad Mix ingredients (except chicken) and mix thoroughly.',
+      'Add diced chicken and mix thoroughly again.',
+      'Transfer into a half 6 pan container to store.',
+      'To serve: toast sourdough, layer 2–3 bibb lettuce leaves, 4 tomato slices, 2 scoops of chicken salad, sprinkle chopped walnuts, and top with microgreens.',
+    ]
+  },
+  {
+    id: 'salmon-how-to-pack',
+    name: 'Salmon – How to Pack',
+    section: 'toast',
+    emoji: '🐟',
+    yield: '2.8oz portions',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '1 pack of salmon'],
+    ],
+    steps: [
+      'Open salmon by cutting around the edges of the pack. Remove salmon from packaging.',
+      'Wrap scale with saran wrap and weigh 2.8oz portions.',
+      'Place into a 1/6T container with each portion separated by deli paper.',
+      '⚠️ Don\'t press down on salmon so pieces don\'t stick and stay fresh. Avoid breaking pieces to reach weight — mix small and large pieces if needed instead.',
+      'Label the 1/6T pan with the date the salmon was opened.',
+    ]
+  },
+  {
+    id: 'sous-vide-eggs',
+    name: 'Sous Vide Eggs',
+    section: 'toast',
+    emoji: '🥚',
+    yield: '15–30 eggs',
+    prepTime: '1 hour',
+    tag: 'Shelf life: 7 days',
+    ingredients: [
+      ['', '15–30 raw eggs'],
+      ['', 'Water'],
+    ],
+    steps: [
+      'In a 1/3 deep metal pan or plastic Cambro, lay eggs down carefully. MAKE SURE NOT TO CRACK EGGS.',
+      'Fill pan with water until eggs are completely covered.',
+      'Attach the Sous Vide machine.',
+      'Set temperature to 142.5°F / 61°C. Press start. Water should begin swirling and temperature should rise.',
+      'Once water reaches the right temperature, the machine will beep. Set timer for 55 minutes.',
+      'After 55 minutes, crack one egg into a container to check: the whites shouldn\'t be too runny and should hold their shape. If not ready, leave for another 10–15 minutes.',
+      'Drain water and give eggs an ice bath.',
+      'Once cooled, completely drain water. Transfer to a clean plastic Cambro.',
+      'Label and store in the back-of-house fridge.',
+    ]
+  },
+  {
+    id: 'sriracha-aioli',
+    name: 'Sriracha Aioli',
+    section: 'toast',
+    emoji: '🌶️',
+    yield: '1 QT',
+    prepTime: '10 min',
+    ingredients: [
+      ['', '4 cups mayonnaise'],
+      ['', '2 cups sriracha'],
+      ['', '2 tbsp lime juice'],
+      ['', '½ tsp kosher salt'],
+      ['', '5 turns of cracked black pepper'],
+    ],
+    steps: [
+      'In a medium bowl, combine all ingredients with a whisk and mix well.',
+      'Transfer to a quart container and label. Date and initial on tape.',
+    ]
+  },
+  {
+    id: 'tarragon-aioli',
+    name: 'Tarragon Aioli',
+    section: 'toast',
+    emoji: '🌿',
+    yield: '2 QT',
+    ingredients: [
+      ['', '2 QT mayonnaise'],
+      ['', '¼ cup tarragon, finely chopped'],
+      ['', '¼ cup agave'],
+      ['', '¾ cup Dijon mustard'],
+      ['', '½ tsp onion powder'],
+      ['', '½ tsp kosher salt'],
+      ['', '½ tsp ground black pepper'],
+    ],
+    steps: [
+      'In a bowl, combine everything and mix until well incorporated.',
+      'Transfer to a quart container and label. Date and initial.',
+    ]
+  },
+  {
+    id: 'toasty-seasoning',
+    name: 'Toasty Seasoning',
+    section: 'toast',
+    emoji: '🫙',
+    yield: '¼ QT',
+    prepTime: '5 min',
+    tag: 'Everything Bagel Blend',
+    ingredients: [
+      ['', '4 oz dried onion flakes'],
+      ['', '2 oz poppy seeds'],
+      ['', '4 oz toasted sesame seeds'],
+      ['', '2 oz garlic powder'],
+      ['', '1 oz kosher salt'],
+    ],
+    steps: [
+      'Combine all ingredients in a pan. Use 2oz and 4oz cups to measure — NOT a scale.',
+      'Pour into a shaker.',
+      'Store any leftovers in a quart container.',
+      'Place white tape on top and label with name, date, and initials. Store in a cool dry place.',
+    ]
+  },
+  {
+    id: 'tuscan-tuna',
+    name: 'Tuscan Tuna',
+    section: 'toast',
+    emoji: '🐟',
+    yield: '1½ × 1/6 Tall Pans',
+    prepTime: '30 min',
+    ingredients: [
+      ['A – Vegetables', '¼ cup capers'],
+      ['A – Vegetables', '1 cup red tomatoes, small diced'],
+      ['A – Vegetables', '1 cup yellow tomatoes, small diced'],
+      ['A – Vegetables', '1½ cup celery, small diced'],
+      ['A – Vegetables', '½ cup sundried tomatoes, chopped'],
+      ['A – Vegetables', '2 whole scallions, finely sliced'],
+      ['A – Vegetables', '4 tbsp dill, chopped'],
+      ['A – Vegetables', '3 tbsp parsley, chopped'],
+      ['A – Vegetables', '2 tsp lemon zest (~1 medium lemon)'],
+      ['A – Vegetables', '1 tsp onion powder'],
+      ['B – Tuna', '1 can (4 lbs) chunk tuna, well drained'],
+      ['C – Dressing', '¾ cup extra virgin olive oil'],
+      ['C – Dressing', '½ cup balsamic glaze'],
+      ['C – Dressing', '¼ cup Herb Aioli'],
+      ['C – Dressing', '2 tsp kosher salt'],
+      ['C – Dressing', '5 turns black pepper mill'],
+    ],
+    steps: [
+      'Open the canned tuna and pour into a colander/strainer. Let drip slowly. Gently push to remove excess water — do NOT mash or force.',
+      'Combine A (all vegetables) in a LARGE bowl. Using your hands, gently mix everything together.',
+      'Add B (drained tuna) and gently mix until well combined.',
+      'Add C (dressing ingredients). DO NOT OVERMIX.',
+      'Transfer to tall 1/6 pans. Wrap with plastic wrap. Label, date, and initial.',
+    ]
+  },
+];
+
+// ─────────────────────────────────────────
+// GROUPS (pre-defined recipe bundles)
+// ─────────────────────────────────────────
+const DEFAULT_GROUPS = [
+  {
+    id: 'matcha-cups',
+    name: 'Matcha Cups',
+    section: 'treats',
+    emoji: '🍵',
+    description: 'Filling + Assembly',
+    recipeIds: ['matcha-cup-filling', 'matcha-cup-assembly']
+  },
+  {
+    id: 'pb-cups',
+    name: 'Peanut Butter Cups',
+    section: 'treats',
+    emoji: '🍫',
+    description: 'Filling + Assembly',
+    recipeIds: ['peanut-butter-cup-filling', 'pb-ab-cup-assembly']
+  },
+  {
+    id: 'ab-cups',
+    name: 'Almond Butter Cups',
+    section: 'treats',
+    emoji: '🌰',
+    description: 'Filling + Assembly',
+    recipeIds: ['almond-butter-cup-filling', 'pb-ab-cup-assembly']
+  },
+  {
+    id: 'energy-balls',
+    name: 'Energy Balls',
+    section: 'treats',
+    emoji: '⚡',
+    description: '4 varieties',
+    recipeIds: ['pb-energy-balls', 'espresso-energy-balls', 'oatmeal-craisin-energy-balls', 'coconut-tahini-protein-balls']
+  },
+  {
+    id: 'chia-puddings',
+    name: 'Chia Puddings',
+    section: 'parfaits',
+    emoji: '🫐',
+    description: '6 flavors',
+    recipeIds: ['blueberry-chia-pudding','coconut-cream-chia','mango-tango-chia-pudding','matcha-chia-pudding','pb-banana-cacao-chia-pudding','strawberry-cream-chia-pudding']
+  },
+  {
+    id: 'yogurt-parfaits',
+    name: 'Yogurt Parfaits',
+    section: 'parfaits',
+    emoji: '🍓',
+    description: 'Classic + Unicorn',
+    recipeIds: ['unicorn-yogurt-parfait', 'yogurt-parfait']
+  },
+  {
+    id: 'wellness-shots',
+    name: 'Wellness Shots',
+    section: 'blender',
+    emoji: '💉',
+    description: '5 varieties',
+    recipeIds: ['refresh-shot','immunity-plus-shot','vita-c-punch-shot','booster-shot','detox-shot']
+  },
+  {
+    id: 'peanut-butter-prep',
+    name: 'Peanut Butter Prep',
+    section: 'blender',
+    emoji: '🥜',
+    description: 'Bowl · Toast · Drizzle',
+    recipeIds: ['pb-bowls-smoothies','pb-toast','pb-drizzle']
+  },
+  {
+    id: 'spice-blends',
+    name: 'Spice Blends',
+    section: 'blender',
+    emoji: '🫙',
+    description: 'Chai · Turmeric · Mulling',
+    recipeIds: ['chai-spice-blend','turmeric-spice-blend','mulling-spice']
+  },
+  {
+    id: 'seasonal-juices',
+    name: 'Seasonal Juices',
+    section: 'blender',
+    emoji: '🍐',
+    description: 'Apple · Asian Pear',
+    recipeIds: ['spiced-apple-juice','spiced-asian-pear-juice']
+  },
+];
+
+// ─────────────────────────────────────────
+// PERSISTENCE (localStorage)
+// ─────────────────────────────────────────
+function loadState() {
+  try {
+    const saved = localStorage.getItem('toastique_recipes');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return { recipes: [...RECIPES], groups: [...DEFAULT_GROUPS] };
+}
+function saveState() {
+  localStorage.setItem('toastique_recipes', JSON.stringify({ recipes: ACTIVE_RECIPES, groups: ACTIVE_GROUPS }));
+}
+function resetToDefaults() {
+  if (!confirm('Reset all recipes to the original defaults? Any added/edited recipes will be lost.')) return;
+  localStorage.removeItem('toastique_recipes');
+  ACTIVE_RECIPES = [...RECIPES];
+  ACTIVE_GROUPS = [...DEFAULT_GROUPS];
+  render();
+  alert('Reset complete!');
+}
+function exportData() {
+  const data = JSON.stringify({ recipes: ACTIVE_RECIPES, groups: ACTIVE_GROUPS }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'toastique_recipes_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.recipes) throw new Error('Invalid format');
+      ACTIVE_RECIPES = data.recipes;
+      ACTIVE_GROUPS = data.groups || [];
+      saveState();
+      render();
+      alert('Imported ' + ACTIVE_RECIPES.length + ' recipes successfully!');
+    } catch(err) {
+      alert('Import failed: ' + err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────
+// MUTABLE STATE
+// ─────────────────────────────────────────
+const _saved = loadState();
+let ACTIVE_RECIPES = _saved.recipes;
+let ACTIVE_GROUPS = _saved.groups;
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let currentSection = 'all';
+let currentRecipe = null;
+let currentGroup = null;
+let currentView = 'steps';
+let currentStep = 0;
+let adminMode = false;
+let editingRecipeId = null;
+
+const SECTIONS = {
+  treats:   { label: '🍫 Treats',          color: '#6b4c2a' },
+  parfaits: { label: '🥛 Parfaits & Chia', color: '#9c4f96' },
+  salads:   { label: '🥗 Salads & Bowls',  color: '#3a7d44' },
+  dressings:{ label: '🫙 Dressings',       color: '#c97d00' },
+  soups:    { label: '🍲 Soups',           color: '#c0392b' },
+  blender:  { label: '🥤 Blender Prep',    color: '#1565c0' },
+  toast:    { label: '🍞 Toast Prep',      color: '#e65100' },
+};
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+function getFilteredRecipes() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  return ACTIVE_RECIPES.filter(r => {
+    const matchSection = currentSection === 'all' || r.section === currentSection;
+    const matchSearch = !q || r.name.toLowerCase().includes(q) ||
+      (r.tag && r.tag.toLowerCase().includes(q)) ||
+      (r.ingredients && r.ingredients.some(i => i[1].toLowerCase().includes(q)));
+    return matchSection && matchSearch;
+  });
+}
+
+function getGroupedRecipeIds() {
+  // Returns Set of recipe IDs that belong to a visible group
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const ids = new Set();
+  if (q) return ids; // when searching, show individual recipes not groups
+  ACTIVE_GROUPS.forEach(g => {
+    const sectionMatch = currentSection === 'all' || g.section === currentSection;
+    if (sectionMatch) g.recipeIds.forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function render() {
+  const filtered = getFilteredRecipes();
+  const groupedIds = getGroupedRecipeIds();
+  const main = document.getElementById('mainContent');
+
+  // Group by section
+  const bySection = {};
+
+  // Add group cards first
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!q) {
+    ACTIVE_GROUPS.forEach(g => {
+      const sectionMatch = currentSection === 'all' || g.section === currentSection;
+      if (!sectionMatch) return;
+      if (!bySection[g.section]) bySection[g.section] = [];
+      bySection[g.section].push({ _isGroup: true, ...g });
+    });
+  }
+
+  // Add individual recipes not in any visible group
+  filtered.forEach(r => {
+    if (groupedIds.has(r.id)) return;
+    if (!bySection[r.section]) bySection[r.section] = [];
+    bySection[r.section].push(r);
+  });
+
+  // Sort each section (groups first, then alphabetical)
+  Object.keys(bySection).forEach(sec => {
+    bySection[sec].sort((a, b) => {
+      if (a._isGroup && !b._isGroup) return -1;
+      if (!a._isGroup && b._isGroup) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  });
+
+  if (Object.keys(bySection).length === 0) {
+    main.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>No recipes found</p></div>`;
+    return;
+  }
+
+  const sectionOrder = ['treats','parfaits','salads','dressings','soups','blender','toast'];
+  let html = '';
+  sectionOrder.forEach(sec => {
+    if (!bySection[sec]) return;
+    const info = SECTIONS[sec];
+    html += `<div class="section-header">${info.label} <span class="recipe-count">${bySection[sec].length}</span></div>`;
+    html += `<div class="recipe-grid">`;
+    bySection[sec].forEach(r => {
+      if (r._isGroup) {
+        html += `
+          <div class="recipe-card" onclick="openGroup('${r.id}')">
+            <div class="card-emoji">${r.emoji}</div>
+            <div class="card-body">
+              <div class="card-name">${r.name}</div>
+              <div class="card-meta">${r.description || ''}</div>
+              <span class="group-badge">📦 ${r.recipeIds.length} recipes</span>
+            </div>
+            ${adminMode ? `<button class="card-edit" onclick="event.stopPropagation();openGroupForm('${r.id}')">✏</button><button class="card-delete" onclick="event.stopPropagation();deleteGroup('${r.id}')">✕</button>` : ''}
+          </div>`;
+      } else {
+        html += `
+          <div class="recipe-card${r.missing ? ' missing' : ''}" onclick="openRecipe('${r.id}')">
+            <div class="card-emoji">${r.emoji}</div>
+            <div class="card-body">
+              <div class="card-name">${r.name}</div>
+              <div class="card-meta">${r.prepTime || ''} ${r.yield ? '· ' + r.yield : ''}</div>
+              ${r.tag ? `<span class="card-tag">${r.tag}</span>` : ''}
+            </div>
+            ${adminMode ? `<button class="card-edit" onclick="event.stopPropagation();openRecipeForm('${r.id}')">✏</button><button class="card-delete" onclick="event.stopPropagation();confirmDeleteRecipe('${r.id}')">✕</button>` : ''}
+          </div>`;
+      }
+    });
+    html += `</div>`;
+  });
+  main.innerHTML = html;
+}
+
+// ─────────────────────────────────────────
+// FILTER
+// ─────────────────────────────────────────
+function filterSection(section, btn) {
+  currentSection = section;
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function filterRecipes() { render(); }
+
+// ─────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────
+function toggleAdmin() {
+  adminMode = !adminMode;
+  const btn = document.getElementById('adminBtn');
+  btn.textContent = adminMode ? '🔓 Admin ON' : '🔒 Admin';
+  btn.classList.toggle('active', adminMode);
+  document.body.classList.toggle('admin-active', adminMode);
+  render();
+}
+
+// ─────────────────────────────────────────
+// RECIPE FORM (Add / Edit)
+// ─────────────────────────────────────────
+function openRecipeForm(id) {
+  editingRecipeId = id;
+  const r = id ? ACTIVE_RECIPES.find(x => x.id === id) : null;
+  document.getElementById('formTitle').textContent = r ? 'Edit Recipe' : 'Add Recipe';
+  document.getElementById('fName').value = r ? r.name : '';
+  document.getElementById('fEmoji').value = r ? r.emoji : '🍴';
+  document.getElementById('fSection').value = r ? r.section : 'treats';
+  document.getElementById('fYield').value = r ? (r.yield || '') : '';
+  document.getElementById('fPrepTime').value = r ? (r.prepTime || '') : '';
+  document.getElementById('fTag').value = r ? (r.tag || '') : '';
+  document.getElementById('btnDeleteRecipe').style.display = r ? 'block' : 'none';
+
+  // Ingredients
+  const ingList = document.getElementById('ingList');
+  ingList.innerHTML = '';
+  const ings = r ? r.ingredients : [['', '']];
+  ings.forEach(([grp, item]) => addIngRow(grp, item));
+
+  // Steps
+  const stepList = document.getElementById('stepList');
+  stepList.innerHTML = '';
+  const steps = r ? r.steps : [''];
+  steps.forEach(s => addStepRow(s));
+
+  document.getElementById('formOverlay').classList.add('open');
+}
+
+function closeRecipeForm() {
+  document.getElementById('formOverlay').classList.remove('open');
+  editingRecipeId = null;
+}
+
+function addIngRow(grp = '', item = '') {
+  const li = document.createElement('li');
+  li.innerHTML = `<input type="text" placeholder="Group (optional)" value="${escHtml(grp)}" style="max-width:130px">
+    <input type="text" placeholder="Ingredient" value="${escHtml(item)}" style="flex:1">
+    <button onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('ingList').appendChild(li);
+}
+
+function addStepRow(text = '') {
+  const li = document.createElement('li');
+  li.innerHTML = `<input type="text" placeholder="Step description" value="${escHtml(text)}" style="flex:1">
+    <button onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('stepList').appendChild(li);
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function saveRecipeForm() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { alert('Recipe name is required.'); return; }
+
+  const ingItems = [...document.getElementById('ingList').querySelectorAll('li')].map(li => {
+    const inputs = li.querySelectorAll('input');
+    return [inputs[0].value.trim(), inputs[1].value.trim()];
+  }).filter(([, item]) => item);
+
+  const steps = [...document.getElementById('stepList').querySelectorAll('li input')]
+    .map(i => i.value.trim()).filter(Boolean);
+
+  const recipe = {
+    id: editingRecipeId || name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
+    name,
+    emoji: document.getElementById('fEmoji').value || '🍴',
+    section: document.getElementById('fSection').value,
+    yield: document.getElementById('fYield').value.trim(),
+    prepTime: document.getElementById('fPrepTime').value.trim(),
+    tag: document.getElementById('fTag').value.trim(),
+    ingredients: ingItems,
+    steps,
+  };
+
+  if (editingRecipeId) {
+    const idx = ACTIVE_RECIPES.findIndex(r => r.id === editingRecipeId);
+    if (idx !== -1) ACTIVE_RECIPES[idx] = recipe;
+  } else {
+    ACTIVE_RECIPES.push(recipe);
+  }
+
+  saveState();
+  closeRecipeForm();
+  render();
+}
+
+function confirmDeleteRecipe(id) {
+  if (!confirm('Delete this recipe?')) return;
+  ACTIVE_RECIPES = ACTIVE_RECIPES.filter(r => r.id !== id);
+  saveState();
+  render();
+}
+
+function deleteCurrentRecipe() {
+  if (!editingRecipeId) return;
+  if (!confirm('Delete this recipe? This cannot be undone.')) return;
+  ACTIVE_RECIPES = ACTIVE_RECIPES.filter(r => r.id !== editingRecipeId);
+  // Also remove from any groups
+  ACTIVE_GROUPS.forEach(g => { g.recipeIds = g.recipeIds.filter(id => id !== editingRecipeId); });
+  saveState();
+  closeRecipeForm();
+  render();
+}
+
+// ─────────────────────────────────────────
+// GROUP (open group → pick sub-recipe)
+// ─────────────────────────────────────────
+function openGroup(groupId) {
+  const group = ACTIVE_GROUPS.find(g => g.id === groupId);
+  if (!group) return;
+  currentGroup = group;
+
+  document.getElementById('modalTitle').textContent = group.emoji + ' ' + group.name;
+  document.getElementById('modalMeta').textContent = group.description || '';
+  document.getElementById('viewChoice').style.display = 'none';
+
+  const subRecipes = group.recipeIds.map(id => ACTIVE_RECIPES.find(r => r.id === id)).filter(Boolean);
+  let html = '<div class="sub-recipe-list">';
+  subRecipes.forEach(r => {
+    html += `<button class="sub-recipe-btn" onclick="openSubRecipe('${r.id}')">
+      <span class="sub-emoji">${r.emoji}</span>
+      <div class="sub-info">
+        <div class="sub-name">${r.name}</div>
+        <div class="sub-meta">${[r.prepTime, r.yield].filter(Boolean).join(' · ')}</div>
+      </div>
+      <span style="color:var(--text-light)">›</span>
+    </button>`;
+  });
+  html += '</div>';
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openSubRecipe(id) {
+  currentGroup = null;
+  openRecipe(id, true);
+}
+
+function openGroupForm(groupId) {
+  // Simple prompt-based group editing (could be expanded)
+  const g = ACTIVE_GROUPS.find(x => x.id === groupId);
+  if (!g) return;
+  const newName = prompt('Group name:', g.name);
+  if (newName === null) return;
+  const newIds = prompt('Recipe IDs (comma-separated):', g.recipeIds.join(','));
+  if (newIds === null) return;
+  g.name = newName.trim();
+  g.recipeIds = newIds.split(',').map(s => s.trim()).filter(Boolean);
+  saveState();
+  render();
+}
+
+function deleteGroup(groupId) {
+  if (!confirm('Remove this group? The individual recipes will still exist.')) return;
+  ACTIVE_GROUPS = ACTIVE_GROUPS.filter(g => g.id !== groupId);
+  saveState();
+  render();
+}
+
+// ─────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────
+function openRecipe(id, fromGroup = false) {
+  currentRecipe = ACTIVE_RECIPES.find(r => r.id === id);
+  if (!currentRecipe) return;
+  currentView = 'steps';
+  currentStep = 0;
+
+  document.getElementById('modalTitle').textContent = currentRecipe.emoji + ' ' + currentRecipe.name;
+  const meta = [currentRecipe.yield, currentRecipe.prepTime, currentRecipe.tag].filter(Boolean).join(' · ');
+  document.getElementById('modalMeta').textContent = meta;
+
+  document.getElementById('btnStepByStep').classList.add('selected');
+  document.getElementById('btnFullRecipe').classList.remove('selected');
+
+  // Find parent group if any
+  const parentGroup = ACTIVE_GROUPS.find(g => g.recipeIds.includes(id));
+
+  if (currentRecipe.missing) {
+    document.getElementById('viewChoice').style.display = 'none';
+    const backBtn = parentGroup ? `<button class="back-btn" onclick="openGroup('${parentGroup.id}')">← Back to ${parentGroup.name}</button>` : '';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="recipe-full">
+        ${backBtn}
+        <div class="missing-note">
+          📖 This recipe's text could not be extracted from the PDF.<br>
+          Please refer to the original recipe book.
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('viewChoice').style.display = 'flex';
+    renderView(parentGroup);
+  }
+
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function setView(view) {
+  currentView = view;
+  currentStep = 0;
+  document.getElementById('btnStepByStep').classList.toggle('selected', view === 'steps');
+  document.getElementById('btnFullRecipe').classList.toggle('selected', view === 'full');
+  const parentGroup = ACTIVE_GROUPS.find(g => g.recipeIds.includes(currentRecipe?.id));
+  renderView(parentGroup);
+}
+
+function renderView(parentGroup) {
+  if (currentView === 'full') renderFullRecipe(parentGroup);
+  else renderStepByStep(parentGroup);
+}
+
+function renderFullRecipe(parentGroup) {
+  const r = currentRecipe;
+  const backBtn = parentGroup ? `<button class="back-btn" onclick="openGroup('${parentGroup.id}')">← Back to ${parentGroup.name}</button>` : '';
+  // Group ingredients
+  const groups = {};
+  r.ingredients.forEach(([grp, item]) => {
+    const key = grp || '__none__';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  let ingHTML = '';
+  Object.keys(groups).forEach(g => {
+    if (g !== '__none__') ingHTML += `<div class="group-label">${g}</div>`;
+    ingHTML += groups[g].map(i => `<li><span>${i}</span></li>`).join('');
+  });
+
+  const stepsHTML = r.steps.map((s,i) => `
+    <li><div class="step-num">${i+1}</div><div>${s}</div></li>`).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="recipe-full">
+      ${backBtn}
+      ${r.yield || r.prepTime ? `<div class="yield-row">
+        ${r.yield ? `<span>📦 ${r.yield}</span>` : ''}
+        ${r.prepTime ? `<span>⏱ ${r.prepTime}</span>` : ''}
+      </div>` : ''}
+      <h3>Ingredients</h3>
+      <ul class="ingredients-list">${ingHTML}</ul>
+      <h3>Directions</h3>
+      <ol class="steps-list">${stepsHTML}</ol>
+    </div>`;
+}
+
+function renderStepByStep(parentGroup) {
+  const r = currentRecipe;
+  const total = r.steps.length;
+  const isLast = currentStep >= total - 1;
+  const isDone = currentStep >= total;
+
+  // Dot progress
+  let dots = '';
+  for (let i = 0; i < total; i++) {
+    const cls = i < currentStep ? 'done' : i === currentStep ? 'current' : '';
+    dots += `<div class="step-dot ${cls}"></div>`;
+  }
+
+  if (isDone) {
+    document.getElementById('modalBody').innerHTML = `
+      <div class="step-view">
+        <div class="step-progress">${dots}</div>
+        <div class="step-complete">
+          <div class="done-icon">🎉</div>
+          <h3>Recipe Complete!</h3>
+          <p>All ${total} steps finished for<br><strong>${r.name}</strong></p>
+        </div>
+        <div class="step-nav">
+          <button class="btn-prev" onclick="goStep(0)">↩ Start Over</button>
+          <button class="btn-done" onclick="closeModalDirect()">✓ Done</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const backBtn = parentGroup ? `<button class="back-btn" onclick="openGroup('${parentGroup.id}')">← Back to ${parentGroup.name}</button>` : '';
+
+  // Show ingredients relevant to first step on step 0
+  const ingSection = currentStep === 0 ? `
+    <div class="step-ingredients">
+      <h4>You'll need</h4>
+      <ul>${r.ingredients.map(i => `<li>${i[1]}</li>`).join('')}</ul>
+    </div>` : '';
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="step-view">
+      ${backBtn}
+      <div class="step-progress">${dots}</div>
+      ${ingSection}
+      <div class="step-card">
+        <div class="step-label">Step ${currentStep + 1} of ${total}</div>
+        <div class="step-text">${r.steps[currentStep]}</div>
+      </div>
+      <div class="step-nav">
+        ${currentStep > 0 ? `<button class="btn-prev" onclick="goStep(${currentStep - 1})">← Back</button>` : `<div></div>`}
+        <span class="step-counter">${currentStep + 1} / ${total}</span>
+        <button class="btn-next" onclick="goStep(${currentStep + 1})">${isLast ? '✓ Finish' : 'Next →'}</button>
+      </div>
+    </div>`;
+}
+
+function goStep(n) {
+  currentStep = n;
+  renderStepByStep();
+  document.getElementById('modalBody').scrollTop = 0;
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('overlay')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
