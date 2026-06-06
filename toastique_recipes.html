@@ -3168,7 +3168,14 @@ function filterRecipes() { render(); }
 // ─────────────────────────────────────────
 // ADMIN
 // ─────────────────────────────────────────
-function toggleAdmin() {
+function toggleAdmin()  {
+  if (!adminMode) {
+    const pw = prompt('Enter admin password:');
+    if (pw !== 'Toastique2026') {
+      alert('Incorrect password.');
+      return;
+    }
+  }
   adminMode = !adminMode;
   const btn = document.getElementById('adminBtn');
   btn.textContent = adminMode ? '🔓 Admin ON' : '🔒 Admin';
