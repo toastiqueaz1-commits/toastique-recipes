@@ -293,6 +293,32 @@
   .prod-timer-inline { font-variant-numeric:tabular-nums; }
 
   /* ─── AI RECIPE SCAN in form ─────────────────────── */
+  /* Batch selector */
+  .batch-selector { display:flex; align-items:center; gap:6px; padding:10px 22px 0; flex-wrap:wrap; flex-shrink:0; }
+  .batch-label { font-size:0.72rem; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px; margin-right:2px; }
+  .batch-chip { background:#fff; border:1.5px solid var(--border); border-radius:20px; padding:4px 10px; font-size:0.78rem; font-weight:700; color:var(--text); cursor:pointer; transition:all 0.15s; }
+  .batch-chip.selected { background:var(--green); border-color:var(--green); color:#fff; }
+  .batch-chip:active { transform:scale(0.95); }
+
+  /* Initials form + running timer items */
+  .initials-form { display:flex; align-items:center; gap:8px; }
+  .initials-input { border:2px solid var(--green); border-radius:8px; padding:8px 12px; font-size:1rem; font-weight:700; width:80px; text-align:center; text-transform:uppercase; outline:none; }
+  .initials-input.error { border-color:#e53935; }
+  .prod-cancel-inline { background:none; border:none; font-size:1.2rem; color:var(--text-light); cursor:pointer; padding:4px 8px; }
+  .prod-running-list { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+  .prod-running-item { display:flex; align-items:center; gap:8px; background:#f8fdf8; border:1.5px solid var(--green); border-radius:10px; padding:7px 10px; }
+  .prod-running-item.warn { background:#fffde7; border-color:#ffe082; }
+  .prod-running-item.crit { background:#fff3e0; border-color:#ffb74d; }
+  .prod-running-item.dead { background:#ffebee; border-color:#ef9a9a; }
+  .prod-initials { font-size:0.78rem; font-weight:800; background:var(--green); color:#fff; border-radius:6px; padding:2px 7px; min-width:28px; text-align:center; flex-shrink:0; }
+  .prod-running-item.warn .prod-initials { background:#e65100; }
+  .prod-running-item.crit .prod-initials, .prod-running-item.dead .prod-initials { background:#c62828; }
+  .prod-countdown { flex:1; font-size:0.88rem; font-weight:700; font-variant-numeric:tabular-nums; }
+  .prod-countdown.warn { color:#e65100; }
+  .prod-countdown.crit, .prod-countdown.dead { color:#c62828; }
+  .prod-mini-done { background:#fff; border:1.5px solid var(--border); border-radius:6px; padding:3px 10px; font-size:0.8rem; cursor:pointer; flex-shrink:0; }
+  .start-prod-new { font-size:0.82rem !important; padding:7px 14px !important; }
+
   .scan-area { border:2px dashed var(--green); border-radius:10px; padding:14px; text-align:center; margin-bottom:14px; background:var(--green-light); }
   .scan-area p { font-size:0.76rem; color:var(--text-light); margin-top:5px; line-height:1.4; }
   .scan-btn { background:var(--green); color:#fff; border:none; border-radius:8px; padding:9px 18px; font-size:0.85rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
@@ -334,8 +360,9 @@
       <p id="modalMeta"></p>
     </div>
     <div class="modal-prod-wrap" id="modalProdWrap" style="display:none">
-      <button class="start-prod-btn" id="startProdBtn" onclick="toggleProduction()">▶ Start Production Timer</button>
+      <div id="prodBtnArea"></div>
     </div>
+    <div class="batch-selector" id="batchSelector" style="display:none"></div>
     <div class="view-choice" id="viewChoice">
       <button class="choice-btn selected" id="btnStepByStep" onclick="setView('steps')">
         <div class="choice-icon">👣</div>
@@ -3273,9 +3300,17 @@ let currentStep = 0;
 let adminMode = false;
 
 // Production timer state (initialized by loadProductionData() below)
-let productionLog = [];
-let activeTimers = {}; // recipeId → { startTime, recipeName, emoji }
-let _timerInterval = null;
+let productionLog    = [];
+let activeTimers     = {}; // timerKey → timer (key = recipeId+'|'+timestamp)
+let _timerInterval   = null;
+let currentBatchScale = 1;
+const BATCH_OPTIONS = [
+  { label:'¼×', value:0.25 }, { label:'½×', value:0.5  },
+  { label:'1×',  value:1   }, { label:'1½×', value:1.5 },
+  { label:'2×',  value:2   }, { label:'3×',  value:3   },
+  { label:'4×',  value:4   }, { label:'6×',  value:6   },
+  { label:'8×',  value:8   },
+];
 let editingRecipeId = null;
 
 // ─────────────────────────────────────────
@@ -3370,14 +3405,16 @@ function render() {
           </div>`;
       } else {
         const cardClick = (adminMode && r.missing) ? `openRecipeForm('${r.id}')` : `openRecipe('${r.id}')`;
-        const liveTimer = activeTimers[r.id];
+        const liveTimers = getTimersForRecipe(r.id);
+        const liveTimer  = liveTimers[0] || null;
         const liveStatus = liveTimer ? getTimerStatus(liveTimer.expiresAt) : null;
+        const liveCount  = liveTimers.length;
         html += `
           <div class="recipe-card${r.missing ? ' missing' : ''}" onclick="${cardClick}">
             <div class="card-thumb">
               ${r.photo ? `<img src="${r.photo}" alt="${r.name}" loading="lazy">` : `<span class="card-thumb-emoji">${r.emoji}</span>`}
               <div class="card-thumb-overlay"></div>
-              ${liveTimer ? `<div class="prod-live-dot ${liveStatus}">${liveStatus === 'dead' ? 'EXP' : 'LIVE'}</div>` : ''}
+              ${liveTimer ? `<div class="prod-live-dot ${liveStatus}">${liveStatus === 'dead' ? 'EXP' : liveCount > 1 ? liveCount+'×' : 'LIVE'}</div>` : ''}
             </div>
             <div class="card-body">
               <div class="card-name">${r.name}</div>
@@ -3611,12 +3648,23 @@ function deleteGroup(groupId) {
 function openRecipe(id, fromGroup = false) {
   currentRecipe = ACTIVE_RECIPES.find(r => r.id === id);
   if (!currentRecipe) return;
-  currentView = 'steps';
-  currentStep = 0;
+  currentView       = 'steps';
+  currentStep       = 0;
+  currentBatchScale = 1;
 
   document.getElementById('modalTitle').textContent = currentRecipe.emoji + ' ' + currentRecipe.name;
   const meta = [currentRecipe.yield, currentRecipe.prepTime, currentRecipe.tag].filter(Boolean).join(' · ');
   document.getElementById('modalMeta').textContent = meta;
+
+  // Render batch selector
+  const bs = document.getElementById('batchSelector');
+  if (bs) {
+    bs.style.display = 'flex';
+    bs.innerHTML = '<span class="batch-label">Batch:</span>' +
+      BATCH_OPTIONS.map(o =>
+        `<button class="batch-chip${o.value === 1 ? ' selected' : ''}" data-scale="${o.value}" onclick="setBatchScale(${o.value})">${o.label}</button>`
+      ).join('');
+  }
 
   document.getElementById('btnStepByStep').classList.add('selected');
   document.getElementById('btnFullRecipe').classList.remove('selected');
@@ -3675,7 +3723,7 @@ function renderFullRecipe(parentGroup) {
   let ingHTML = '';
   Object.keys(groups).forEach(g => {
     if (g !== '__none__') ingHTML += `<div class="group-label">${g}</div>`;
-    ingHTML += groups[g].map(i => `<li><span>${i}</span></li>`).join('');
+    ingHTML += groups[g].map(i => `<li><span>${scaleIngredient(i, currentBatchScale)}</span></li>`).join('');
   });
 
   const stepsHTML = r.steps.map((s,i) => `
@@ -3685,7 +3733,7 @@ function renderFullRecipe(parentGroup) {
     <div class="recipe-full">
       ${backBtn}
       ${r.yield || r.prepTime ? `<div class="yield-row">
-        ${r.yield ? `<span>📦 ${r.yield}</span>` : ''}
+        ${r.yield ? `<span>📦 ${currentBatchScale !== 1 ? scaleIngredient(r.yield, currentBatchScale)+' <em style="opacity:0.6;font-size:0.85em">(scaled)</em>' : r.yield}</span>` : ''}
         ${r.prepTime ? `<span>⏱ ${r.prepTime}</span>` : ''}
       </div>` : ''}
       <h3>Ingredients</h3>
@@ -3731,7 +3779,7 @@ function renderStepByStep(parentGroup) {
   const ingSection = currentStep === 0 ? `
     <div class="step-ingredients">
       <h4>You'll need</h4>
-      <ul>${r.ingredients.map(i => `<li>${i[1]}</li>`).join('')}</ul>
+      <ul>${r.ingredients.map(i => `<li>${scaleIngredient(i[1], currentBatchScale)}</li>`).join('')}</ul>
     </div>` : '';
 
   document.getElementById('modalBody').innerHTML = `
@@ -3958,6 +4006,54 @@ function formatCountdown(expiresAt) {
 }
 
 // ─────────────────────────────────────────
+// INGREDIENT SCALING
+// ─────────────────────────────────────────
+function scaleIngredient(text, scale) {
+  if (!text || scale === 1) return text;
+  const re = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)/;
+  const match = text.match(re);
+  if (!match) return text;
+  const raw = match[1].trim();
+  let num;
+  if (/\d+\s+\d+\/\d+/.test(raw)) {
+    const [w, f] = raw.split(/\s+/);
+    const [n, d] = f.split('/');
+    num = parseInt(w) + parseInt(n) / parseInt(d);
+  } else if (raw.includes('/')) {
+    const [n, d] = raw.split('/');
+    num = parseInt(n) / parseInt(d);
+  } else {
+    num = parseFloat(raw);
+  }
+  return text.replace(re, formatScaledNum(num * scale));
+}
+
+function formatScaledNum(n) {
+  if (!n || n <= 0) return '0';
+  const FRACS = [[1/8,'\u215b'],[1/4,'\u00bc'],[1/3,'\u2153'],[3/8,'\u215c'],[1/2,'\u00bd'],[5/8,'\u215d'],[2/3,'\u2154'],[3/4,'\u00be'],[7/8,'\u215e']];
+  const whole = Math.floor(n);
+  const frac  = n - whole;
+  if (frac < 0.07)  return String(Math.round(n));
+  if (frac > 0.93)  return String(whole + 1);
+  let best = null, bestDiff = Infinity;
+  for (const [val, sym] of FRACS) {
+    const diff = Math.abs(frac - val);
+    if (diff < bestDiff) { bestDiff = diff; best = sym; }
+  }
+  if (bestDiff > 0.09) return n.toFixed(1).replace(/\.0$/, '');
+  return whole > 0 ? whole + ' ' + best : best;
+}
+
+function setBatchScale(scale) {
+  currentBatchScale = scale;
+  document.querySelectorAll('.batch-chip').forEach(btn => {
+    btn.classList.toggle('selected', parseFloat(btn.dataset.scale) === scale);
+  });
+  const parentGroup = ACTIVE_GROUPS.find(g => g.recipeIds.includes(currentRecipe?.id));
+  renderView(parentGroup);
+}
+
+// ─────────────────────────────────────────
 // PRODUCTION TIMER SYSTEM
 // ─────────────────────────────────────────
 const MAX_PROD_LOG = 500;
@@ -3982,11 +4078,13 @@ function loadProductionData() {
           const t = saved[id];
           if (t && typeof t.startTime === 'number' && t.recipeName) {
             activeTimers[id] = {
+              recipeId:    t.recipeId || id.split('|')[0],
               startTime:   t.startTime,
-              expiresAt:   t.expiresAt || (t.startTime + 7 * 24 * 3600 * 1000), // fallback 7d
+              expiresAt:   t.expiresAt || (t.startTime + 7 * 24 * 3600 * 1000),
               expiryDays:  t.expiryDays || 7,
               recipeName:  t.recipeName,
-              emoji:       t.emoji || '🍴'
+              emoji:       t.emoji || '🍴',
+              initials:    t.initials || '?',
             };
           }
         });
@@ -4016,9 +4114,11 @@ function tickTimers() {
   if (document.getElementById('prodOverlay').classList.contains('open')) {
     renderProdItems(document.getElementById('prodBoard'));
   }
-  // Update modal button if visible
+  // Update modal button if visible — but NOT while the initials form is open
   if (currentRecipe && document.getElementById('modalProdWrap').style.display !== 'none') {
-    refreshProdButton();
+    if (!document.getElementById('initialsInput')) {
+      refreshProdButton();
+    }
   }
 }
 
@@ -4026,48 +4126,49 @@ function saveActiveTimers() {
   const toSave = {};
   Object.keys(activeTimers).forEach(id => {
     const t = activeTimers[id];
-    toSave[id] = { startTime: t.startTime, expiresAt: t.expiresAt, expiryDays: t.expiryDays, recipeName: t.recipeName, emoji: t.emoji };
+    toSave[id] = { recipeId: t.recipeId, startTime: t.startTime, expiresAt: t.expiresAt, expiryDays: t.expiryDays, recipeName: t.recipeName, emoji: t.emoji, initials: t.initials };
   });
   try { localStorage.setItem('tq_active_timers', JSON.stringify(toSave)); } catch {}
 }
 
-function startProduction(recipeId) {
-  if (activeTimers[recipeId]) { openProductionBoard(); return; } // already running
+function startProduction(recipeId, initials) {
   const recipe = ACTIVE_RECIPES.find(r => r.id === recipeId);
   if (!recipe) return;
-
+  const key        = recipeId + '|' + Date.now();
   const expiryDays = getExpiryDays(recipe);
-  activeTimers[recipeId] = {
+  activeTimers[key] = {
+    recipeId,
     startTime:  Date.now(),
     expiresAt:  Date.now() + expiryDays * 24 * 3600 * 1000,
     expiryDays,
     recipeName: recipe.name,
-    emoji:      recipe.emoji || '🍴'
+    emoji:      recipe.emoji || '🍴',
+    initials:   ((initials || '').trim().toUpperCase().slice(0, 3)) || '?',
   };
   saveActiveTimers();
   startTimerInterval();
   updateProdBadge();
   refreshProdButton();
-  render(); // show LIVE dot on card
+  render();
 }
 
-function stopProduction(recipeId, logIt = true) {
-  const timer = activeTimers[recipeId];
+function stopProduction(timerKey, logIt = true) {
+  const timer = activeTimers[timerKey];
   if (!timer) return;
 
   if (logIt) {
     const now = Date.now();
     const entry = {
-      id:          now + '_' + recipeId,
-      recipeId,
+      id:          now + '_' + timerKey,
+      recipeId:    timer.recipeId || timerKey.split('|')[0],
       recipeName:  timer.recipeName,
       emoji:       timer.emoji,
+      initials:    timer.initials || '?',
       startTime:   timer.startTime,
       expiresAt:   timer.expiresAt,
       expiryDays:  timer.expiryDays,
       endTime:     now,
       duration:    now - timer.startTime,
-      // how much shelf life remained when marked done (negative = was expired)
       remainingMs: timer.expiresAt - now
     };
     productionLog.unshift(entry);
@@ -4081,7 +4182,7 @@ function stopProduction(recipeId, logIt = true) {
     }
   }
 
-  delete activeTimers[recipeId];
+  delete activeTimers[timerKey];
   saveActiveTimers();
   stopTimerIntervalIfEmpty();
   updateProdBadge();
@@ -4091,26 +4192,62 @@ function stopProduction(recipeId, logIt = true) {
 
 function toggleProduction() {
   if (!currentRecipe) return;
-  if (activeTimers[currentRecipe.id]) stopProduction(currentRecipe.id, true);
-  else startProduction(currentRecipe.id);
+  showInitialsForm();
+}
+
+function getTimersForRecipe(recipeId) {
+  const ORDER = { dead: 0, crit: 1, warn: 2, ok: 3 };
+  return Object.entries(activeTimers)
+    .filter(([k, t]) => (t.recipeId || k.split('|')[0]) === recipeId)
+    .map(([k, t]) => ({ key: k, ...t }))
+    .sort((a, b) => ORDER[getTimerStatus(a.expiresAt)] - ORDER[getTimerStatus(b.expiresAt)]);
 }
 
 function refreshProdButton() {
-  const btn = document.getElementById('startProdBtn');
-  if (!btn || !currentRecipe) return;
-  const timer = activeTimers[currentRecipe.id];
-  if (timer) {
-    const status    = getTimerStatus(timer.expiresAt);
-    const countdown = formatCountdown(timer.expiresAt);
-    const label     = status === 'dead'
-      ? `❌ EXPIRED &nbsp;·&nbsp; Tap to discard`
-      : `⏱ <span class="prod-timer-inline">${countdown}</span> left&nbsp;·&nbsp; ${timer.expiryDays}d shelf life`;
-    btn.innerHTML = label;
-    btn.className = `start-prod-btn running ${status}`;
-  } else {
-    btn.innerHTML = '▶ Start Expiry Timer';
-    btn.className = 'start-prod-btn';
+  const area = document.getElementById('prodBtnArea');
+  if (!area || !currentRecipe) return;
+  const timers = getTimersForRecipe(currentRecipe.id);
+
+  if (timers.length === 0) {
+    area.innerHTML = `<button class="start-prod-btn" onclick="showInitialsForm()">▶ Start Expiry Timer</button>`;
+    return;
   }
+
+  const items = timers.map(t => {
+    const status    = getTimerStatus(t.expiresAt);
+    const countdown = formatCountdown(t.expiresAt);
+    const safeKey   = t.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="prod-running-item ${status}">
+      <span class="prod-initials">${t.initials || '?'}</span>
+      <span class="prod-countdown ${status}">${status === 'dead' ? 'EXPIRED' : countdown + ' left'}</span>
+      <button class="prod-mini-done" onclick="stopProduction('${safeKey}',true);refreshProdButton()">${status === 'dead' ? '🗑' : '✓'}</button>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="prod-running-list">${items}</div>
+    <button class="start-prod-btn start-prod-new" onclick="showInitialsForm()">+ Start New Batch</button>`;
+}
+
+function showInitialsForm() {
+  const area = document.getElementById('prodBtnArea');
+  if (!area || !currentRecipe) return;
+  area.innerHTML = `
+    <div class="initials-form">
+      <input id="initialsInput" class="initials-input" type="text" maxlength="3"
+             placeholder="Initials" autocomplete="off"
+             onkeydown="if(event.key==='Enter')confirmStartProduction()">
+      <button class="start-prod-btn" onclick="confirmStartProduction()">▶ Start</button>
+      <button class="prod-cancel-inline" onclick="refreshProdButton()">✕</button>
+    </div>`;
+  setTimeout(() => document.getElementById('initialsInput')?.focus(), 60);
+}
+
+function confirmStartProduction() {
+  const el = document.getElementById('initialsInput');
+  const initials = (el?.value || '').trim();
+  if (!initials) { if (el) { el.focus(); el.classList.add('error'); } return; }
+  startProduction(currentRecipe.id, initials);
 }
 
 function updateProdBadge() {
@@ -4154,9 +4291,9 @@ function renderProdItems(container) {
     return `<div class="prod-item ${status}">
       <div class="prod-item-emoji">${t.emoji}</div>
       <div class="prod-item-info">
-        <div class="prod-item-name">${t.recipeName}</div>
+        <div class="prod-item-name">${t.recipeName} <span style="font-size:0.72rem;background:var(--green);color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">${t.initials||'?'}</span></div>
         <div class="prod-item-timer ${status}">${countdown}</div>
-        <div style="font-size:0.68rem;color:var(--text-light);margin-top:1px">${t.expiryDays}d shelf life · made ${madeStr}</div>
+        <div style="font-size:0.68rem;color:var(--text-light);margin-top:1px">${t.expiryDays}d shelf life · started ${madeStr}</div>
       </div>
       <div class="prod-item-actions">
         <button class="prod-done-btn" onclick="stopProduction('${safe}',true);renderProdItems(document.getElementById('prodBoard'))">${doneLabel}</button>
