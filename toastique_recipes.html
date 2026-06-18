@@ -48,13 +48,39 @@
   .recipe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
 
   /* CARD */
-  .recipe-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; overflow: hidden; border: 1px solid var(--border); }
+  .recipe-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; overflow: hidden; border: 1px solid var(--border); position: relative; }
   .recipe-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
   .card-emoji { font-size: 2.8rem; height: 90px; display: flex; align-items: center; justify-content: center; background: var(--green-light); }
   .card-body { padding: 10px 12px 12px; }
   .card-name { font-size: 0.82rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 4px; }
   .card-meta { font-size: 0.72rem; color: var(--text-light); }
   .card-tag { display: inline-block; font-size: 0.68rem; font-weight: 600; background: var(--green-light); color: var(--green); padding: 1px 6px; border-radius: 8px; margin-top: 5px; }
+  .card-photo { width: 100%; height: 90px; object-fit: cover; display: block; }
+
+  /* PHOTO UPLOAD */
+  .photo-upload-area { border: 2px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; }
+  .photo-upload-area:hover { border-color: var(--green); background: var(--green-light); }
+  .photo-upload-area .upload-icon { font-size: 1.6rem; margin-bottom: 4px; }
+  .photo-upload-area p { font-size: 0.82rem; color: var(--text-light); margin-top: 4px; }
+  .photo-preview-img { width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-top: 8px; display: none; }
+  .photo-preview-img.show { display: block; }
+  .remove-photo-btn { font-size: 0.75rem; color: #e53935; background: none; border: none; cursor: pointer; margin-top: 4px; padding: 0; display: none; }
+  .remove-photo-btn.show { display: inline-block; }
+
+  /* ADMIN-ONLY elements (hidden unless admin active) */
+  .admin-only { display: none !important; }
+  .admin-active .admin-only { display: inline-block !important; }
+
+  /* SECTIONS PANEL */
+  .sections-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .sections-overlay.open { opacity: 1; pointer-events: all; }
+  .sections-panel { background: #fff; border-radius: 20px; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .section-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+  .section-item input { flex: 1; border: none; outline: none; font-size: 0.88rem; font-family: inherit; color: var(--text); }
+  .section-item .del-sec-btn { background: #ffebee; border: none; color: #e53935; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; }
+  .add-section-row { display: flex; gap: 8px; margin-top: 4px; }
+  .add-section-row input { flex: 1; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.87rem; outline: none; font-family: inherit; }
+  .add-section-row input:focus { border-color: var(--green); }
 
   /* MISSING CARD */
   .recipe-card.missing .card-emoji { background: #f5f5f5; filter: grayscale(0.5); opacity: 0.6; }
@@ -134,15 +160,14 @@
   .step-complete p { font-size: 0.85rem; color: var(--text-light); }
 
   /* ADMIN */
-  .admin-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .admin-btn { display: block; margin: 0 auto 12px; background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; padding: 5px 18px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .admin-btn.active { background: #fff; color: var(--green); }
-  header { position: relative; }
   .admin-active .recipe-card { overflow: visible; }
-  .card-edit, .card-delete { position: absolute; width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; z-index: 10; font-size: 0.75rem; }
-  .card-edit { top: -8px; right: -8px; background: var(--green); color: #fff; }
-  .card-delete { top: -8px; left: -8px; background: #e53935; color: #fff; }
-  .admin-active .recipe-card:hover .card-edit,
-  .admin-active .recipe-card:hover .card-delete { opacity: 1; }
+  .card-edit, .card-delete { position: absolute; width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+  .card-edit { top: -10px; right: -10px; background: var(--green); color: #fff; }
+  .card-delete { top: -10px; left: -10px; background: #e53935; color: #fff; }
+  .admin-active .recipe-card .card-edit,
+  .admin-active .recipe-card .card-delete { display: flex; }
   .fab { position: fixed; bottom: 28px; right: 28px; background: var(--green); color: #fff; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 1.6rem; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.28); display: none; align-items: center; justify-content: center; z-index: 150; transition: transform 0.18s; }
   .fab:hover { transform: scale(1.09); }
   .admin-active .fab { display: flex; }
@@ -191,33 +216,111 @@
   .data-btn { background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; padding: 5px 13px; border-radius: 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
   .data-btn:hover { background: rgba(255,255,255,0.3); }
   #importFile { display: none; }
+
+  /* ─── PROFESSIONAL CARD THUMBNAIL ─────────────────────── */
+  .card-thumb { width:100%; height:100px; background:var(--green-light); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; flex-shrink:0; }
+  .card-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.35s ease; }
+  .recipe-card:hover .card-thumb img { transform:scale(1.06); }
+  .card-thumb-emoji { font-size:3rem; line-height:1; user-select:none; }
+  .card-thumb-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,0.1) 100%); pointer-events:none; }
+  .recipe-card.missing .card-thumb { background:#f0f0f0; }
+  .recipe-card.missing .card-thumb-emoji { filter:grayscale(1); opacity:0.38; }
+
+  /* ─── PRODUCTION LIVE INDICATOR on card ─────────────────── */
+  .prod-live-dot { position:absolute; top:7px; left:7px; background:#e65100; color:#fff; font-size:0.6rem; font-weight:800; padding:2px 7px; border-radius:10px; z-index:5; display:flex; align-items:center; gap:4px; }
+  .prod-live-dot::before { content:''; width:6px; height:6px; border-radius:50%; background:#fff; animation:livePulse 1s infinite; }
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  /* ─── PRODUCTION BADGE (floating) ─────────────────────── */
+  .prod-badge { position:fixed; bottom:96px; right:28px; background:#e65100; color:#fff; border:none; border-radius:28px; padding:10px 18px; font-size:0.82rem; font-weight:700; cursor:pointer; z-index:149; display:none; align-items:center; gap:8px; box-shadow:0 4px 18px rgba(0,0,0,0.3); transition:transform 0.18s; }
+  .prod-badge:hover { transform:scale(1.05); }
+  .prod-badge.visible { display:flex; }
+  .prod-badge-dot { width:9px; height:9px; border-radius:50%; background:#fff; animation:livePulse 1s infinite; }
+
+  /* ─── PRODUCTION OVERLAY / BOARD ─────────────────────── */
+  .prod-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:250; display:flex; align-items:flex-end; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+  .prod-overlay.open { opacity:1; pointer-events:all; }
+  .prod-panel { background:#fff; border-radius:20px 20px 16px 16px; width:100%; max-width:640px; max-height:70vh; overflow-y:auto; padding:20px 20px 28px; box-shadow:0 -4px 40px rgba(0,0,0,0.2); }
+  .prod-panel-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .prod-panel-hdr h2 { font-size:1.05rem; font-weight:700; color:var(--text); }
+  .prod-close { background:#f0f0f0; border:none; border-radius:50%; width:30px; height:30px; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; }
+  .prod-item { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#fff8f0; border:2px solid #ffe0b2; border-radius:12px; margin-bottom:10px; }
+  .prod-item-emoji { font-size:1.6rem; flex-shrink:0; }
+  .prod-item-info { flex:1; min-width:0; }
+  .prod-item-name { font-size:0.88rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prod-item-timer { font-size:1.08rem; font-weight:800; color:#2e7d32; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .prod-item-timer.warn  { color:#e65100; }
+  .prod-item-timer.crit  { color:#c62828; animation:timerPulse 1.2s infinite; }
+  .prod-item-timer.dead  { color:#c62828; font-size:0.88rem; letter-spacing:0.5px; }
+  @keyframes timerPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .prod-item { display:flex; align-items:center; gap:12px; padding:12px 14px; background:#fff8f0; border:2px solid #ffe0b2; border-radius:12px; margin-bottom:10px; transition:background 0.3s,border-color 0.3s; }
+  .prod-item.warn  { background:#fffde7; border-color:#ffe082; }
+  .prod-item.crit  { background:#fff3e0; border-color:#ffb74d; }
+  .prod-item.dead  { background:#ffebee; border-color:#ef9a9a; }
+  .prod-item-actions { display:flex; gap:8px; flex-shrink:0; }
+  .prod-done-btn { background:var(--green); color:#fff; border:none; border-radius:8px; padding:7px 12px; font-size:0.78rem; font-weight:700; cursor:pointer; }
+  .prod-cancel-btn { background:#eee; color:var(--text); border:none; border-radius:8px; padding:7px 10px; font-size:0.78rem; cursor:pointer; }
+  .prod-empty { text-align:center; padding:28px 16px; color:var(--text-light); font-size:0.88rem; line-height:1.7; }
+  /* live dot colors by expiry status */
+  .prod-live-dot.ok   { background:#2e7d32; }
+  .prod-live-dot.warn { background:#e65100; }
+  .prod-live-dot.crit, .prod-live-dot.dead { background:#c62828; }
+
+  /* ─── ANALYTICS OVERLAY ─────────────────────── */
+  .analytics-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:350; display:flex; align-items:center; justify-content:center; padding:16px; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+  .analytics-overlay.open { opacity:1; pointer-events:all; }
+  .analytics-panel { background:#fff; border-radius:20px; width:100%; max-width:560px; max-height:85vh; overflow-y:auto; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+  .analytics-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .analytics-hdr h2 { font-size:1.1rem; font-weight:700; color:var(--green); }
+  .analytics-stat-row { display:flex; gap:10px; margin-bottom:18px; }
+  .analytics-stat { flex:1; background:var(--green-light); border-radius:10px; padding:11px 10px; text-align:center; }
+  .analytics-stat .a-num { font-size:1.4rem; font-weight:800; color:var(--green); }
+  .analytics-stat .a-lbl { font-size:0.68rem; color:var(--text-light); margin-top:2px; }
+  .analytics-recipe-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border); }
+  .analytics-recipe-row:last-child { border-bottom:none; }
+  .a-bar-wrap { flex:1; background:var(--border); border-radius:4px; height:8px; overflow:hidden; }
+  .a-bar { height:100%; background:var(--green); border-radius:4px; }
+  .a-count { font-size:0.78rem; font-weight:700; color:var(--green); min-width:26px; text-align:right; }
+
+  /* ─── START PRODUCTION BUTTON inside modal ─────────────── */
+  .modal-prod-wrap { padding:12px 22px 0; flex-shrink:0; }
+  .start-prod-btn { width:100%; padding:11px; border:2px solid #ff6f00; border-radius:10px; background:#fff8f4; color:#e65100; font-weight:700; font-size:0.87rem; cursor:pointer; transition:all 0.18s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .start-prod-btn:hover { background:#ff6f00; color:#fff; }
+  .start-prod-btn.running      { background:#e8f5e9; border-color:#2e7d32; color:#2e7d32; }
+  .start-prod-btn.running.warn { background:#fff8e1; border-color:#e65100; color:#e65100; }
+  .start-prod-btn.running.crit { background:#fff3e0; border-color:#c62828; color:#c62828; }
+  .start-prod-btn.running.dead { background:#ffebee; border-color:#c62828; color:#c62828; }
+  .prod-timer-inline { font-variant-numeric:tabular-nums; }
+
+  /* ─── AI RECIPE SCAN in form ─────────────────────── */
+  .scan-area { border:2px dashed var(--green); border-radius:10px; padding:14px; text-align:center; margin-bottom:14px; background:var(--green-light); }
+  .scan-area p { font-size:0.76rem; color:var(--text-light); margin-top:5px; line-height:1.4; }
+  .scan-btn { background:var(--green); color:#fff; border:none; border-radius:8px; padding:9px 18px; font-size:0.85rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .scan-btn:hover { opacity:0.88; }
+  .scan-status { font-size:0.82rem; text-align:center; padding:7px 10px; margin-top:6px; border-radius:8px; display:none; }
+  .scan-status.loading { display:block; background:#fff3e0; color:#e65100; }
+  .scan-status.success { display:block; background:var(--green-light); color:var(--green); font-weight:700; }
+  .scan-status.error { display:block; background:#ffebee; color:#e53935; }
 </style>
 </head>
 <body>
 
 <header>
+  <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
   <h1>🌿 Toastique Recipe Book <span>2026 Edition</span></h1>
   <div class="search-bar">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()">
   </div>
-  <nav id="sectionNav">
-    <button class="active" onclick="filterSection('all', this)">All</button>
-    <button onclick="filterSection('treats', this)">🍫 Treats</button>
-    <button onclick="filterSection('parfaits', this)">🥛 Parfaits & Chia</button>
-    <button onclick="filterSection('salads', this)">🥗 Salads & Bowls</button>
-    <button onclick="filterSection('dressings', this)">🫙 Dressings</button>
-    <button onclick="filterSection('soups', this)">🍲 Soups</button>
-    <button onclick="filterSection('blender', this)">🥤 Blender Prep</button>
-    <button onclick="filterSection('toast', this)">🍞 Toast Prep</button>
-  </nav>
+  <nav id="sectionNav"></nav>
   <div class="data-bar">
     <button class="data-btn" onclick="exportData()">⬇ Export Recipes</button>
     <button class="data-btn" onclick="document.getElementById('importFile').click()">⬆ Import Recipes</button>
     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
     <button class="data-btn" onclick="resetToDefaults()">↺ Reset to Defaults</button>
+    <button class="data-btn" onclick="openAnalytics()">📊 Analytics</button>
+    <button class="data-btn admin-only" onclick="openSectionsPanel()">⚙ Edit Tabs</button>
   </div>
-  <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
 </header>
 <button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
 
@@ -229,6 +332,9 @@
       <button class="modal-close" onclick="closeModalDirect()">✕</button>
       <h2 id="modalTitle"></h2>
       <p id="modalMeta"></p>
+    </div>
+    <div class="modal-prod-wrap" id="modalProdWrap" style="display:none">
+      <button class="start-prod-btn" id="startProdBtn" onclick="toggleProduction()">▶ Start Production Timer</button>
     </div>
     <div class="view-choice" id="viewChoice">
       <button class="choice-btn selected" id="btnStepByStep" onclick="setView('steps')">
@@ -250,22 +356,33 @@
 <div class="form-overlay" id="formOverlay">
   <div class="form-modal">
     <h2 id="formTitle">Add Recipe</h2>
-    <div class="form-row-2">
+
+    <!-- AI Scan Section -->
+    <div class="scan-area">
+      <button class="scan-btn" type="button" onclick="triggerImageScan()">📷 Scan Recipe from Photo (AI)</button>
+      <p>Take a photo or upload an image of a recipe card — AI will auto-fill the form below</p>
+    </div>
+    <input type="file" id="scanInput" accept="image/*" capture="environment" style="display:none" onchange="handleScanImage(event)">
+    <div id="scanStatus" class="scan-status"></div>
+
+    <div class="form-section-label" style="margin-top:0;margin-bottom:8px">Recipe Photo (Dish Image)</div>
+    <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('fPhotoInput').click()">
+      <div class="upload-icon">🖼️</div>
+      <p>Click to upload a photo of the finished dish</p>
+      <img id="fPhotoPreview" class="photo-preview-img" src="" alt="Preview">
+    </div>
+    <input type="file" id="fPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(event)">
+    <button type="button" class="remove-photo-btn" id="removePhotoBtn" onclick="removePhoto()">✕ Remove photo</button>
+    <input type="hidden" id="fPhotoData">
+
+    <div class="form-row-2" style="margin-top:13px">
       <div>
-        <label>Emoji</label>
+        <label>Emoji (used if no photo)</label>
         <input type="text" id="fEmoji" maxlength="2" placeholder="🍴">
       </div>
       <div>
         <label>Section</label>
-        <select id="fSection">
-          <option value="treats">Treats</option>
-          <option value="parfaits">Parfaits & Chia</option>
-          <option value="salads">Salads & Bowls</option>
-          <option value="dressings">Dressings</option>
-          <option value="soups">Soups</option>
-          <option value="blender">Blender Prep</option>
-          <option value="toast">Toast Prep</option>
-        </select>
+        <select id="fSection"></select>
       </div>
     </div>
     <div class="form-row">
@@ -300,6 +417,53 @@
       <button id="btnDeleteRecipe" class="btn-danger" onclick="deleteCurrentRecipe()" style="display:none">🗑 Delete</button>
       <button class="btn-save" onclick="saveRecipeForm()">Save Recipe</button>
     </div>
+  </div>
+</div>
+
+<!-- SECTIONS MANAGEMENT PANEL -->
+<div class="sections-overlay" id="sectionsOverlay">
+  <div class="sections-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2 style="font-size:1.15rem;font-weight:700;color:var(--green)">⚙ Edit Tabs / Sections</h2>
+      <button onclick="closeSectionsPanel()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-light)">✕</button>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:14px">Rename, remove, or add sections. These become the filter tabs at the top. Recipe section IDs stay unchanged — deleting a tab just hides it from the nav.</p>
+    <div id="sectionsList"></div>
+    <div class="add-section-row">
+      <input type="text" id="newSectionInput" placeholder="e.g. 🫖 Drinks">
+      <button style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:0.85rem" onclick="addSectionItem()">Add</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <button onclick="saveSectionsPanel()" style="flex:1;padding:11px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:0.87rem;font-weight:700;cursor:pointer">Save</button>
+      <button onclick="closeSectionsPanel()" style="flex:1;padding:11px;background:var(--border);color:var(--text);border:none;border-radius:10px;font-size:0.87rem;font-weight:700;cursor:pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTION BADGE (floating) -->
+<button class="prod-badge" id="prodBadge" onclick="openProductionBoard()">
+  <span class="prod-badge-dot"></span> 🍳 0 Active
+</button>
+
+<!-- PRODUCTION BOARD OVERLAY -->
+<div class="prod-overlay" id="prodOverlay" onclick="if(event.target===this)closeProductionBoard()">
+  <div class="prod-panel">
+    <div class="prod-panel-hdr">
+      <h2>🍳 In Production</h2>
+      <button class="prod-close" onclick="closeProductionBoard()">✕</button>
+    </div>
+    <div id="prodBoard"></div>
+  </div>
+</div>
+
+<!-- ANALYTICS OVERLAY -->
+<div class="analytics-overlay" id="analyticsOverlay" onclick="if(event.target===this)closeAnalytics()">
+  <div class="analytics-panel">
+    <div class="analytics-hdr">
+      <h2>📊 Production Analytics</h2>
+      <button onclick="closeAnalytics()" style="background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div id="analyticsContent"></div>
   </div>
 </div>
 
@@ -2970,6 +3134,38 @@ const DEFAULT_GROUPS = [
     description: 'Apple · Asian Pear',
     recipeIds: ['spiced-apple-juice','spiced-asian-pear-juice']
   },
+  {
+    id: 'all-dressings',
+    name: 'All Dressings',
+    section: 'dressings',
+    emoji: '🫙',
+    description: '9 dressings & vinaigrettes',
+    recipeIds: ['avocado-lime-dressing','balsamic-dressing','caesar-dressing','citrus-vinaigrette','french-vinaigrette','greek-dressing','red-wine-dressing','sesame-lime-dressing','sticky-peanut-dressing']
+  },
+  {
+    id: 'all-soups',
+    name: 'All Soups',
+    section: 'soups',
+    emoji: '🍲',
+    description: '16 soups & stews',
+    recipeIds: ['butternut-wild-rice-soup','chunky-roasted-tomato-soup','clam-chowder','classic-mushroom-soup','creamy-broccoli-soup','creamy-butternut-squash-soup','curried-coconut-wild-rice-soup','gazpacho','hearty-vegetable-soup','lentil-soup','potato-leek-soup','sausage-potato-kale-soup','tortilla-soup','tuscan-white-bean-soup','vegan-sweet-potato-black-bean-chili','vegetable-curry']
+  },
+  {
+    id: 'large-salads',
+    name: 'Large Salads (32oz)',
+    section: 'salads',
+    emoji: '🥗',
+    description: '12 varieties',
+    recipeIds: ['caesar-salad','caprese-salad','cobb-salad','fiesta-salad','greek-salad','italian-chop-salad','kale-krunch','nicoise-salad','protein-salad-swiss','rainbow-salad','spicy-noodle-salad','thai-salad']
+  },
+  {
+    id: 'small-bowls',
+    name: 'Small Bowls (16oz)',
+    section: 'salads',
+    emoji: '🍱',
+    description: '10 varieties',
+    recipeIds: ['garden-salad-bowl','hummus-veggies-bowl','mixed-berries-bowl','mixed-seasonal-fruit-bowl','quinoa-salad-bowl','salmon-power-bowl','spicy-mango-bowl','spicy-noodles-bowl','tofu-brown-rice-bowl','watermelon-bowl']
+  },
 ];
 
 // ─────────────────────────────────────────
@@ -2988,8 +3184,11 @@ function saveState() {
 function resetToDefaults() {
   if (!confirm('Reset all recipes to the original defaults? Any added/edited recipes will be lost.')) return;
   localStorage.removeItem('toastique_recipes');
+  localStorage.removeItem('tq_sections');
   ACTIVE_RECIPES = [...RECIPES];
   ACTIVE_GROUPS = [...DEFAULT_GROUPS];
+  ACTIVE_SECTIONS = DEFAULT_SECTIONS.map(x => ({...x}));
+  renderNav();
   render();
   alert('Reset complete!');
 }
@@ -3030,6 +3229,40 @@ let ACTIVE_RECIPES = _saved.recipes;
 let ACTIVE_GROUPS = _saved.groups;
 
 // ─────────────────────────────────────────
+// SECTIONS (dynamic tabs)
+// ─────────────────────────────────────────
+const DEFAULT_SECTIONS = [
+  { id: 'treats',    label: '🍫 Treats' },
+  { id: 'parfaits',  label: '🥛 Parfaits & Chia' },
+  { id: 'salads',    label: '🥗 Salads & Bowls' },
+  { id: 'dressings', label: '🫙 Dressings' },
+  { id: 'soups',     label: '🍲 Soups' },
+  { id: 'blender',   label: '🥤 Blender Prep' },
+  { id: 'toast',     label: '🍞 Toast Prep' },
+];
+let ACTIVE_SECTIONS = (function() {
+  try {
+    const s = localStorage.getItem('tq_sections');
+    if (s) return JSON.parse(s);
+  } catch {}
+  return DEFAULT_SECTIONS.map(x => ({...x}));
+})();
+
+function getSectionLabel(secId) {
+  const found = ACTIVE_SECTIONS.find(s => s.id === secId);
+  return found ? found.label : secId;
+}
+
+function renderNav() {
+  const nav = document.getElementById('sectionNav');
+  let html = `<button class="${currentSection === 'all' ? 'active' : ''}" onclick="filterSection('all', this)">All</button>`;
+  ACTIVE_SECTIONS.forEach(sec => {
+    html += `<button class="${currentSection === sec.id ? 'active' : ''}" onclick="filterSection('${sec.id}', this)">${sec.label}</button>`;
+  });
+  nav.innerHTML = html;
+}
+
+// ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
 let currentSection = 'all';
@@ -3038,17 +3271,12 @@ let currentGroup = null;
 let currentView = 'steps';
 let currentStep = 0;
 let adminMode = false;
-let editingRecipeId = null;
 
-const SECTIONS = {
-  treats:   { label: '🍫 Treats',          color: '#6b4c2a' },
-  parfaits: { label: '🥛 Parfaits & Chia', color: '#9c4f96' },
-  salads:   { label: '🥗 Salads & Bowls',  color: '#3a7d44' },
-  dressings:{ label: '🫙 Dressings',       color: '#c97d00' },
-  soups:    { label: '🍲 Soups',           color: '#c0392b' },
-  blender:  { label: '🥤 Blender Prep',    color: '#1565c0' },
-  toast:    { label: '🍞 Toast Prep',      color: '#e65100' },
-};
+// Production timer state (initialized by loadProductionData() below)
+let productionLog = [];
+let activeTimers = {}; // recipeId → { startTime, recipeName, emoji }
+let _timerInterval = null;
+let editingRecipeId = null;
 
 // ─────────────────────────────────────────
 // RENDER
@@ -3116,18 +3344,23 @@ function render() {
     return;
   }
 
-  const sectionOrder = ['treats','parfaits','salads','dressings','soups','blender','toast'];
+  const sectionOrder = ACTIVE_SECTIONS.map(s => s.id);
+  // also include any sections with recipes not in the current order (e.g. custom added)
+  Object.keys(bySection).forEach(k => { if (!sectionOrder.includes(k)) sectionOrder.push(k); });
   let html = '';
   sectionOrder.forEach(sec => {
     if (!bySection[sec]) return;
-    const info = SECTIONS[sec];
-    html += `<div class="section-header">${info.label} <span class="recipe-count">${bySection[sec].length}</span></div>`;
+    const label = getSectionLabel(sec);
+    html += `<div class="section-header">${label} <span class="recipe-count">${bySection[sec].length}</span></div>`;
     html += `<div class="recipe-grid">`;
     bySection[sec].forEach(r => {
       if (r._isGroup) {
         html += `
           <div class="recipe-card" onclick="openGroup('${r.id}')">
-            <div class="card-emoji">${r.emoji}</div>
+            <div class="card-thumb">
+              ${r.photo ? `<img src="${r.photo}" alt="${r.name}" loading="lazy">` : `<span class="card-thumb-emoji">${r.emoji}</span>`}
+              <div class="card-thumb-overlay"></div>
+            </div>
             <div class="card-body">
               <div class="card-name">${r.name}</div>
               <div class="card-meta">${r.description || ''}</div>
@@ -3136,12 +3369,19 @@ function render() {
             ${adminMode ? `<button class="card-edit" onclick="event.stopPropagation();openGroupForm('${r.id}')">✏</button><button class="card-delete" onclick="event.stopPropagation();deleteGroup('${r.id}')">✕</button>` : ''}
           </div>`;
       } else {
+        const cardClick = (adminMode && r.missing) ? `openRecipeForm('${r.id}')` : `openRecipe('${r.id}')`;
+        const liveTimer = activeTimers[r.id];
+        const liveStatus = liveTimer ? getTimerStatus(liveTimer.expiresAt) : null;
         html += `
-          <div class="recipe-card${r.missing ? ' missing' : ''}" onclick="openRecipe('${r.id}')">
-            <div class="card-emoji">${r.emoji}</div>
+          <div class="recipe-card${r.missing ? ' missing' : ''}" onclick="${cardClick}">
+            <div class="card-thumb">
+              ${r.photo ? `<img src="${r.photo}" alt="${r.name}" loading="lazy">` : `<span class="card-thumb-emoji">${r.emoji}</span>`}
+              <div class="card-thumb-overlay"></div>
+              ${liveTimer ? `<div class="prod-live-dot ${liveStatus}">${liveStatus === 'dead' ? 'EXP' : 'LIVE'}</div>` : ''}
+            </div>
             <div class="card-body">
               <div class="card-name">${r.name}</div>
-              <div class="card-meta">${r.prepTime || ''} ${r.yield ? '· ' + r.yield : ''}</div>
+              ${(adminMode && r.missing) ? `<div class="card-meta" style="color:var(--green);font-weight:600">✏ Click to add recipe</div>` : `<div class="card-meta">${r.prepTime || ''} ${r.yield ? '· ' + r.yield : ''}</div>`}
               ${r.tag ? `<span class="card-tag">${r.tag}</span>` : ''}
             </div>
             ${adminMode ? `<button class="card-edit" onclick="event.stopPropagation();openRecipeForm('${r.id}')">✏</button><button class="card-delete" onclick="event.stopPropagation();confirmDeleteRecipe('${r.id}')">✕</button>` : ''}
@@ -3168,14 +3408,7 @@ function filterRecipes() { render(); }
 // ─────────────────────────────────────────
 // ADMIN
 // ─────────────────────────────────────────
-function toggleAdmin()  {
-  if (!adminMode) {
-    const pw = prompt('Enter admin password:');
-    if (pw !== 'Toastique2026') {
-      alert('Incorrect password.');
-      return;
-    }
-  }
+function toggleAdmin() {
   adminMode = !adminMode;
   const btn = document.getElementById('adminBtn');
   btn.textContent = adminMode ? '🔓 Admin ON' : '🔒 Admin';
@@ -3193,11 +3426,34 @@ function openRecipeForm(id) {
   document.getElementById('formTitle').textContent = r ? 'Edit Recipe' : 'Add Recipe';
   document.getElementById('fName').value = r ? r.name : '';
   document.getElementById('fEmoji').value = r ? r.emoji : '🍴';
-  document.getElementById('fSection').value = r ? r.section : 'treats';
+
+  // Populate section select dynamically
+  const sectionSel = document.getElementById('fSection');
+  sectionSel.innerHTML = ACTIVE_SECTIONS.map(s =>
+    `<option value="${s.id}">${s.label}</option>`
+  ).join('');
+  sectionSel.value = r ? r.section : (ACTIVE_SECTIONS[0]?.id || 'treats');
+
   document.getElementById('fYield').value = r ? (r.yield || '') : '';
   document.getElementById('fPrepTime').value = r ? (r.prepTime || '') : '';
   document.getElementById('fTag').value = r ? (r.tag || '') : '';
   document.getElementById('btnDeleteRecipe').style.display = r ? 'block' : 'none';
+
+  // Photo
+  const preview = document.getElementById('fPhotoPreview');
+  const photoData = document.getElementById('fPhotoData');
+  const removeBtn = document.getElementById('removePhotoBtn');
+  photoData.value = r && r.photo ? r.photo : '';
+  if (r && r.photo) {
+    preview.src = r.photo;
+    preview.classList.add('show');
+    removeBtn.classList.add('show');
+  } else {
+    preview.src = '';
+    preview.classList.remove('show');
+    removeBtn.classList.remove('show');
+  }
+  document.getElementById('fPhotoInput').value = '';
 
   // Ingredients
   const ingList = document.getElementById('ingList');
@@ -3248,6 +3504,7 @@ function saveRecipeForm() {
   const steps = [...document.getElementById('stepList').querySelectorAll('li input')]
     .map(i => i.value.trim()).filter(Boolean);
 
+  const photoVal = document.getElementById('fPhotoData').value;
   const recipe = {
     id: editingRecipeId || name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now(),
     name,
@@ -3258,6 +3515,7 @@ function saveRecipeForm() {
     tag: document.getElementById('fTag').value.trim(),
     ingredients: ingItems,
     steps,
+    ...(photoVal ? { photo: photoVal } : {}),
   };
 
   if (editingRecipeId) {
@@ -3301,6 +3559,7 @@ function openGroup(groupId) {
   document.getElementById('modalTitle').textContent = group.emoji + ' ' + group.name;
   document.getElementById('modalMeta').textContent = group.description || '';
   document.getElementById('viewChoice').style.display = 'none';
+  document.getElementById('modalProdWrap').style.display = 'none';
 
   const subRecipes = group.recipeIds.map(id => ACTIVE_RECIPES.find(r => r.id === id)).filter(Boolean);
   let html = '<div class="sub-recipe-list">';
@@ -3367,6 +3626,7 @@ function openRecipe(id, fromGroup = false) {
 
   if (currentRecipe.missing) {
     document.getElementById('viewChoice').style.display = 'none';
+    document.getElementById('modalProdWrap').style.display = 'none';
     const backBtn = parentGroup ? `<button class="back-btn" onclick="openGroup('${parentGroup.id}')">← Back to ${parentGroup.name}</button>` : '';
     document.getElementById('modalBody').innerHTML = `
       <div class="recipe-full">
@@ -3378,6 +3638,8 @@ function openRecipe(id, fromGroup = false) {
       </div>`;
   } else {
     document.getElementById('viewChoice').style.display = 'flex';
+    document.getElementById('modalProdWrap').style.display = 'block';
+    refreshProdButton();
     renderView(parentGroup);
   }
 
@@ -3504,9 +3766,542 @@ function closeModalDirect() {
 }
 
 // ─────────────────────────────────────────
+// PHOTO UPLOAD
+// ─────────────────────────────────────────
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('fPhotoData').value = ev.target.result;
+    const preview = document.getElementById('fPhotoPreview');
+    preview.src = ev.target.result;
+    preview.classList.add('show');
+    document.getElementById('removePhotoBtn').classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  document.getElementById('fPhotoData').value = '';
+  document.getElementById('fPhotoPreview').src = '';
+  document.getElementById('fPhotoPreview').classList.remove('show');
+  document.getElementById('removePhotoBtn').classList.remove('show');
+  document.getElementById('fPhotoInput').value = '';
+}
+
+// ─────────────────────────────────────────
+// SECTION MANAGEMENT
+// ─────────────────────────────────────────
+let _tempSections = [];
+
+function openSectionsPanel() {
+  _tempSections = ACTIVE_SECTIONS.map(s => ({...s}));
+  renderSectionsList();
+  document.getElementById('sectionsOverlay').classList.add('open');
+}
+
+function closeSectionsPanel() {
+  document.getElementById('sectionsOverlay').classList.remove('open');
+}
+
+function renderSectionsList() {
+  document.getElementById('sectionsList').innerHTML = _tempSections.map((sec, i) => `
+    <div class="section-item">
+      <span style="color:var(--text-light);font-size:1rem">⠿</span>
+      <input type="text" value="${escHtml(sec.label)}" oninput="_tempSections[${i}].label = this.value">
+      <button class="del-sec-btn" onclick="deleteSectionItem(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function deleteSectionItem(idx) {
+  _tempSections.splice(idx, 1);
+  renderSectionsList();
+}
+
+function addSectionItem() {
+  const input = document.getElementById('newSectionInput');
+  const label = input.value.trim();
+  if (!label) return;
+  const id = label.replace(/[^a-z0-9]/gi, '_').toLowerCase().replace(/_+/g,'_').replace(/^_|_$/g,'') + '_' + Date.now();
+  _tempSections.push({ id, label });
+  input.value = '';
+  renderSectionsList();
+}
+
+function saveSectionsPanel() {
+  ACTIVE_SECTIONS = _tempSections.map(s => ({...s}));
+  localStorage.setItem('tq_sections', JSON.stringify(ACTIVE_SECTIONS));
+  closeSectionsPanel();
+  renderNav();
+  render();
+}
+
+// ─────────────────────────────────────────
+// EXPIRY POLICY (from Toastique Expiration Policy sheet)
+// ─────────────────────────────────────────
+const EXPIRY_CONFIG = {
+  // ── Direct group/section ID overrides ───────────────────────────
+  'large-salads':  3,   // Salads (Large) – 3 days
+  'small-bowls':   5,   // Salads (Small) – 5 days
+  'all-dressings': 30,  // Salad Dressings – 30 days
+  'all-soups':     5,   // soups assumption
+
+  // ── Keyword list matched against recipe name (first match wins) ─
+  // Each entry: { match: [substrings…], days: N }
+  _keywords: [
+    { match: ['ab/pb cup','almond butter cup','pb cup','peanut butter cup'], days: 14 },
+    { match: ['almond butter'],                     days: 30 },
+    { match: ['avocado smash','avocado'],            days: 5  },
+    { match: ['basil'],                              days: 2  },
+    { match: ['berry jam','jam'],                    days: 5  },
+    { match: ['bibb lettuce','bibb'],                days: 4  },
+    { match: ['blueberr'],                           days: 3  },
+    { match: ['chai concentrate','chai'],            days: 30 },
+    { match: ['chia pudding','parfait'],             days: 5  },
+    { match: ['chili oil'],                          days: 90 },
+    { match: ['coconut whip'],                       days: 3  },
+    { match: ['cold-pressed juice','cold pressed','pressed juice'], days: 7 },
+    { match: ['crab'],                               days: 5  },
+    { match: ['cream cheese'],                       days: 7  },
+    { match: ['cucumber'],                           days: 2  },
+    { match: ['detoxify','detox'],                   days: 10 },
+    { match: ['energy ball','protein ball'],         days: 14 },
+    { match: ['feta'],                               days: 7  },
+    { match: ['frozen fruit'],                       days: 90 },
+    { match: ['granola bar'],                        days: 14 },
+    { match: ['grated cheese'],                      days: 10 },
+    { match: ['hard boil','boiled egg'],             days: 5  },
+    { match: ['herb aioli'],                         days: 7  },
+    { match: ['hummus'],                             days: 5  },
+    { match: ['jalape'],                             days: 3  },
+    { match: ['kiwi'],                               days: 3  },
+    { match: ['lemon slice'],                        days: 3  },
+    { match: ['marinated tomato'],                   days: 5  },
+    { match: ['mint'],                               days: 3  },
+    { match: ['onion jam'],                          days: 7  },
+    { match: ['orange'],                             days: 2  },
+    { match: ['overnight oat'],                      days: 7  },
+    { match: ['peanut butter'],                      days: 30 },
+    { match: ['pesto'],                              days: 5  },
+    { match: ['pickled onion'],                      days: 30 },
+    { match: ['pineapple'],                          days: 3  },
+    { match: ['pitaya lemonade','pitaya'],           days: 10 },
+    { match: ['prosciutto'],                         days: 7  },
+    { match: ['ricotta'],                            days: 5  },
+    { match: ['salad dressing','dressing'],          days: 30 },
+    { match: ['salad'],                              days: 3  },
+    { match: ['salmon'],                             days: 5  },
+    { match: ['citrus juice','single citrus'],       days: 14 },
+    { match: ['sous vide'],                          days: 7  },
+    { match: ['spicy noodle','noodle'],              days: 5  },
+    { match: ['sriracha aioli','sriracha'],          days: 7  },
+    { match: ['strawberr'],                          days: 3  },
+    { match: ['toasty seasoning','seasoning'],       days: 90 },
+    { match: ['tomato slice','tomato sliced'],       days: 2  },
+    { match: ['tuscan tuna','tuna'],                 days: 5  },
+    { match: ['waffle batter','waffle'],             days: 4  },
+    { match: ['watermelon radish','watermelon'],     days: 5  },
+    { match: ['wellness shot','wellness'],           days: 14 },
+    // generic fallbacks (order matters — more specific above)
+    { match: ['tomato'],                             days: 5  },
+    { match: ['juice'],                              days: 7  },
+    { match: ['aioli'],                              days: 7  },
+  ],
+
+  // ── Section-level defaults ───────────────────────────────────────
+  _section: {
+    treats:    14,  // energy balls / cups / granola bars
+    parfaits:  5,   // Chia Puddings & Parfaits
+    salads:    3,   // conservative (large salad rule)
+    dressings: 30,  // Salad Dressings
+    soups:     5,   // prepared soups
+    blender:   7,   // Cold-Pressed Juices
+    toast:     5,   // toast prep spreads/toppings
+  }
+};
+
+function getExpiryDays(recipe) {
+  if (!recipe) return 7;
+  // 1. Exact ID match (group overrides)
+  if (EXPIRY_CONFIG[recipe.id] !== undefined) return EXPIRY_CONFIG[recipe.id];
+  // 2. Name keyword matching
+  const nameLower = (recipe.name || '').toLowerCase();
+  const hit = EXPIRY_CONFIG._keywords.find(kw => kw.match.some(k => nameLower.includes(k)));
+  if (hit) return hit.days;
+  // 3. Section fallback
+  if (recipe.section && EXPIRY_CONFIG._section[recipe.section] !== undefined) {
+    return EXPIRY_CONFIG._section[recipe.section];
+  }
+  return 7; // safe default
+}
+
+function getTimerStatus(expiresAt) {
+  const remaining = expiresAt - Date.now();
+  if (remaining <= 0)                    return 'dead';  // expired
+  if (remaining < 4  * 3600 * 1000)     return 'crit';  // < 4 hours
+  if (remaining < 24 * 3600 * 1000)     return 'warn';  // < 1 day
+  return 'ok';
+}
+
+function formatCountdown(expiresAt) {
+  const remaining = expiresAt - Date.now();
+  if (remaining <= 0) return 'EXPIRED';
+  const s   = Math.floor(remaining / 1000);
+  const m   = Math.floor(s / 60);
+  const h   = Math.floor(m / 60);
+  const d   = Math.floor(h / 24);
+  if (d  > 0) return `${d}d ${h % 24}h ${m % 60}m`;
+  if (h  > 0) return `${h}h ${m % 60}m ${s % 60}s`;
+  return `${m}m ${s % 60}s`;
+}
+
+// ─────────────────────────────────────────
+// PRODUCTION TIMER SYSTEM
+// ─────────────────────────────────────────
+const MAX_PROD_LOG = 500;
+
+function loadProductionData() {
+  // Load production log
+  try {
+    const raw = localStorage.getItem('tq_prod_log');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) productionLog = parsed;
+    }
+  } catch { productionLog = []; }
+
+  // Restore timers that survived a page refresh
+  try {
+    const raw = localStorage.getItem('tq_active_timers');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') {
+        Object.keys(saved).forEach(id => {
+          const t = saved[id];
+          if (t && typeof t.startTime === 'number' && t.recipeName) {
+            activeTimers[id] = {
+              startTime:   t.startTime,
+              expiresAt:   t.expiresAt || (t.startTime + 7 * 24 * 3600 * 1000), // fallback 7d
+              expiryDays:  t.expiryDays || 7,
+              recipeName:  t.recipeName,
+              emoji:       t.emoji || '🍴'
+            };
+          }
+        });
+      }
+    }
+  } catch { /* ignore */ }
+
+  if (Object.keys(activeTimers).length > 0) startTimerInterval();
+  updateProdBadge();
+}
+
+function startTimerInterval() {
+  if (_timerInterval) return;
+  _timerInterval = setInterval(tickTimers, 1000);
+}
+
+function stopTimerIntervalIfEmpty() {
+  if (Object.keys(activeTimers).length === 0 && _timerInterval) {
+    clearInterval(_timerInterval);
+    _timerInterval = null;
+  }
+}
+
+function tickTimers() {
+  updateProdBadge();
+  // Update board if open
+  if (document.getElementById('prodOverlay').classList.contains('open')) {
+    renderProdItems(document.getElementById('prodBoard'));
+  }
+  // Update modal button if visible
+  if (currentRecipe && document.getElementById('modalProdWrap').style.display !== 'none') {
+    refreshProdButton();
+  }
+}
+
+function saveActiveTimers() {
+  const toSave = {};
+  Object.keys(activeTimers).forEach(id => {
+    const t = activeTimers[id];
+    toSave[id] = { startTime: t.startTime, expiresAt: t.expiresAt, expiryDays: t.expiryDays, recipeName: t.recipeName, emoji: t.emoji };
+  });
+  try { localStorage.setItem('tq_active_timers', JSON.stringify(toSave)); } catch {}
+}
+
+function startProduction(recipeId) {
+  if (activeTimers[recipeId]) { openProductionBoard(); return; } // already running
+  const recipe = ACTIVE_RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+
+  const expiryDays = getExpiryDays(recipe);
+  activeTimers[recipeId] = {
+    startTime:  Date.now(),
+    expiresAt:  Date.now() + expiryDays * 24 * 3600 * 1000,
+    expiryDays,
+    recipeName: recipe.name,
+    emoji:      recipe.emoji || '🍴'
+  };
+  saveActiveTimers();
+  startTimerInterval();
+  updateProdBadge();
+  refreshProdButton();
+  render(); // show LIVE dot on card
+}
+
+function stopProduction(recipeId, logIt = true) {
+  const timer = activeTimers[recipeId];
+  if (!timer) return;
+
+  if (logIt) {
+    const now = Date.now();
+    const entry = {
+      id:          now + '_' + recipeId,
+      recipeId,
+      recipeName:  timer.recipeName,
+      emoji:       timer.emoji,
+      startTime:   timer.startTime,
+      expiresAt:   timer.expiresAt,
+      expiryDays:  timer.expiryDays,
+      endTime:     now,
+      duration:    now - timer.startTime,
+      // how much shelf life remained when marked done (negative = was expired)
+      remainingMs: timer.expiresAt - now
+    };
+    productionLog.unshift(entry);
+    if (productionLog.length > MAX_PROD_LOG) productionLog = productionLog.slice(0, MAX_PROD_LOG);
+    try {
+      localStorage.setItem('tq_prod_log', JSON.stringify(productionLog));
+    } catch {
+      // Storage full — trim and retry
+      productionLog = productionLog.slice(0, Math.floor(MAX_PROD_LOG / 2));
+      try { localStorage.setItem('tq_prod_log', JSON.stringify(productionLog)); } catch {}
+    }
+  }
+
+  delete activeTimers[recipeId];
+  saveActiveTimers();
+  stopTimerIntervalIfEmpty();
+  updateProdBadge();
+  refreshProdButton();
+  render(); // remove LIVE dot
+}
+
+function toggleProduction() {
+  if (!currentRecipe) return;
+  if (activeTimers[currentRecipe.id]) stopProduction(currentRecipe.id, true);
+  else startProduction(currentRecipe.id);
+}
+
+function refreshProdButton() {
+  const btn = document.getElementById('startProdBtn');
+  if (!btn || !currentRecipe) return;
+  const timer = activeTimers[currentRecipe.id];
+  if (timer) {
+    const status    = getTimerStatus(timer.expiresAt);
+    const countdown = formatCountdown(timer.expiresAt);
+    const label     = status === 'dead'
+      ? `❌ EXPIRED &nbsp;·&nbsp; Tap to discard`
+      : `⏱ <span class="prod-timer-inline">${countdown}</span> left&nbsp;·&nbsp; ${timer.expiryDays}d shelf life`;
+    btn.innerHTML = label;
+    btn.className = `start-prod-btn running ${status}`;
+  } else {
+    btn.innerHTML = '▶ Start Expiry Timer';
+    btn.className = 'start-prod-btn';
+  }
+}
+
+function updateProdBadge() {
+  const count = Object.keys(activeTimers).length;
+  const badge = document.getElementById('prodBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.className = 'prod-badge visible';
+    badge.innerHTML = `<span class="prod-badge-dot"></span> 🍳 ${count} Active`;
+  } else {
+    badge.className = 'prod-badge';
+  }
+}
+
+function openProductionBoard() {
+  renderProdItems(document.getElementById('prodBoard'));
+  document.getElementById('prodOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProductionBoard() {
+  document.getElementById('prodOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderProdItems(container) {
+  if (!container) return;
+  const keys = Object.keys(activeTimers);
+  if (keys.length === 0) {
+    container.innerHTML = `<div class="prod-empty">No recipes in production.<br>Open a recipe and tap <strong>▶ Start Production Timer</strong>.</div>`;
+    return;
+  }
+  container.innerHTML = keys.map(id => {
+    const t         = activeTimers[id];
+    const status    = getTimerStatus(t.expiresAt);
+    const countdown = formatCountdown(t.expiresAt);
+    const safe      = id.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const madeAgo   = Math.round((Date.now() - t.startTime) / 3600000);
+    const madeStr   = madeAgo < 1 ? 'just now' : madeAgo === 1 ? '1 hr ago' : `${madeAgo}h ago`;
+    const doneLabel = status === 'dead' ? '🗑 Discard' : '✓ Done';
+    return `<div class="prod-item ${status}">
+      <div class="prod-item-emoji">${t.emoji}</div>
+      <div class="prod-item-info">
+        <div class="prod-item-name">${t.recipeName}</div>
+        <div class="prod-item-timer ${status}">${countdown}</div>
+        <div style="font-size:0.68rem;color:var(--text-light);margin-top:1px">${t.expiryDays}d shelf life · made ${madeStr}</div>
+      </div>
+      <div class="prod-item-actions">
+        <button class="prod-done-btn" onclick="stopProduction('${safe}',true);renderProdItems(document.getElementById('prodBoard'))">${doneLabel}</button>
+        <button class="prod-cancel-btn" onclick="stopProduction('${safe}',false);renderProdItems(document.getElementById('prodBoard'))">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────
+// ANALYTICS
+// ─────────────────────────────────────────
+function openAnalytics() {
+  renderAnalytics();
+  document.getElementById('analyticsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAnalytics() {
+  document.getElementById('analyticsOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function clearProdLog() {
+  if (!confirm('Clear all production history? This cannot be undone.')) return;
+  productionLog = [];
+  try { localStorage.removeItem('tq_prod_log'); } catch {}
+  renderAnalytics();
+}
+
+function renderAnalytics() {
+  const content = document.getElementById('analyticsContent');
+  if (!content) return;
+
+  if (!productionLog.length) {
+    content.innerHTML = `<p style="text-align:center;color:var(--text-light);padding:28px 0;line-height:1.7">No production history yet.<br>Open a recipe and tap <strong>▶ Start Expiry Timer</strong><br>to begin tracking.</p>`;
+    return;
+  }
+
+  const stats = {};
+  let expiredCount = 0;
+
+  productionLog.forEach(entry => {
+    if (!entry || !entry.recipeId) return;
+    const wasExpired = typeof entry.remainingMs === 'number' && entry.remainingMs < 0;
+    if (wasExpired) expiredCount++;
+    if (!stats[entry.recipeId]) {
+      stats[entry.recipeId] = { name: entry.recipeName || entry.recipeId, emoji: entry.emoji || '🍴', count: 0, expiryDays: entry.expiryDays || 7 };
+    }
+    stats[entry.recipeId].count++;
+  });
+
+  const sorted   = Object.values(stats).sort((a, b) => b.count - a.count).slice(0, 15);
+  const maxCount = sorted[0]?.count || 1;
+  const total    = productionLog.length;
+
+  content.innerHTML = `
+    <div class="analytics-stat-row">
+      <div class="analytics-stat"><div class="a-num">${total}</div><div class="a-lbl">Batches Made</div></div>
+      <div class="analytics-stat"><div class="a-num">${Object.keys(stats).length}</div><div class="a-lbl">Recipes</div></div>
+      <div class="analytics-stat"><div class="a-num" style="font-size:1.1rem;color:${expiredCount > 0 ? '#c62828' : 'var(--green)'}">${expiredCount}</div><div class="a-lbl">Expired</div></div>
+    </div>
+    <div style="font-size:0.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Most Made</div>
+    ${sorted.map(r => `
+      <div class="analytics-recipe-row">
+        <span style="font-size:1.1rem;flex-shrink:0">${r.emoji}</span>
+        <div style="flex:1;min-width:0;margin:0 8px">
+          <div style="font-size:0.8rem;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
+          <div style="font-size:0.65rem;color:var(--text-light)">${r.expiryDays}d shelf life</div>
+        </div>
+        <div class="a-bar-wrap"><div class="a-bar" style="width:${Math.round((r.count/maxCount)*100)}%"></div></div>
+        <span class="a-count">${r.count}×</span>
+      </div>`).join('')}
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px">
+      <button onclick="clearProdLog()" style="background:#ffebee;color:#e53935;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer">🗑 Clear History</button>
+      <span style="font-size:0.72rem;color:var(--text-light)">${total} entries stored</span>
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+// AI IMAGE SCAN
+// ─────────────────────────────────────────
+function triggerImageScan() {
+  document.getElementById('scanInput').click();
+}
+
+async function handleScanImage(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  event.target.value = '';
+
+  setScanStatus('loading', '🔍 Scanning recipe…');
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const imageData = e.target.result;
+    try {
+      const res  = await fetch('/api/parse-recipe-image', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ imageData })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setScanStatus('error', '❌ ' + (data.error || 'Scan failed'));
+        return;
+      }
+      if (data.name)     document.getElementById('fName').value     = data.name;
+      if (data.emoji)    document.getElementById('fEmoji').value    = data.emoji;
+      if (data.yield)    document.getElementById('fYield').value    = data.yield;
+      if (data.prepTime) document.getElementById('fPrepTime').value = data.prepTime;
+      if (data.tag)      document.getElementById('fTag').value      = data.tag;
+
+      if (Array.isArray(data.ingredients) && data.ingredients.length) {
+        recipeIngredients = data.ingredients.map(pair =>
+          Array.isArray(pair) ? { group: pair[0] || '', text: pair[1] || '' }
+                              : { group: '', text: String(pair) }
+        );
+        renderIngredients();
+      }
+      if (Array.isArray(data.steps) && data.steps.length) {
+        recipeSteps = data.steps.map(s => String(s));
+        renderSteps();
+      }
+      setScanStatus('success', '✅ Recipe filled in — review and save!');
+    } catch (err) {
+      setScanStatus('error', '❌ Network error: ' + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function setScanStatus(type, msg) {
+  const el = document.getElementById('scanStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'scan-status ' + type;
+}
+
+// ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
+renderNav();
+loadProductionData();
 render();
-</script>
+  </script>
 </body>
 </html>
