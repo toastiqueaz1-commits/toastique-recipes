@@ -332,6 +332,7 @@
   /* ─── WASTE PROMPT ─── */
   .waste-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; z-index:2200; padding:16px; opacity:0; pointer-events:none; transition:opacity 0.18s; }
   .waste-overlay.open { opacity:1; pointer-events:all; }
+  body.admin-active .admin-only { display:inline-flex !important; }
   .waste-modal { background:#fff; border-radius:16px; padding:22px 20px 18px; width:100%; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.22); }
   .waste-modal h3 { font-size:0.98rem; font-weight:700; margin:0 0 5px; }
   .waste-modal p { font-size:0.8rem; color:var(--text-light); margin:0 0 12px; line-height:1.4; }
@@ -391,8 +392,10 @@
     <button class="data-btn" onclick="document.getElementById('importFile').click()">⬆ Import Recipes</button>
     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
     <button class="data-btn" onclick="resetToDefaults()">↺ Reset to Defaults</button>
+    <button class="data-btn" onclick="openPrepList()">📋 Prep List</button>
     <button class="data-btn" onclick="openAnalytics()">📊 Analytics</button>
     <button class="data-btn admin-only" onclick="openSectionsPanel()">⚙ Edit Tabs</button>
+    <button class="data-btn admin-only" id="changePwBtn" onclick="showAdminPasswordSetup(false)" style="display:none">🔑 Password</button>
   </div>
 </header>
 <button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
