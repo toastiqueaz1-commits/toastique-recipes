@@ -328,6 +328,52 @@
   .scan-status.loading { display:block; background:#fff3e0; color:#e65100; }
   .scan-status.success { display:block; background:var(--green-light); color:var(--green); font-weight:700; }
   .scan-status.error { display:block; background:#ffebee; color:#e53935; }
+
+  /* ─── WASTE PROMPT ─── */
+  .waste-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.52); display:flex; align-items:center; justify-content:center; z-index:2200; padding:16px; opacity:0; pointer-events:none; transition:opacity 0.18s; }
+  .waste-overlay.open { opacity:1; pointer-events:all; }
+  .waste-modal { background:#fff; border-radius:16px; padding:22px 20px 18px; width:100%; max-width:320px; box-shadow:0 12px 40px rgba(0,0,0,0.22); }
+  .waste-modal h3 { font-size:0.98rem; font-weight:700; margin:0 0 5px; }
+  .waste-modal p { font-size:0.8rem; color:var(--text-light); margin:0 0 12px; line-height:1.4; }
+  .waste-pct-btns { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .waste-pct-btn { border:1.5px solid var(--border); background:#fff; border-radius:20px; padding:5px 12px; font-size:0.8rem; cursor:pointer; font-weight:600; transition:all 0.12s; }
+  .waste-pct-btn.sel { border-color:var(--green); background:var(--green); color:#fff; }
+  .waste-count-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .waste-count-input { border:1.5px solid var(--border); border-radius:8px; padding:8px 10px; font-size:1rem; width:72px; text-align:center; font-weight:700; }
+  .waste-count-label { font-size:0.82rem; color:var(--text); }
+  .waste-action-row { display:flex; gap:8px; justify-content:flex-end; }
+  .waste-save-btn { background:var(--green); color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:0.83rem; font-weight:700; cursor:pointer; }
+  .waste-skip-btn { background:#f0f0f0; color:var(--text); border:none; border-radius:8px; padding:8px 14px; font-size:0.83rem; cursor:pointer; }
+
+  /* ─── INLINE EDIT MODE ─── */
+  .edit-ing-input  { width:100%; border:1.5px solid var(--border); border-radius:6px; padding:5px 8px; font-size:0.84rem; font-family:inherit; margin-bottom:4px; box-sizing:border-box; }
+  .edit-step-input { width:100%; border:1.5px solid var(--border); border-radius:6px; padding:6px 8px; font-size:0.84rem; font-family:inherit; margin-bottom:4px; resize:vertical; min-height:52px; box-sizing:border-box; }
+  .edit-save-bar { display:flex; gap:8px; padding-top:12px; margin-top:12px; border-top:1px solid var(--border); }
+  .edit-save-btn   { background:var(--green); color:#fff; border:none; border-radius:8px; padding:8px 18px; font-size:0.83rem; font-weight:700; cursor:pointer; }
+  .edit-cancel-btn { background:#f0f0f0; color:var(--text); border:none; border-radius:8px; padding:8px 14px; font-size:0.83rem; cursor:pointer; }
+  .quick-edit-link { display:inline-block; margin-top:10px; font-size:0.77rem; color:var(--green); cursor:pointer; background:none; border:none; padding:0; text-decoration:underline; }
+
+  /* ─── ANALYTICS TABS / HISTORY ─── */
+  .analytics-tabs-row { display:flex; border-bottom:2px solid var(--border); margin-bottom:14px; }
+  .atab { padding:7px 14px; font-size:0.8rem; font-weight:700; cursor:pointer; border:none; background:none; color:var(--text-light); border-bottom:2px solid transparent; margin-bottom:-2px; transition:color 0.15s; }
+  .atab.active { color:var(--green); border-bottom-color:var(--green); }
+  .hist-entry { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--border); }
+  .hist-entry:last-child { border-bottom:none; }
+  .hist-emoji { font-size:1.2rem; flex-shrink:0; padding-top:2px; }
+  .hist-info { flex:1; min-width:0; }
+  .hist-name { font-size:0.82rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hist-meta { font-size:0.68rem; color:var(--text-light); margin-top:2px; line-height:1.45; }
+  .hist-waste { font-size:0.7rem; padding:2px 8px; border-radius:10px; font-weight:700; flex-shrink:0; align-self:center; white-space:nowrap; }
+  .hist-waste.ok  { background:#e8f5e9; color:#2e7d32; }
+  .hist-waste.mid { background:#fff3e0; color:#e65100; }
+  .hist-waste.bad { background:#ffebee; color:#c62828; }
+  .hist-waste.none { background:#f5f5f5; color:#9e9e9e; }
+
+  /* ─── QTY IN START FORM ─── */
+  .qty-start-row { display:flex; gap:6px; align-items:center; margin-top:6px; }
+  .qty-start-input { border:1.5px solid var(--border); border-radius:8px; padding:7px 9px; font-size:0.85rem; width:70px; text-align:center; font-family:inherit; }
+  .qty-start-label { font-size:0.78rem; color:var(--text-light); }
+
 </style>
 </head>
 <body>
@@ -631,7 +677,7 @@ const RECIPES = [
     name: 'No Bake Granola Bars',
     section: 'treats',
     emoji: '🌾',
-    yield: 'Approx. 24 bars (1/6 pan)',
+    yield: 'Approx. 24 bars (large pan)',
     prepTime: '30 min + 2 hr chill',
     ingredients: [
       ['A – Dry Base', '4 cups rolled oats'],
@@ -650,7 +696,7 @@ const RECIPES = [
       ['C – Mix-ins', '½ cup craisins or dried cherries'],
     ],
     steps: [
-      'Line a 1/6 pan with parchment paper, leaving overhang on the sides for easy removal.',
+      'Line a large pan with parchment paper, leaving overhang on the sides for easy removal.',
       'In a food processor, pulse dates until they form a sticky paste. Set aside.',
       'In a large mixing bowl, combine all A (dry base) ingredients and stir well to distribute.',
       'In a small saucepan over low heat, warm B (almond butter, maple syrup, coconut oil, vanilla) until smooth. Stir constantly — do not boil.',
@@ -769,7 +815,7 @@ const RECIPES = [
     name: 'Superfood Bar',
     section: 'treats',
     emoji: '✨',
-    yield: 'Approx. 24 bars (1/6 pan)',
+    yield: 'Approx. 24 bars (large pan)',
     prepTime: '30 min + 2 hr chill',
     ingredients: [
       ['A – Dry Base', '3 cups rolled oats'],
@@ -790,7 +836,7 @@ const RECIPES = [
       ['C – Finish', '2 tbsp hemp seeds (for topping)'],
     ],
     steps: [
-      'Line a 1/6 pan with parchment paper, leaving overhang on sides.',
+      'Line a large pan with parchment paper, leaving overhang on sides.',
       'In a food processor, pulse dates until a sticky paste forms. Set aside.',
       'In a large bowl, combine all A (dry base) ingredients. Stir to evenly distribute the powders throughout the oats.',
       'In a small saucepan over low heat, warm B (almond butter, maple syrup, coconut oil, vanilla) until smooth. Do not boil.',
@@ -2316,7 +2362,7 @@ const RECIPES = [
     name: 'Almond Butter (Homemade)',
     section: 'blender',
     emoji: '🌰',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '20–30 min',
     ingredients: [
       ['', '5 cups whole almonds'],
@@ -2325,7 +2371,7 @@ const RECIPES = [
       'Place whole almonds on a sheet tray and roast on the BOTTOM shelf of the cheese melter for about 15 minutes, or until dark brown on all sides. (Note: They may burn on the top shelf.) Periodically rotate the pan and shake the almonds so they roast on all sides.',
       'Remove tray from cheese melter and let cool to room temperature.',
       'Place roasted almonds in the food processor and blend for about 10 minutes, or until you achieve a smooth consistency.',
-      'Store in a short 1/6 pan. Wrap, label, date, and initial.',
+      'Store in a short pan. Wrap, label, date, and initial.',
       '💡 For drizzle: blend until very smooth and pourable. Do not over-blend — the processor may overheat. Do NOT use a rubber spatula while making almond butter.',
     ]
   },
@@ -2335,10 +2381,10 @@ const RECIPES = [
     name: 'Berry Jam',
     section: 'blender',
     emoji: '🍓',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '20 min',
     ingredients: [
-      ['A', '1/6 tall pan frozen strawberries'],
+      ['A', 'large pan frozen strawberries'],
       ['A', '6 tbsp sugar'],
       ['A', '1 tsp lemon juice'],
       ['B', '1 tsp Xanthan gum'],
@@ -2351,7 +2397,7 @@ const RECIPES = [
       'With a hand blender, blend until smooth.',
       'Add 1 tsp Xanthan gum and blend until well combined.',
       'Add blueberries and blend for only 10 seconds so they remain slightly chunky.',
-      'Transfer jam into a short 1/6 pan and let cool. Wrap, label, date, and initial. Store under the blender station.',
+      'Transfer jam into a short pan and let cool. Wrap, label, date, and initial. Store under the blender station.',
     ]
   },
   {
@@ -2401,7 +2447,7 @@ const RECIPES = [
     name: 'Coconut Whipped Cream',
     section: 'blender',
     emoji: '🥥',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '1 hr 10 min',
     ingredients: [
       ['', '1 cup coconut milk fat (from 2 cans – NOT lite)'],
@@ -2409,7 +2455,7 @@ const RECIPES = [
       ['', '1 tbsp vanilla extract'],
     ],
     steps: [
-      'Open the cans and pour into a 1/6 S container with a lid.',
+      'Open the cans and pour into a large container with a lid.',
       'Place the container in the freezer for exactly 1 hour. Do NOT freeze longer than an hour — it will be hard to separate the fat from the liquid.',
       'After an hour, the coconut milk fat rises to the top and hardens while liquid settles to the bottom.',
       'Carefully scoop out the milk fat and place it in a mixing bowl. Save the liquid for a recipe that uses coconut water (e.g., Green Machine Smoothie).',
@@ -2536,7 +2582,7 @@ const RECIPES = [
     name: 'Peanut Butter for Bowls/Smoothies',
     section: 'blender',
     emoji: '🥜',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '10–15 min',
     tag: 'Label: "Bowl PB"',
     ingredients: [
@@ -2545,7 +2591,7 @@ const RECIPES = [
     steps: [
       'Place 4 cups of peanuts in the food processor and blend until smooth but thick.',
       'Repeat with the remaining 4 cups.',
-      'Transfer to a short 1/6 pan. Wrap and label with name, date, and "Bowl PB".',
+      'Transfer to a short pan. Wrap and label with name, date, and "Bowl PB".',
       '💡 This consistency can be a little thicker since it will be blended again for smoothies and bowls. Do NOT use a rubber spatula to scoop out PB.',
     ]
   },
@@ -2574,7 +2620,7 @@ const RECIPES = [
     name: 'Peanut Butter for Toast',
     section: 'blender',
     emoji: '🥜',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '10–15 min',
     tag: 'Label: "Toast PB"',
     ingredients: [
@@ -2584,7 +2630,7 @@ const RECIPES = [
     steps: [
       'Place ½ of the honey roasted peanuts and ½ of the regular peanuts in the food processor. Blend until spreadable and slightly chunky.',
       'Repeat with the remaining peanuts.',
-      'Transfer to a short 1/6 pan. Wrap and label with name, date, and "Toast PB".',
+      'Transfer to a short pan. Wrap and label with name, date, and "Toast PB".',
       '💡 Consistency should not be too runny. If too runny, add more peanuts and grind for 30 seconds to 1 minute.',
     ]
   },
@@ -2720,7 +2766,7 @@ const RECIPES = [
     name: 'Avocado Smash',
     section: 'toast',
     emoji: '🥑',
-    yield: '3 × 1/6 Tall Pans (6 QT)',
+    yield: '3 × large tall pans (6 QT)',
     prepTime: '30 min',
     ingredients: [
       ['', '1 box ripe avocados (25 lbs)'],
@@ -2733,7 +2779,7 @@ const RECIPES = [
       'Remove avocado pits and stems.',
       'With a spoon, scoop out avocado. If the avocado is brown or bruised, remove those parts and discard.',
       'In a large bowl, combine all ingredients and mash the avocado. DO NOT OVER MASH.',
-      'To store: fill into a tall 1/6 pan to the line. Push down the sides with a spatula to remove air pockets.',
+      'To store: fill into a tall pan to the line. Push down the sides with a spatula to remove air pockets.',
       'Fold a paper towel to fit the top of the container. Squeeze lime juice evenly over the surface — do not over-pour.',
       'Wrap with plastic wrap. Date the avocado with the day it was made and write initials.',
       'Store in the toast station low-boy using FIFO.',
@@ -2797,12 +2843,12 @@ const RECIPES = [
       ['', '1 can of crab'],
     ],
     steps: [
-      'Open can of crab and put into a 1/6S container.',
+      'Open can of crab and put into a large container.',
       'Place plastic wrap over the scale to avoid cross-contamination.',
       'Tare a 4oz cup to weight 0.',
       'Weigh crab out to 2oz per portion (within ±0.05oz is fine).',
       'Label 4oz lids with the date opened and expiry date.',
-      'Store in a 1/6T container. Place backup portions in a 1/3 pan in the refrigerator.',
+      'Store in a large container. Place backup portions in a 1/3 pan in the refrigerator.',
     ]
   },
   {
@@ -2811,7 +2857,7 @@ const RECIPES = [
     name: 'Cream Cheese Spread',
     section: 'toast',
     emoji: '🧀',
-    yield: '1 × 1/6 Tall Pan',
+    yield: '1 × large tall pan',
     prepTime: '10 min',
     ingredients: [
       ['', '1 tub whipped cream cheese (3 lbs)'],
@@ -2822,7 +2868,7 @@ const RECIPES = [
     ],
     steps: [
       'In a bowl, combine all ingredients and mix until well incorporated.',
-      'Transfer to 1 tall 1/6 pan. Wrap with plastic, date, and initial.',
+      'Transfer to 1 tall pan. Wrap with plastic, date, and initial.',
     ]
   },
   {
@@ -2830,7 +2876,7 @@ const RECIPES = [
     name: 'Grated Cheese (Swiss & Fontina)',
     section: 'toast',
     emoji: '🧀',
-    yield: '6 × 1/6 Tall Pans',
+    yield: '6 × large tall pans',
     prepTime: '20 min',
     ingredients: [
       ['', '1 block Swiss cheese (~8 lbs)'],
@@ -2840,7 +2886,7 @@ const RECIPES = [
       'Set up the food processor. For the blade disk, use the side with the BIGGER holes for grated cheese.',
       'Cut Swiss and Fontina blocks small enough to fit the top of the food processor slot.',
       'Alternate grating Swiss and Fontina at a 50/50 ratio. Repeat until the food processor is full.',
-      'Transfer grated cheese to a tall 1/6 pan. Continue grating until the desired preparation amount is reached.',
+      'Transfer grated cheese to a tall pan. Continue grating until the desired preparation amount is reached.',
       'Wrap containers with plastic wrap, label, date, and initial. Store under the toast station.',
     ]
   },
@@ -2863,7 +2909,7 @@ const RECIPES = [
       'After 15 minutes, crack one egg open to ensure the yolk is fully cooked (one solid yellow color). If not, leave boiling for another 3–5 minutes.',
       'Remove from heat and give eggs an ice bath.',
       'Once cooled, peel eggs carefully to ensure no chunks are taken out. Dip peeled egg in water to remove any shell fragments.',
-      'Place a paper towel at the bottom of a tall 1/6 pan. Stack eggs gently.',
+      'Place a paper towel at the bottom of a tall pan. Stack eggs gently.',
       'Plastic wrap, label, date, initial, and place under toast station.',
     ]
   },
@@ -2925,10 +2971,10 @@ const RECIPES = [
     name: 'Marinated Cherry Tomatoes',
     section: 'toast',
     emoji: '🍅',
-    yield: '3 × 1/6 Tall Pans (6 QT)',
+    yield: '3 × large tall pans (6 QT)',
     prepTime: '30 min',
     ingredients: [
-      ['', '3 tall 1/6 pans sliced cherry tomatoes (or one 10 lb case)'],
+      ['', '3 tall pans sliced cherry tomatoes (or one 10 lb case)'],
       ['', '½ cup red onions, thinly sliced (half-moon on mandolin)'],
       ['', '1 tbsp kosher salt'],
       ['', '2 tbsp fresh thyme, picked'],
@@ -2941,7 +2987,7 @@ const RECIPES = [
     steps: [
       'Combine all ingredients in a large mixing bowl.',
       'Add more salt and black pepper if needed.',
-      'Evenly distribute the tomatoes into tall 1/6 pans. Pour remaining liquid evenly on top.',
+      'Evenly distribute the tomatoes into tall pans. Pour remaining liquid evenly on top.',
     ]
   },
   {
@@ -2950,7 +2996,7 @@ const RECIPES = [
     name: 'Onion Jam',
     section: 'toast',
     emoji: '🧅',
-    yield: '1/6 Short Pan',
+    yield: 'small pan',
     prepTime: '30–40 min',
     ingredients: [
       ['', '6 large sweet onions'],
@@ -2976,11 +3022,11 @@ const RECIPES = [
     name: 'Pickled Red Onions',
     section: 'toast',
     emoji: '🧅',
-    yield: '1 × 1/6 Tall Pan',
+    yield: '1 × large tall pan',
     prepTime: '20 min',
     tag: 'Shelf life: 30 days',
     ingredients: [
-      ['Onions', '1 tall 1/6 pan sliced red onions (thinly sliced in half-moons on mandoline)'],
+      ['Onions', '1 tall pan sliced red onions (thinly sliced in half-moons on mandoline)'],
       ['A – Pickling Liquid', '5 cups white vinegar'],
       ['A – Pickling Liquid', '1 cup sugar'],
       ['A – Pickling Liquid', '1 tbsp kosher salt'],
@@ -2989,7 +3035,7 @@ const RECIPES = [
     ],
     steps: [
       'In a medium pot, combine all pickling liquid ingredients (A). Bring to a boil, then turn off heat.',
-      'Pour hot pickling liquid over the tall 1/6 pan of sliced onions.',
+      'Pour hot pickling liquid over the tall pan of sliced onions.',
       'Submerge the herb pouch (B) into the pan. Let cool.',
       'Store in the fridge once cooled. Label and date.',
     ]
@@ -3000,7 +3046,7 @@ const RECIPES = [
     name: 'Ricotta Cheese',
     section: 'toast',
     emoji: '🧀',
-    yield: '1 × 1/6 Tall Pan',
+    yield: '1 × large tall pan',
     prepTime: '10 min',
     ingredients: [
       ['', '1 tub ricotta cheese (5 lb container)'],
@@ -3009,7 +3055,7 @@ const RECIPES = [
     ],
     steps: [
       'Combine everything in a bowl and mix well.',
-      'Transfer to a 1/6 pan or quart containers. Label, date, and initial.',
+      'Transfer to a large pan or quart containers. Label, date, and initial.',
     ]
   },
   {
@@ -3018,7 +3064,7 @@ const RECIPES = [
     name: 'Roasted Chicken Salad',
     section: 'toast',
     emoji: '🐔',
-    yield: '1 × 1/6 Short Pan',
+    yield: '1 × small pan',
     prepTime: '20 min',
     tag: 'Shelf life: 5 days',
     ingredients: [
@@ -3057,9 +3103,9 @@ const RECIPES = [
     steps: [
       'Open salmon by cutting around the edges of the pack. Remove salmon from packaging.',
       'Wrap scale with saran wrap and weigh 2.8oz portions.',
-      'Place into a 1/6T container with each portion separated by deli paper.',
+      'Place into a large container with each portion separated by deli paper.',
       '⚠️ Don\'t press down on salmon so pieces don\'t stick and stay fresh. Avoid breaking pieces to reach weight — mix small and large pieces if needed instead.',
-      'Label the 1/6T pan with the date the salmon was opened.',
+      'Label the large pan with the date the salmon was opened.',
     ]
   },
   {
@@ -3156,7 +3202,7 @@ const RECIPES = [
     name: 'Tuscan Tuna',
     section: 'toast',
     emoji: '🐟',
-    yield: '1½ × 1/6 Tall Pans',
+    yield: '1½ × large tall pans',
     prepTime: '30 min',
     ingredients: [
       ['A – Vegetables', '¼ cup capers'],
@@ -3181,7 +3227,7 @@ const RECIPES = [
       'Combine A (all vegetables) in a LARGE bowl. Using your hands, gently mix everything together.',
       'Add B (drained tuna) and gently mix until well combined.',
       'Add C (dressing ingredients). DO NOT OVERMIX.',
-      'Transfer to tall 1/6 pans. Wrap with plastic wrap. Label, date, and initial.',
+      'Transfer to tall pans. Wrap with plastic wrap. Label, date, and initial.',
     ]
   },
 
@@ -4362,6 +4408,7 @@ function renderFullRecipe(parentGroup) {
       <ul class="ingredients-list">${ingHTML}</ul>
       <h3>Directions</h3>
       <ol class="steps-list">${stepsHTML}</ol>
+      <button class="quick-edit-link" onclick="enterRecipeEditMode()">✏ Edit this recipe</button>
     </div>`;
 }
 
@@ -4631,24 +4678,57 @@ function formatCountdown(expiresAt) {
 // ─────────────────────────────────────────
 // INGREDIENT SCALING
 // ─────────────────────────────────────────
-function scaleIngredient(text, scale) {
-  if (!text || scale === 1) return text;
-  const re = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)/;
-  const match = text.match(re);
-  if (!match) return text;
-  const raw = match[1].trim();
-  let num;
+function _parseNum(raw) {
+  raw = raw.trim();
   if (/\d+\s+\d+\/\d+/.test(raw)) {
     const [w, f] = raw.split(/\s+/);
     const [n, d] = f.split('/');
-    num = parseInt(w) + parseInt(n) / parseInt(d);
-  } else if (raw.includes('/')) {
-    const [n, d] = raw.split('/');
-    num = parseInt(n) / parseInt(d);
-  } else {
-    num = parseFloat(raw);
+    return parseInt(w) + parseInt(n) / parseInt(d);
   }
-  return text.replace(re, formatScaledNum(num * scale));
+  if (raw.includes('/')) { const [n, d] = raw.split('/'); return parseInt(n) / parseInt(d); }
+  return parseFloat(raw);
+}
+
+function _convertUnits(amount, unit) {
+  const u = unit.toLowerCase().replace(/\.$/, '').trim();
+  // Volume (base: tsp)
+  const VOL = { tsp:1, teaspoon:1, teaspoons:1, tbsp:3, tablespoon:3, tablespoons:3,
+    'fl oz':6, 'fluid oz':6, floz:6, cup:48, cups:48, pt:96, pint:96, pints:96,
+    qt:192, qts:192, quart:192, quarts:192, gal:768, gallon:768, gallons:768 };
+  if (VOL[u] !== undefined) {
+    const t = amount * VOL[u];
+    if (t >= 768) return [t/768, 'gal'];
+    if (t >= 192) return [t/192, 'qt'];
+    if (t >= 12)  return [t/48,  t/48 <= 1 ? 'cup' : 'cups'];
+    if (t >= 3)   return [t/3,   'tbsp'];
+    return [t, 'tsp'];
+  }
+  // Weight (base: oz)
+  const WT = { oz:1, ounce:1, ounces:1, lb:16, lbs:16, pound:16, pounds:16,
+    g:0.035274, gram:0.035274, grams:0.035274, kg:35.274, kilogram:35.274, kilograms:35.274 };
+  if (WT[u] !== undefined) {
+    const oz = amount * WT[u];
+    if (oz >= 16) return [oz/16, 'lbs'];
+    if (oz < 1 && (u==='lb'||u==='lbs'||u==='pound'||u==='pounds')) return [oz*16, 'oz'];
+    return [oz, 'oz'];
+  }
+  return [amount, unit];
+}
+
+function scaleIngredient(text, scale) {
+  if (!text || scale === 1) return text;
+  const re = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s*(tsp|tbsp|tablespoons?|teaspoons?|fl\.?\s*oz|fluid\s+oz|cups?|qt|qts|quarts?|gal(?:lons?)?|pt|pints?|oz|ounces?|lbs?|pounds?|g|grams?|kg|kilograms?)(?=\s|,|\)|$)/i;
+  const match = text.match(re);
+  if (match) {
+    const num = _parseNum(match[1]);
+    const [newAmt, newUnit] = _convertUnits(num * scale, match[2]);
+    return text.replace(re, formatScaledNum(newAmt) + ' ' + newUnit);
+  }
+  // No recognized unit — just scale the leading number
+  const numRe = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)/;
+  const numMatch = text.match(numRe);
+  if (!numMatch) return text;
+  return text.replace(numRe, formatScaledNum(_parseNum(numMatch[1]) * scale));
 }
 
 function formatScaledNum(n) {
@@ -4708,6 +4788,9 @@ function loadProductionData() {
               recipeName:  t.recipeName,
               emoji:       t.emoji || '🍴',
               initials:    t.initials || '?',
+              qty:         t.qty || null,
+              qtyUnit:     t.qtyUnit || '',
+              batchScale:  t.batchScale || 1,
             };
           }
         });
@@ -4749,24 +4832,28 @@ function saveActiveTimers() {
   const toSave = {};
   Object.keys(activeTimers).forEach(id => {
     const t = activeTimers[id];
-    toSave[id] = { recipeId: t.recipeId, startTime: t.startTime, expiresAt: t.expiresAt, expiryDays: t.expiryDays, recipeName: t.recipeName, emoji: t.emoji, initials: t.initials };
+    toSave[id] = { recipeId: t.recipeId, startTime: t.startTime, expiresAt: t.expiresAt, expiryDays: t.expiryDays, recipeName: t.recipeName, emoji: t.emoji, initials: t.initials, qty: t.qty, qtyUnit: t.qtyUnit, batchScale: t.batchScale };
   });
   try { localStorage.setItem('tq_active_timers', JSON.stringify(toSave)); } catch {}
 }
 
-function startProduction(recipeId, initials) {
+function startProduction(recipeId, initials, qty, qtyUnit, batchScale, prepTs) {
   const recipe = ACTIVE_RECIPES.find(r => r.id === recipeId);
   if (!recipe) return;
-  const key        = recipeId + '|' + Date.now();
+  const ts         = prepTs || Date.now();
+  const key        = recipeId + '|' + ts;
   const expiryDays = getExpiryDays(recipe);
   activeTimers[key] = {
     recipeId,
-    startTime:  Date.now(),
-    expiresAt:  Date.now() + expiryDays * 24 * 3600 * 1000,
+    startTime:  ts,
+    expiresAt:  ts + expiryDays * 24 * 3600 * 1000,
     expiryDays,
     recipeName: recipe.name,
     emoji:      recipe.emoji || '🍴',
     initials:   ((initials || '').trim().toUpperCase().slice(0, 3)) || '?',
+    qty:        qty   || null,
+    qtyUnit:    qtyUnit || '',
+    batchScale: batchScale || currentBatchScale || 1,
   };
   saveActiveTimers();
   startTimerInterval();
@@ -4775,12 +4862,13 @@ function startProduction(recipeId, initials) {
   render();
 }
 
-function stopProduction(timerKey, logIt = true) {
+function stopProduction(timerKey, logIt = true, wasteData) {
   const timer = activeTimers[timerKey];
   if (!timer) return;
 
   if (logIt) {
     const now = Date.now();
+    const wasExpired = timer.expiresAt - now < 0;
     const entry = {
       id:          now + '_' + timerKey,
       recipeId:    timer.recipeId || timerKey.split('|')[0],
@@ -4792,7 +4880,13 @@ function stopProduction(timerKey, logIt = true) {
       expiryDays:  timer.expiryDays,
       endTime:     now,
       duration:    now - timer.startTime,
-      remainingMs: timer.expiresAt - now
+      remainingMs: timer.expiresAt - now,
+      wasExpired,
+      qty:         timer.qty || null,
+      qtyUnit:     timer.qtyUnit || '',
+      batchScale:  timer.batchScale || 1,
+      wastePct:    wasteData?.wastePct ?? null,
+      wasteCount:  wasteData?.wasteCount ?? null,
     };
     productionLog.unshift(entry);
     if (productionLog.length > MAX_PROD_LOG) productionLog = productionLog.slice(0, MAX_PROD_LOG);
@@ -4843,7 +4937,7 @@ function refreshProdButton() {
     return `<div class="prod-running-item ${status}">
       <span class="prod-initials">${t.initials || '?'}</span>
       <span class="prod-countdown ${status}">${status === 'dead' ? 'EXPIRED' : countdown + ' left'}</span>
-      <button class="prod-mini-done" onclick="stopProduction('${safeKey}',true);refreshProdButton()">${status === 'dead' ? '🗑' : '✓'}</button>
+      <button class="prod-mini-done" onclick="${status === 'dead' ? `showWastePrompt('${safeKey}', false)` : `stopProduction('${safeKey}',true);refreshProdButton()`}">${status === 'dead' ? '🗑' : '✓'}</button>
     </div>`;
   }).join('');
 
@@ -4855,22 +4949,41 @@ function refreshProdButton() {
 function showInitialsForm() {
   const area = document.getElementById('prodBtnArea');
   if (!area || !currentRecipe) return;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const defaultDT = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   area.innerHTML = `
     <div class="initials-form">
       <input id="initialsInput" class="initials-input" type="text" maxlength="3"
              placeholder="Initials" autocomplete="off"
-             onkeydown="if(event.key==='Enter')confirmStartProduction()">
-      <button class="start-prod-btn" onclick="confirmStartProduction()">▶ Start</button>
-      <button class="prod-cancel-inline" onclick="refreshProdButton()">✕</button>
+             onkeydown="if(event.key==='Enter')document.getElementById('qtyInput')?.focus()">
+      <div class="qty-start-row">
+        <input id="qtyInput" class="qty-start-input" type="number" min="1" placeholder="Qty"
+               title="How many did you make? (optional)"
+               onkeydown="if(event.key==='Enter')confirmStartProduction()">
+        <span class="qty-start-label">made (optional)</span>
+      </div>
+      <div class="qty-start-row" style="margin-top:4px">
+        <input id="prepDateInput" type="datetime-local" value="${defaultDT}"
+               style="border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:0.78rem;font-family:inherit;color:var(--text);background:var(--bg);flex:1">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="start-prod-btn" onclick="confirmStartProduction()">▶ Start</button>
+        <button class="prod-cancel-inline" onclick="refreshProdButton()">✕</button>
+      </div>
     </div>`;
   setTimeout(() => document.getElementById('initialsInput')?.focus(), 60);
 }
 
 function confirmStartProduction() {
-  const el = document.getElementById('initialsInput');
+  const el  = document.getElementById('initialsInput');
   const initials = (el?.value || '').trim();
   if (!initials) { if (el) { el.focus(); el.classList.add('error'); } return; }
-  startProduction(currentRecipe.id, initials);
+  const qtyRaw = (document.getElementById('qtyInput')?.value || '').trim();
+  const qty    = qtyRaw ? parseInt(qtyRaw) || null : null;
+  const dtVal  = document.getElementById('prepDateInput')?.value;
+  const prepTs = dtVal ? new Date(dtVal).getTime() : Date.now();
+  startProduction(currentRecipe.id, initials, qty, '', currentBatchScale, prepTs);
 }
 
 function updateProdBadge() {
@@ -4919,7 +5032,7 @@ function renderProdItems(container) {
         <div style="font-size:0.68rem;color:var(--text-light);margin-top:1px">${t.expiryDays}d shelf life · started ${madeStr}</div>
       </div>
       <div class="prod-item-actions">
-        <button class="prod-done-btn" onclick="stopProduction('${safe}',true);renderProdItems(document.getElementById('prodBoard'))">${doneLabel}</button>
+        <button class="prod-done-btn" onclick="${status === 'dead' ? `showWastePrompt('${safe}', true)` : `stopProduction('${safe}',true);renderProdItems(document.getElementById('prodBoard'))`}">${doneLabel}</button>
         <button class="prod-cancel-btn" onclick="stopProduction('${safe}',false);renderProdItems(document.getElementById('prodBoard'))">✕</button>
       </div>
     </div>`;
@@ -4947,54 +5060,191 @@ function clearProdLog() {
   renderAnalytics();
 }
 
-function renderAnalytics() {
+function renderAnalytics(activeTab) {
+  activeTab = activeTab || _analyticsTab || 'summary';
+  _analyticsTab = activeTab;
   const content = document.getElementById('analyticsContent');
   if (!content) return;
 
+  const tabHTML = `<div class="analytics-tabs-row">
+    <button class="atab${activeTab==='summary'?' active':''}" onclick="renderAnalytics('summary')">Summary</button>
+    <button class="atab${activeTab==='history'?' active':''}" onclick="renderAnalytics('history')">History</button>
+    <button class="atab${activeTab==='waste'?' active':''}" onclick="renderAnalytics('waste')">Waste</button>
+  </div>`;
+
+  // Always build the active-now section
+  const activeKeys = Object.keys(activeTimers);
+  let activeSection = '';
+  if (activeKeys.length > 0) {
+    const activeItems = activeKeys.map(key => {
+      const t = activeTimers[key];
+      const status = getTimerStatus(t.expiresAt);
+      const countdown = formatCountdown(t.expiresAt);
+      const statusLabel = status === 'dead' ? '<span style="color:#c62828;font-weight:700">EXPIRED</span>' :
+        status === 'crit' ? `<span style="color:#e65100">${countdown} left</span>` :
+        `<span style="color:var(--green)">${countdown} left</span>`;
+      return `<div class="hist-entry">
+        <div class="hist-emoji">${t.emoji||'🍴'}</div>
+        <div class="hist-info">
+          <div class="hist-name">${t.recipeName}</div>
+          <div class="hist-meta">by ${t.initials||'?'} · ${statusLabel}</div>
+        </div>
+        <span class="hist-waste ok" style="background:#e8f5e9;color:#2e7d32">LIVE</span>
+      </div>`;
+    }).join('');
+    activeSection = `
+      <div style="font-size:0.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">🔴 Currently In Production</div>
+      ${activeItems}
+      <div style="border-top:1px solid var(--border);margin:14px 0"></div>`;
+  }
+
   if (!productionLog.length) {
-    content.innerHTML = `<p style="text-align:center;color:var(--text-light);padding:28px 0;line-height:1.7">No production history yet.<br>Open a recipe and tap <strong>▶ Start Expiry Timer</strong><br>to begin tracking.</p>`;
+    content.innerHTML = tabHTML + activeSection + (activeKeys.length === 0 ?
+      `<p style="text-align:center;color:var(--text-light);padding:28px 0;line-height:1.7">No production history yet.<br>Start a batch from any recipe and mark it <strong>Done</strong> to log it here.</p>` :
+      `<p style="text-align:center;color:var(--text-light);padding:16px 0;font-size:0.82rem">Completed batches will appear here once marked Done.</p>`);
     return;
   }
 
   const stats = {};
-  let expiredCount = 0;
+  let expiredCount = 0, totalWastePct = 0, wasteEntries = 0;
 
   productionLog.forEach(entry => {
-    if (!entry || !entry.recipeId) return;
-    const wasExpired = typeof entry.remainingMs === 'number' && entry.remainingMs < 0;
-    if (wasExpired) expiredCount++;
+    if (!entry?.recipeId) return;
+    if (entry.wasExpired) expiredCount++;
     if (!stats[entry.recipeId]) {
-      stats[entry.recipeId] = { name: entry.recipeName || entry.recipeId, emoji: entry.emoji || '🍴', count: 0, expiryDays: entry.expiryDays || 7 };
+      stats[entry.recipeId] = { name: entry.recipeName||entry.recipeId, emoji: entry.emoji||'🍴', count:0, expiryDays: entry.expiryDays||7, totalWaste:0, wasteN:0 };
     }
     stats[entry.recipeId].count++;
+    if (entry.wastePct != null) {
+      stats[entry.recipeId].totalWaste += entry.wastePct;
+      stats[entry.recipeId].wasteN++;
+      totalWastePct += entry.wastePct;
+      wasteEntries++;
+    }
   });
 
-  const sorted   = Object.values(stats).sort((a, b) => b.count - a.count).slice(0, 15);
-  const maxCount = sorted[0]?.count || 1;
   const total    = productionLog.length;
+  const sorted   = Object.values(stats).sort((a,b) => b.count - a.count).slice(0,15);
+  const maxCount = sorted[0]?.count || 1;
+  const avgWaste = wasteEntries ? Math.round(totalWastePct / wasteEntries) : null;
 
-  content.innerHTML = `
-    <div class="analytics-stat-row">
-      <div class="analytics-stat"><div class="a-num">${total}</div><div class="a-lbl">Batches Made</div></div>
-      <div class="analytics-stat"><div class="a-num">${Object.keys(stats).length}</div><div class="a-lbl">Recipes</div></div>
-      <div class="analytics-stat"><div class="a-num" style="font-size:1.1rem;color:${expiredCount > 0 ? '#c62828' : 'var(--green)'}">${expiredCount}</div><div class="a-lbl">Expired</div></div>
-    </div>
-    <div style="font-size:0.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Most Made</div>
-    ${sorted.map(r => `
-      <div class="analytics-recipe-row">
-        <span style="font-size:1.1rem;flex-shrink:0">${r.emoji}</span>
-        <div style="flex:1;min-width:0;margin:0 8px">
-          <div style="font-size:0.8rem;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
-          <div style="font-size:0.65rem;color:var(--text-light)">${r.expiryDays}d shelf life</div>
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  function wasteTag(entry) {
+    if (entry.wastePct == null) return '<span class="hist-waste none">—</span>';
+    const p = entry.wastePct;
+    const cls = p === 0 ? 'ok' : p <= 40 ? 'mid' : 'bad';
+    if (entry.wasteCount != null) return `<span class="hist-waste ${cls}">${entry.wasteCount} wasted</span>`;
+    return `<span class="hist-waste ${cls}">${p}% wasted</span>`;
+  }
+
+  let body = '';
+
+  if (activeTab === 'summary') {
+    body = activeSection + `
+      <div class="analytics-stat-row">
+        <div class="analytics-stat"><div class="a-num">${total}</div><div class="a-lbl">Batches Made</div></div>
+        <div class="analytics-stat"><div class="a-num">${Object.keys(stats).length}</div><div class="a-lbl">Recipes</div></div>
+        <div class="analytics-stat"><div class="a-num" style="color:${expiredCount>0?'#c62828':'var(--green)'}">${expiredCount}</div><div class="a-lbl">Expired</div></div>
+        <div class="analytics-stat"><div class="a-num" style="color:${avgWaste!=null&&avgWaste>30?'#e65100':'var(--green)'}">${avgWaste!=null?avgWaste+'%':'—'}</div><div class="a-lbl">Avg Waste</div></div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Most Made</div>
+      ${sorted.map(r => `
+        <div class="analytics-recipe-row">
+          <span style="font-size:1.1rem;flex-shrink:0">${r.emoji}</span>
+          <div style="flex:1;min-width:0;margin:0 8px">
+            <div style="font-size:0.8rem;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
+            <div style="font-size:0.65rem;color:var(--text-light)">${r.expiryDays}d shelf life${r.wasteN ? ' · avg waste ' + Math.round(r.totalWaste/r.wasteN) + '%' : ''}</div>
+          </div>
+          <div class="a-bar-wrap"><div class="a-bar" style="width:${Math.round((r.count/maxCount)*100)}%"></div></div>
+          <span class="a-count">${r.count}×</span>
+        </div>`).join('')}`;
+  } else if (activeTab === 'history') {
+    body = productionLog.slice(0, 100).map(entry => {
+      if (!entry?.recipeId) return '';
+      const ago = entry.endTime ? fmtDate(entry.endTime) : fmtDate(entry.startTime);
+      const scale = entry.batchScale && entry.batchScale !== 1 ? ` · ${entry.batchScale}× batch` : '';
+      const qty   = entry.qty ? ` · ${entry.qty} made` : '';
+      const who   = entry.initials && entry.initials !== '?' ? ` · by ${entry.initials}` : '';
+      const expired = entry.wasExpired ? ' · <span style="color:#c62828">expired</span>' : '';
+      return `<div class="hist-entry">
+        <div class="hist-emoji">${entry.emoji||'🍴'}</div>
+        <div class="hist-info">
+          <div class="hist-name">${entry.recipeName||entry.recipeId}</div>
+          <div class="hist-meta">${ago}${scale}${qty}${who}${expired}</div>
         </div>
-        <div class="a-bar-wrap"><div class="a-bar" style="width:${Math.round((r.count/maxCount)*100)}%"></div></div>
-        <span class="a-count">${r.count}×</span>
-      </div>`).join('')}
+        ${wasteTag(entry)}
+      </div>`;
+    }).join('');
+    if (productionLog.length > 100) body += `<div style="text-align:center;font-size:0.75rem;color:var(--text-light);padding:10px">Showing latest 100 of ${productionLog.length} entries</div>`;
+  } else if (activeTab === 'waste') {
+    const wasted = productionLog.filter(e => e.wastePct != null).slice(0, 80);
+    if (!wasted.length) {
+      body = `<p style="text-align:center;color:var(--text-light);padding:24px 0">No waste data recorded yet.<br>When clearing an expired item, log the waste amount to track it here.</p>`;
+    } else {
+      const totalW = wasted.reduce((s,e) => s + (e.wastePct||0), 0);
+      const avg    = Math.round(totalW / wasted.length);
+      const none   = wasted.filter(e => e.wastePct===0).length;
+      const high   = wasted.filter(e => e.wastePct>=75).length;
+      body = `
+        <div class="analytics-stat-row">
+          <div class="analytics-stat"><div class="a-num">${wasted.length}</div><div class="a-lbl">Logged</div></div>
+          <div class="analytics-stat"><div class="a-num" style="color:${avg>40?'#e65100':'var(--green)'}">${avg}%</div><div class="a-lbl">Avg Waste</div></div>
+          <div class="analytics-stat"><div class="a-num" style="color:var(--green)">${none}</div><div class="a-lbl">Zero Waste</div></div>
+          <div class="analytics-stat"><div class="a-num" style="color:#c62828">${high}</div><div class="a-lbl">High (75%+)</div></div>
+        </div>
+        ${wasted.map(entry => `<div class="hist-entry">
+          <div class="hist-emoji">${entry.emoji||'🍴'}</div>
+          <div class="hist-info">
+            <div class="hist-name">${entry.recipeName||entry.recipeId}</div>
+            <div class="hist-meta">${fmtDate(entry.endTime)}${entry.qty ? ' · '+entry.qty+' made' : ''}</div>
+          </div>
+          ${wasteTag(entry)}
+        </div>`).join('')}`;
+    }
+  }
+
+    if (activeTab === 'staff') {
+    const staffStats = {};
+    productionLog.forEach(entry => {
+      const who = entry.initials || '?';
+      if (!staffStats[who]) staffStats[who] = { batches:0, recipes: new Set(), expired:0, totalWaste:0, wasteN:0 };
+      staffStats[who].batches++;
+      staffStats[who].recipes.add(entry.recipeId);
+      if (entry.wasExpired) staffStats[who].expired++;
+      if (entry.wastePct != null) { staffStats[who].totalWaste += entry.wastePct; staffStats[who].wasteN++; }
+    });
+    const sortedStaff = Object.entries(staffStats).sort((a,b) => b[1].batches - a[1].batches);
+    if (!sortedStaff.length) {
+      body = `<p style="text-align:center;color:var(--text-light);padding:24px 0">No staff data yet.</p>`;
+    } else {
+      const maxB = sortedStaff[0][1].batches;
+      body = sortedStaff.map(([who, s]) => {
+        const avgW = s.wasteN ? Math.round(s.totalWaste / s.wasteN) : null;
+        return `<div class="analytics-recipe-row" style="padding:10px 0">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0">${who}</div>
+          <div style="flex:1;min-width:0;margin:0 10px">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--text)">${who}</div>
+            <div style="font-size:0.68rem;color:var(--text-light);margin-top:2px">${s.batches} batch${s.batches!==1?'es':''} · ${s.recipes.size} recipe${s.recipes.size!==1?'s':''} · ${s.expired} expired${avgW!=null?' · avg waste '+avgW+'%':''}</div>
+            <div style="margin-top:5px;height:5px;background:var(--border);border-radius:3px"><div style="height:100%;width:${Math.round((s.batches/maxB)*100)}%;background:var(--green);border-radius:3px"></div></div>
+          </div>
+          <span class="a-count">${s.batches}×</span>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  content.innerHTML = tabHTML + body + `
     <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px">
       <button onclick="clearProdLog()" style="background:#ffebee;color:#e53935;border:none;border-radius:8px;padding:8px 14px;font-size:0.78rem;font-weight:700;cursor:pointer">🗑 Clear History</button>
       <span style="font-size:0.72rem;color:var(--text-light)">${total} entries stored</span>
     </div>`;
 }
+let _analyticsTab = 'summary';
+
 
 // ─────────────────────────────────────────
 // AI IMAGE SCAN
@@ -5057,6 +5307,324 @@ function setScanStatus(type, msg) {
 }
 
 
+
+// ─────────────────────────────────────────
+// WASTE PROMPT
+// ─────────────────────────────────────────
+let _wasteTimerKey = null;
+let _wasteFromBoard = false;
+
+function showWastePrompt(timerKey, fromBoard) {
+  _wasteTimerKey  = timerKey;
+  _wasteFromBoard = fromBoard;
+  const timer = activeTimers[timerKey];
+  if (!timer) return;
+
+  document.getElementById('wasteTitle').textContent = timer.recipeName + ' — Clearing';
+  const overlay = document.getElementById('wasteOverlay');
+
+  let inputHTML = '';
+  if (timer.qty) {
+    // Countable item
+    document.getElementById('wasteBody').textContent =
+      `How many out of ${timer.qty} were discarded (expired)?`;
+    inputHTML = `<div class="waste-count-row">
+      <input id="wasteCountInput" class="waste-count-input" type="number" min="0" max="${timer.qty}" value="${timer.qty}" inputmode="numeric">
+      <span class="waste-count-label">of ${timer.qty} discarded</span>
+    </div>`;
+  } else {
+    // Batch item — percentage
+    document.getElementById('wasteBody').textContent = 'How much of the batch was wasted?';
+    inputHTML = `<div class="waste-pct-btns">
+      <button class="waste-pct-btn" onclick="selectWastePct(this,0)">None</button>
+      <button class="waste-pct-btn" onclick="selectWastePct(this,25)">25%</button>
+      <button class="waste-pct-btn sel" onclick="selectWastePct(this,50)">50%</button>
+      <button class="waste-pct-btn" onclick="selectWastePct(this,75)">75%</button>
+      <button class="waste-pct-btn" onclick="selectWastePct(this,100)">All</button>
+    </div>`;
+    setTimeout(() => {
+      const btns = overlay.querySelectorAll('.waste-pct-btn');
+      btns[2]?.classList.add('sel'); // default 50%
+    }, 30);
+  }
+
+  document.getElementById('wasteInputArea').innerHTML = inputHTML;
+  overlay.classList.add('open');
+}
+
+function selectWastePct(btn, pct) {
+  document.querySelectorAll('.waste-pct-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  btn.dataset.pct = pct;
+}
+
+function confirmWaste(skipFlag) {
+  document.getElementById('wasteOverlay').classList.remove('open');
+  const timerKey = _wasteTimerKey;
+  const fromBoard = _wasteFromBoard;
+  _wasteTimerKey = null;
+
+  let wasteData = null;
+  if (skipFlag !== null) {
+    const timer = timerKey ? activeTimers[timerKey] : null;
+    if (timer?.qty) {
+      const v = parseInt(document.getElementById('wasteCountInput')?.value || 0);
+      wasteData = { wasteCount: v, wastePct: Math.round((v / timer.qty) * 100) };
+    } else {
+      const sel = document.querySelector('.waste-pct-btn.sel');
+      const pct = sel ? parseInt(sel.dataset.pct ?? sel.textContent) : null;
+      if (pct !== null && !isNaN(pct)) wasteData = { wastePct: pct };
+    }
+  }
+
+  if (timerKey) {
+    stopProduction(timerKey, true, wasteData);
+    if (fromBoard) renderProdItems(document.getElementById('prodBoard'));
+    else refreshProdButton();
+  }
+}
+
+// ─────────────────────────────────────────
+// INLINE RECIPE EDIT
+// ─────────────────────────────────────────
+function enterRecipeEditMode() {
+  const r = currentRecipe;
+  if (!r) return;
+  const ingInputs = r.ingredients.map((pair, i) => {
+    const val = (Array.isArray(pair) ? pair[1] : pair).replace(/'/g, '&#39;');
+    const grp = (Array.isArray(pair) ? pair[0] : '').replace(/'/g, '&#39;');
+    return `<input class="edit-ing-input" id="ei_${i}" data-grp="${grp}" value="${val}" placeholder="Ingredient ${i+1}">`;
+  }).join('');
+
+  const stepInputs = r.steps.map((s, i) => {
+    const val = s.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<textarea class="edit-step-input" id="es_${i}">${val}</textarea>`;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="recipe-full">
+      <div style="background:#fffde7;border-radius:8px;padding:10px 12px;font-size:0.8rem;color:#f57f17;margin-bottom:14px">
+        ✏️ Edit mode — changes override the default recipe and are saved locally.
+      </div>
+      <h3>Ingredients</h3>
+      <div id="editIngList">${ingInputs}</div>
+      <h3 style="margin-top:14px">Steps</h3>
+      <div id="editStepList">${stepInputs}</div>
+      <div class="edit-save-bar">
+        <button class="edit-save-btn" onclick="saveRecipeEdits()">💾 Save Changes</button>
+        <button class="edit-cancel-btn" onclick="renderFullRecipe(ACTIVE_GROUPS.find(g=>g.recipeIds.includes(currentRecipe?.id)))">Cancel</button>
+      </div>
+    </div>`;
+}
+
+function saveRecipeEdits() {
+  const r = currentRecipe;
+  if (!r) return;
+  const newIngredients = [];
+  document.querySelectorAll('.edit-ing-input').forEach((inp, i) => {
+    const grp = inp.dataset.grp || (Array.isArray(r.ingredients[i]) ? r.ingredients[i][0] : '');
+    newIngredients.push([grp, inp.value.trim()]);
+  });
+  const newSteps = Array.from(document.querySelectorAll('.edit-step-input')).map(t => t.value.trim()).filter(Boolean);
+
+  const idx = ACTIVE_RECIPES.findIndex(x => x.id === r.id);
+  if (idx !== -1) {
+    ACTIVE_RECIPES[idx].ingredients = newIngredients;
+    ACTIVE_RECIPES[idx].steps = newSteps;
+    currentRecipe = ACTIVE_RECIPES[idx];
+  }
+  saveState();
+  renderFullRecipe(ACTIVE_GROUPS.find(g => g.recipeIds.includes(r.id)));
+}
+
+// ─────────────────────────────────────────
+// RECIPE VERSION HISTORY
+// ─────────────────────────────────────────
+const VER_KEY = 'tq_recipe_versions';
+
+function saveRecipeVersion(recipe) {
+  try {
+    const raw = localStorage.getItem(VER_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    if (!all[recipe.id]) all[recipe.id] = [];
+    all[recipe.id].unshift({
+      ts: Date.now(),
+      ingredients: JSON.parse(JSON.stringify(recipe.ingredients || [])),
+      steps: JSON.parse(JSON.stringify(recipe.steps || [])),
+    });
+    all[recipe.id] = all[recipe.id].slice(0, 5);
+    localStorage.setItem(VER_KEY, JSON.stringify(all));
+  } catch(e) {}
+}
+
+function showVersionHistory() {
+  const r = currentRecipe;
+  if (!r) return;
+  const modalBody = document.getElementById('modalBody');
+  const existing = document.getElementById('verHistoryPanel');
+  if (existing) { existing.remove(); return; }
+  let versions = [];
+  try {
+    const raw = localStorage.getItem(VER_KEY);
+    versions = raw ? (JSON.parse(raw)[r.id] || []) : [];
+  } catch {}
+  if (!versions.length) {
+    alert('No saved versions yet. A version is saved each time you edit this recipe.');
+    return;
+  }
+  const panel = document.createElement('div');
+  panel.id = 'verHistoryPanel';
+  panel.className = 'ver-history-panel';
+  panel.innerHTML = `
+    <div style="font-size:0.78rem;font-weight:800;color:var(--text);margin-bottom:10px">📜 Saved Versions (last ${versions.length})</div>
+    ${versions.map((v, i) => {
+      const d = new Date(v.ts);
+      const label = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      return `<div class="ver-entry">
+        <span style="color:var(--text-light);font-size:0.8rem">${label}</span>
+        <button class="ver-restore-btn" onclick="restoreRecipeVersion(${i})">Restore</button>
+      </div>`;
+    }).join('')}
+    <div style="font-size:0.7rem;color:var(--text-light);margin-top:8px">Restoring replaces current ingredients &amp; steps.</div>`;
+  modalBody.appendChild(panel);
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function restoreRecipeVersion(index) {
+  const r = currentRecipe;
+  if (!r) return;
+  if (!confirm('Restore this version? Current ingredients and steps will be replaced.')) return;
+  try {
+    const raw = localStorage.getItem(VER_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    const version = (all[r.id] || [])[index];
+    if (!version) return;
+    saveRecipeVersion(r);
+    const idx = ACTIVE_RECIPES.findIndex(x => x.id === r.id);
+    if (idx !== -1) {
+      ACTIVE_RECIPES[idx].ingredients = version.ingredients;
+      ACTIVE_RECIPES[idx].steps = version.steps;
+      currentRecipe = ACTIVE_RECIPES[idx];
+    }
+    saveState();
+    document.getElementById('verHistoryPanel')?.remove();
+    renderFullRecipe(ACTIVE_GROUPS.find(g => g.recipeIds.includes(r.id)));
+  } catch(e) { alert('Could not restore version.'); }
+}
+
+// ─────────────────────────────────────────
+// DAILY PREP LIST
+// ─────────────────────────────────────────
+function openPrepList() {
+  renderPrepList();
+  document.getElementById('prepOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePrepList() {
+  document.getElementById('prepOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderPrepList() {
+  const content = document.getElementById('prepContent');
+  if (!content) return;
+  const timersByRecipe = {};
+  Object.values(activeTimers).forEach(t => {
+    if (!timersByRecipe[t.recipeId]) timersByRecipe[t.recipeId] = [];
+    timersByRecipe[t.recipeId].push(t);
+  });
+  const madeCounts = {};
+  productionLog.forEach(e => { if (e.recipeId) madeCounts[e.recipeId] = (madeCounts[e.recipeId] || 0) + 1; });
+  const expired = [], needsPrep = [], active = [];
+  ACTIVE_RECIPES.filter(r => !r.missing && getExpiryDays(r) > 0).forEach(r => {
+    const timers = timersByRecipe[r.id] || [];
+    if (!timers.length) {
+      needsPrep.push(r);
+    } else {
+      const expiredTimers = timers.filter(t => getTimerStatus(t.expiresAt) === 'dead');
+      const liveTimers   = timers.filter(t => getTimerStatus(t.expiresAt) !== 'dead');
+      if (expiredTimers.length) expired.push({ ...r, _timers: expiredTimers });
+      if (liveTimers.length)    active.push({ ...r, _timers: liveTimers });
+    }
+  });
+  const sortFn = (a, b) => (madeCounts[b.id] || 0) - (madeCounts[a.id] || 0);
+  expired.sort(sortFn); needsPrep.sort(sortFn); active.sort(sortFn);
+  let html = '';
+  if (expired.length) {
+    html += `<div class="prep-section-hdr" style="color:#c62828">⚠️ Expired — Replace Now (${expired.length})</div>`;
+    html += expired.map(r => `<div class="prep-item">
+      <div class="prep-emoji">${r.emoji}</div>
+      <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${r.prepTime||''} · ${getExpiryDays(r)}d shelf life</div></div>
+      <span class="prep-badge expired">EXPIRED</span></div>`).join('');
+  }
+  if (needsPrep.length) {
+    html += `<div class="prep-section-hdr" style="color:#e65100">📋 Needs Prep (${needsPrep.length})</div>`;
+    html += needsPrep.map(r => `<div class="prep-item">
+      <div class="prep-emoji">${r.emoji}</div>
+      <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${r.prepTime||''} · ${getExpiryDays(r)}d shelf life</div></div>
+      <span class="prep-badge needs">NEEDS PREP</span></div>`).join('');
+  }
+  if (active.length) {
+    html += `<div class="prep-section-hdr" style="color:#2e7d32">✅ Active (${active.length})</div>`;
+    html += active.map(r => {
+      const best = [...r._timers].sort((a,b) => a.expiresAt - b.expiresAt)[0];
+      const cd = formatCountdown(best.expiresAt);
+      return `<div class="prep-item">
+        <div class="prep-emoji">${r.emoji}</div>
+        <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${cd} left${r._timers.length>1?' · '+r._timers.length+' batches':''}</div></div>
+        <span class="prep-badge ok">GOOD</span></div>`;
+    }).join('');
+  }
+  if (!html) html = `<div style="text-align:center;color:var(--text-light);padding:32px 0;line-height:1.8">No trackable recipes found.<br><span style="font-size:0.8rem">Recipes with an expiry policy appear here.</span></div>`;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  content.innerHTML = `<div style="font-size:0.75rem;color:var(--text-light);margin-bottom:4px">${dateStr}</div>
+    <div style="font-size:0.82rem;color:var(--text);margin-bottom:16px">
+      <strong style="color:#c62828">${expired.length} expired</strong> ·
+      <strong style="color:#e65100">${needsPrep.length} need prep</strong> ·
+      <strong style="color:var(--green)">${active.length} active</strong>
+    </div>${html}`;
+}
+
+// ─────────────────────────────────────────
+// PWA SETUP
+// ─────────────────────────────────────────
+(function initPWA() {
+  const manifest = {
+    name:'Toastique Recipe Book', short_name:'Toastique',
+    description:'Toastique kitchen recipe management',
+    start_url:'/', display:'standalone',
+    background_color:'#f5f5f0', theme_color:'#2e7d32',
+    icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>",sizes:'192x192',type:'image/svg+xml'}]
+  };
+  const el = document.getElementById('pwa-manifest');
+  if (el) el.href = 'data:application/json,' + encodeURIComponent(JSON.stringify(manifest));
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    const sw = `const C='toastique-v2';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.add('/')));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(res&&res.status===200){const cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>caches.match('/'))));});`;
+    try { const b=new Blob([sw],{type:'text/javascript'}); navigator.serviceWorker.register(URL.createObjectURL(b),{scope:'/'}).catch(()=>{}); } catch(e) {}
+  }
+
+  let _dp = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); _dp = e; window._dp = e;
+    const t = document.createElement('div');
+    t.className='pwa-toast'; t.id='pwaToast';
+    t.innerHTML='📱 Install Toastique for offline use <button onclick="installPWA()">Install</button> <span onclick="this.closest(\'.pwa-toast\').remove()" style="cursor:pointer;opacity:0.6;margin-left:4px">✕</span>';
+    document.body.appendChild(t);
+    setTimeout(()=>t.classList.add('show'),100);
+  });
+})();
+
+function installPWA() {
+  if (window._dp) {
+    window._dp.prompt();
+    window._dp.userChoice.then(()=>{window._dp=null;document.getElementById('pwaToast')?.remove();});
+  }
+}
+
+
 // ─────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────
@@ -5064,6 +5632,30 @@ renderNav();
 loadProductionData();
 render();
   </script>
+
+<!-- ── PREP LIST OVERLAY ── -->
+<div class="prep-overlay" id="prepOverlay" onclick="if(event.target===this)closePrepList()">
+  <div class="prep-panel">
+    <div class="prep-panel-hdr">
+      <h2>📋 Daily Prep List</h2>
+      <button onclick="closePrepList()" style="background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div id="prepContent"></div>
+  </div>
+</div>
+
+<!-- ── WASTE PROMPT OVERLAY ── -->
+<div class="waste-overlay" id="wasteOverlay">
+  <div class="waste-modal">
+    <h3 id="wasteTitle">Batch Cleared</h3>
+    <p id="wasteBody">How much was wasted?</p>
+    <div id="wasteInputArea"></div>
+    <div class="waste-action-row">
+      <button class="waste-skip-btn" onclick="confirmWaste(null)">Skip</button>
+      <button class="waste-save-btn" onclick="confirmWaste()">Save</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
-                                                                                                                                                  
