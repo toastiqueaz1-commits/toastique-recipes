@@ -23,20 +23,30 @@
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
 
   /* HEADER */
-  header { background: var(--green); padding: 28px 24px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-  header h1 { color: #fff; font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+  header { background: var(--green); padding: 28px 24px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); overflow: hidden; }
+
+  /* BRUSHED GOLD LOGO WATERMARK */
+
+  header h1 { color: #fff; font-size: 1rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; opacity: 0.85; position: relative; z-index: 1; }
   header h1 span { opacity: 0.75; font-weight: 400; font-size: 1rem; display: block; margin-top: 2px; }
 
-  .search-bar { display: flex; align-items: center; max-width: 480px; margin: 0 auto 14px; background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 30px; padding: 6px 16px; }
+  .search-bar { display: flex; align-items: center; max-width: 480px; margin: 0 auto 14px; background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 30px; padding: 6px 16px; position: relative; z-index: 1; }
   .search-bar input { background: transparent; border: none; outline: none; color: #fff; font-size: 0.95rem; width: 100%; }
   .search-bar input::placeholder { color: rgba(255,255,255,0.65); }
   .search-bar svg { color: rgba(255,255,255,0.65); flex-shrink: 0; margin-right: 8px; }
 
   /* NAV TABS */
-  nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-  nav button { background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  nav button:hover { background: rgba(255,255,255,0.28); }
-  nav button.active { background: #fff; color: var(--green); border-color: #fff; }
+  .section-scroll-wrap { position:relative; overflow:hidden; }
+  .section-scroll-wrap::before,
+  .section-scroll-wrap::after { content:''; position:absolute; top:0; bottom:0; width:72px; z-index:2; pointer-events:none; }
+  .section-scroll-wrap::before { left:0; background:linear-gradient(to right, var(--green) 30%, transparent 100%); }
+  .section-scroll-wrap::after  { right:0; background:linear-gradient(to left,  var(--green) 30%, transparent 100%); }
+  /* center pip */
+  .section-scroll-wrap .center-pip { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:2px; height:70%; background:rgba(255,255,255,0.25); border-radius:2px; pointer-events:none; z-index:1; }
+  nav { display:flex; gap:8px; overflow-x:auto; flex-wrap:nowrap; padding-inline:50%; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; }
+  nav::-webkit-scrollbar { display:none; }
+  nav button { background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.3); color:#fff; padding:4px 13px; border-radius:16px; font-size:0.78rem; font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0; scroll-snap-align:center; transition:opacity 0.08s, transform 0.08s, background 0.15s, color 0.15s; }
+  nav button.active { background:#fff; color:var(--green); border-color:#fff; }
 
   /* MAIN */
   main { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
@@ -161,8 +171,7 @@
   .step-complete p { font-size: 0.85rem; color: var(--text-light); }
 
   /* ADMIN */
-  .admin-btn { display: block; margin: 0 auto 12px; background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; padding: 5px 18px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .admin-btn.active { background: #fff; color: var(--green); }
+  .admin-btn { display: none; }
   .admin-active .recipe-card { overflow: visible; }
   .card-edit, .card-delete { position: absolute; width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
   .card-edit { top: -10px; right: -10px; background: var(--green); color: #fff; }
@@ -213,7 +222,7 @@
   .back-btn { background: none; border: none; color: var(--green); font-size: 0.82rem; font-weight: 700; cursor: pointer; padding: 0 0 14px; display: flex; align-items: center; gap: 4px; }
 
   /* DATA ACTIONS */
-  .data-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 10px 16px; background: rgba(255,255,255,0.12); border-radius: 10px; margin-top: 10px; }
+  .data-bar { display: none; }
   .data-btn { background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; padding: 5px 13px; border-radius: 16px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
   .data-btn:hover { background: rgba(255,255,255,0.3); }
   #importFile { display: none; }
@@ -375,29 +384,63 @@
   .qty-start-input { border:1.5px solid var(--border); border-radius:8px; padding:7px 9px; font-size:0.85rem; width:70px; text-align:center; font-family:inherit; }
   .qty-start-label { font-size:0.78rem; color:var(--text-light); }
 
+
+  /* ─── GEAR / SETTINGS ─── */
+  .gear-btn { position:absolute; top:10px; right:12px; background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.35); color:#fff; width:34px; height:34px; border-radius:50%; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; z-index:10; }
+  .gear-btn:hover { background:rgba(255,255,255,0.35); }
+  .settings-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:900; }
+  .settings-overlay.open { display:flex; align-items:flex-start; justify-content:flex-end; }
+  .settings-panel { background:#fff; width:260px; min-height:100vh; box-shadow:-4px 0 20px rgba(0,0,0,0.18); padding:20px 16px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
+  .settings-panel h2 { font-size:1rem; font-weight:800; color:var(--green); margin:0 0 4px; }
+  .settings-panel .s-divider { height:1px; background:#eee; margin:4px 0; }
+  .settings-btn { display:flex; align-items:center; gap:10px; background:#f4f9f4; border:1.5px solid var(--border); color:var(--text); border-radius:10px; padding:10px 14px; font-size:0.84rem; font-weight:600; cursor:pointer; width:100%; text-align:left; transition:background 0.15s; }
+  .settings-btn:hover { background:#e8f5e9; }
+  .settings-btn.admin-only { display:none; }
+  body.admin-active .settings-btn.admin-only { display:flex !important; }
+  .settings-close { align-self:flex-end; background:none; border:none; font-size:1.3rem; cursor:pointer; color:#888; padding:0 0 8px; }
+  /* ─── PREP LIST QUICK BUTTON ─── */
+  .prep-quick-bar { display:flex; justify-content:center; padding:6px 12px 4px; background:var(--green); }
+  .prep-quick-btn { background:rgba(255,255,255,0.2); border:1.5px solid rgba(255,255,255,0.5); color:#fff; border-radius:14px; padding:5px 20px; font-size:0.8rem; font-weight:700; cursor:pointer; letter-spacing:0.02em; transition:background 0.15s; }
+  .prep-quick-btn:hover { background:rgba(255,255,255,0.35); }
 </style>
 </head>
 <body>
 
-<header>
-  <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
-  <h1>🌿 Toastique Recipe Book <span>2026 Edition</span></h1>
+<header style="position:relative">
+
+  <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
+  <h1>Recipe Book</h1>
   <div class="search-bar">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()">
   </div>
-  <nav id="sectionNav"></nav>
-  <div class="data-bar">
-    <button class="data-btn" onclick="exportData()">⬇ Export Recipes</button>
-    <button class="data-btn" onclick="document.getElementById('importFile').click()">⬆ Import Recipes</button>
-    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-    <button class="data-btn" onclick="resetToDefaults()">↺ Reset to Defaults</button>
-    <button class="data-btn" onclick="openPrepList()">📋 Prep List</button>
-    <button class="data-btn" onclick="openAnalytics()">📊 Analytics</button>
-    <button class="data-btn admin-only" onclick="openSectionsPanel()">⚙ Edit Tabs</button>
-    <button class="data-btn admin-only" id="changePwBtn" onclick="showAdminPasswordSetup(false)" style="display:none">🔑 Password</button>
+  <div class="section-scroll-wrap">
+    <div class="center-pip"></div>
+    <nav id="sectionNav"></nav>
   </div>
+  <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="display:none">
 </header>
+<div class="prep-quick-bar">
+  <button class="prep-quick-btn" onclick="openPrepList()">📋 Prep List</button>
+</div>
+
+<!-- Settings side panel -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+  <div class="settings-panel" id="settingsPanel">
+    <button class="settings-close" onclick="closeSettings()">✕</button>
+    <h2>⚙ Settings</h2>
+    <div class="s-divider"></div>
+    <button class="settings-btn" id="adminBtnS" onclick="toggleAdminFromSettings()">🔒 Admin Mode</button>
+    <div class="s-divider"></div>
+    <button class="settings-btn" onclick="openAnalytics();closeSettings()">📊 Analytics</button>
+    <button class="settings-btn" onclick="exportData();closeSettings()">⬇ Export Recipes</button>
+    <button class="settings-btn" onclick="document.getElementById('importFile').click();closeSettings()">⬆ Import Recipes</button>
+    <button class="settings-btn" onclick="resetToDefaults();closeSettings()">↺ Reset to Defaults</button>
+    <div class="s-divider"></div>
+    <button class="settings-btn admin-only" onclick="openSectionsPanel();closeSettings()">📑 Edit Tabs</button>
+    <button class="settings-btn admin-only" id="changePwBtnS" onclick="showAdminPasswordSetup(false);closeSettings()">🔑 Change Password</button>
+  </div>
+</div>
 <button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
 
 <main id="mainContent"></main>
@@ -680,35 +723,30 @@ const RECIPES = [
     name: 'No Bake Granola Bars',
     section: 'treats',
     emoji: '🌾',
-    yield: 'Approx. 24 bars (large pan)',
-    prepTime: '30 min + 2 hr chill',
+    yield: '38 bars (15×9 pan)',
+    prepTime: '20 min + chill',
     ingredients: [
-      ['A – Dry Base', '4 cups rolled oats'],
-      ['A – Dry Base', '1 cup almonds, roughly chopped'],
-      ['A – Dry Base', '1 cup walnuts, roughly chopped'],
-      ['A – Dry Base', '½ cup hemp seeds'],
-      ['A – Dry Base', '½ cup chia seeds'],
-      ['A – Dry Base', '½ cup shredded coconut, unsweetened'],
-      ['A – Dry Base', '½ tsp salt'],
-      ['B – Binder', '2 cups dates, pitted & roughly chopped'],
-      ['B – Binder', '½ cup almond butter'],
-      ['B – Binder', '½ cup maple syrup'],
-      ['B – Binder', '2 tbsp coconut oil'],
-      ['B – Binder', '1 tsp vanilla extract'],
-      ['C – Mix-ins', '½ cup dark chocolate chips'],
-      ['C – Mix-ins', '½ cup craisins or dried cherries'],
+      ['A – Dry Mix', '4 cups puffed rice'],
+      ['A – Dry Mix', '5 cups Toastique granola'],
+      ['A – Dry Mix', '1 cup coconut flakes'],
+      ['A – Dry Mix', '½ cup dried cranberry'],
+      ['A – Dry Mix', '½ cup sliced almonds'],
+      ['B – Syrup', '1½ cups honey'],
+      ['B – Syrup', '½ cup brown sugar'],
+      ['B – Syrup', '½ tsp salt'],
+      ['C – Binder', '2 cups "bowl" peanut butter'],
+      ['C – Binder', '2 tsp vanilla extract'],
+      ['D – Topping', '1 cup chocolate chips'],
     ],
     steps: [
-      'Line a large pan with parchment paper, leaving overhang on the sides for easy removal.',
-      'In a food processor, pulse dates until they form a sticky paste. Set aside.',
-      'In a large mixing bowl, combine all A (dry base) ingredients and stir well to distribute.',
-      'In a small saucepan over low heat, warm B (almond butter, maple syrup, coconut oil, vanilla) until smooth. Stir constantly — do not boil.',
-      'Add the date paste to the warm binder and stir until fully incorporated.',
-      'Pour the warm binder over the dry base. Mix well until every oat is evenly coated.',
-      'Fold in C (chocolate chips + craisins).',
-      'Transfer to the lined pan. Using a flat-bottomed cup or damp hands, press down VERY FIRMLY and evenly — bars must be tightly packed to hold together.',
-      'Refrigerate at least 2 hours (or overnight) until firm.',
-      'Lift out using parchment overhang. Slice into bars with a sharp knife. Store refrigerated in a sealed container.',
+      'Combine A (puffed rice, granola, coconut flakes, dried cranberry, sliced almonds) in a LARGE bowl and mix well.',
+      'In a medium sized pot, add B (honey, brown sugar, salt) and bring to a boil for 1 minute.',
+      'Remove from heat, add C (peanut butter, vanilla extract) into the pot and mix until smooth.',
+      'Pour the warm mixture over A and mix well, then transfer the granola mixture into the pan.',
+      'Press down granola mix and distribute evenly to all corners.',
+      'Add D (chocolate chips) and press down again to make the chocolate chips stay on top of the bar.',
+      'Push granola slicer into the bar. It will NOT cut all the way through — this is used for guidance when cutting the bars.',
+      'Place in the refrigerator and cool before cutting.',
     ]
   },
   {
@@ -818,37 +856,30 @@ const RECIPES = [
     name: 'Superfood Bar',
     section: 'treats',
     emoji: '✨',
-    yield: 'Approx. 24 bars (large pan)',
-    prepTime: '30 min + 2 hr chill',
+    yield: '8 bars (1×3 inch rectangles)',
+    prepTime: '20 min + chill',
     ingredients: [
-      ['A – Dry Base', '3 cups rolled oats'],
-      ['A – Dry Base', '1 cup cashews, roughly chopped'],
-      ['A – Dry Base', '½ cup hemp seeds'],
-      ['A – Dry Base', '½ cup chia seeds'],
-      ['A – Dry Base', '¼ cup cacao powder, unsweetened'],
-      ['A – Dry Base', '2 tbsp maca powder'],
-      ['A – Dry Base', '1 tsp spirulina powder (optional, for color)'],
-      ['A – Dry Base', '½ tsp cinnamon'],
-      ['A – Dry Base', '½ tsp salt'],
-      ['B – Binder', '2 cups dates, pitted & roughly chopped'],
-      ['B – Binder', '⅓ cup almond butter'],
-      ['B – Binder', '⅓ cup maple syrup'],
+      ['A – Dry Mix', '1 cup oats'],
+      ['A – Dry Mix', '½ cup toasted almonds, chopped'],
+      ['A – Dry Mix', '¼ cup pumpkin seeds'],
+      ['A – Dry Mix', '¼ cup goji berries'],
+      ['A – Dry Mix', '2 tbsp sesame seeds'],
+      ['A – Dry Mix', '2 tbsp flax seeds'],
+      ['A – Dry Mix', '3 tbsp hemp seeds'],
+      ['A – Dry Mix', '1 tbsp chia seeds'],
+      ['A – Dry Mix', '¼ cup shredded unsweetened coconut'],
+      ['A – Dry Mix', '1 tsp cinnamon'],
+      ['A – Dry Mix', '¼ tsp salt'],
+      ['B – Binder', '2 cups dates, chopped'],
       ['B – Binder', '2 tbsp coconut oil'],
-      ['B – Binder', '1 tsp vanilla extract'],
-      ['C – Finish', '¼ cup cacao nibs'],
-      ['C – Finish', '2 tbsp hemp seeds (for topping)'],
+      ['B – Binder', '¼ cup + 1 tbsp almond butter'],
     ],
     steps: [
-      'Line a large pan with parchment paper, leaving overhang on sides.',
-      'In a food processor, pulse dates until a sticky paste forms. Set aside.',
-      'In a large bowl, combine all A (dry base) ingredients. Stir to evenly distribute the powders throughout the oats.',
-      'In a small saucepan over low heat, warm B (almond butter, maple syrup, coconut oil, vanilla) until smooth. Do not boil.',
-      'Add date paste into the warm binder and stir until fully combined.',
-      'Pour warm binder over dry base. Mix vigorously until everything is evenly coated and the mixture clumps when pressed.',
-      'Transfer to the lined pan. Press down VERY FIRMLY with a flat-bottomed cup — compaction is critical for bars that hold together.',
-      'Sprinkle C (cacao nibs + hemp seeds) over the top. Press lightly into the surface so they stick.',
-      'Refrigerate at least 2 hours until fully set.',
-      'Lift out using parchment. Cut into bars with a sharp knife. Store refrigerated in a sealed container.',
+      'In a food processor, put B (dates, coconut oil, almond butter) and pulse until it turns into a paste.',
+      'Mix all of A in a large bowl.',
+      'Add B to A and mix until fully combined.',
+      'Spoon the mixture into a baking pan and press down firmly and evenly.',
+      'Place in the fridge to set, then remove and cut into 1×3 inch rectangles.',
     ]
   },
 
@@ -1958,20 +1989,6 @@ const RECIPES = [
     ]
   },
   {
-    id: 'chunky-roasted-tomato-soup',
-    name: 'Chunky Roasted Tomato Soup',
-    section: 'soups',
-    emoji: '🍅',
-    missing: true,
-  },
-  {
-    id: 'clam-chowder',
-    name: 'Clam Chowder',
-    section: 'soups',
-    emoji: '🦪',
-    missing: true,
-  },
-  {
     id: 'classic-mushroom-soup',
     name: 'Classic Mushroom Soup',
     section: 'soups',
@@ -1995,20 +2012,6 @@ const RECIPES = [
       'Using an immersion/hand blender, blend until smooth.',
       'Season with more salt and pepper to taste.',
     ]
-  },
-  {
-    id: 'creamy-broccoli-soup',
-    name: 'Creamy Broccoli (& Cheddar) Soup',
-    section: 'soups',
-    emoji: '🥦',
-    missing: true,
-  },
-  {
-    id: 'creamy-butternut-squash-soup',
-    name: 'Creamy Butternut Squash (& Pumpkin) Soup',
-    section: 'soups',
-    emoji: '🎃',
-    missing: true,
   },
   {
     id: 'curried-coconut-wild-rice-soup',
@@ -3950,13 +3953,88 @@ function getSectionLabel(secId) {
   return found ? found.label : secId;
 }
 
+// ─── NAV PICKER WHEEL FADE ───
+function updateNavFade() {
+  const nav = document.getElementById('sectionNav');
+  if (!nav) return;
+  const ctr = nav.scrollLeft + nav.clientWidth / 2;
+  const maxDist = nav.clientWidth * 0.42;
+  nav.querySelectorAll('button').forEach(btn => {
+    const btnCtr = btn.offsetLeft + btn.offsetWidth / 2;
+    const dist = Math.abs(btnCtr - ctr);
+    const t = Math.min(dist / maxDist, 1);
+    btn.style.opacity = Math.max(0.2, 1 - t * 0.82).toFixed(3);
+    btn.style.transform = `scale(${Math.max(0.82, 1 - t * 0.18).toFixed(3)})`;
+  });
+}
+
+let _navScrollTimer = null;
+(function initNavPicker() {
+  // Attach scroll listener after DOM ready
+  const attach = () => {
+    const nav = document.getElementById('sectionNav');
+    if (!nav) return;
+    nav.addEventListener('scroll', () => {
+      updateNavFade();
+      clearTimeout(_navScrollTimer);
+      _navScrollTimer = setTimeout(() => {
+        const ctr = nav.scrollLeft + nav.clientWidth / 2;
+        let closest = null, minDist = Infinity;
+        nav.querySelectorAll('button').forEach(btn => {
+          const d = Math.abs((btn.offsetLeft + btn.offsetWidth / 2) - ctr);
+          if (d < minDist) { minDist = d; closest = btn; }
+        });
+        if (closest && !closest.classList.contains('active')) closest.click();
+      }, 140);
+    }, { passive: true });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attach);
+  } else {
+    attach();
+  }
+})();
+
+function toggleAdminFromSettings() {
+  toggleAdmin();
+  // Update label in settings panel
+  const btn = document.getElementById('adminBtnS');
+  if (btn) btn.innerHTML = adminMode ? '🔓 Admin Mode <span style="color:var(--green);font-size:0.75rem;margin-left:6px">ON</span>' : '🔒 Admin Mode';
+}
+
+function openSettings() {
+  // Sync admin button label when opening
+  const btn = document.getElementById('adminBtnS');
+  if (btn) btn.innerHTML = adminMode ? '🔓 Admin Mode <span style="color:var(--green);font-size:0.75rem;margin-left:6px">ON</span>' : '🔒 Admin Mode';
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function closeSettingsOutside(e) {
+  if (e.target === document.getElementById('settingsOverlay')) closeSettings();
+}
+
 function renderNav() {
   const nav = document.getElementById('sectionNav');
-  let html = `<button class="${currentSection === 'all' ? 'active' : ''}" onclick="filterSection('all', this)">All</button>`;
-  ACTIVE_SECTIONS.forEach(sec => {
-    html += `<button class="${currentSection === sec.id ? 'active' : ''}" onclick="filterSection('${sec.id}', this)">${sec.label}</button>`;
+  nav.innerHTML = '';
+  const makeBtn = (id, label) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    if (currentSection === id) b.classList.add('active');
+    b.addEventListener('click', () => {
+      filterSection(id, b);
+      b.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+    });
+    return b;
+  };
+  nav.appendChild(makeBtn('all', 'All'));
+  ACTIVE_SECTIONS.forEach(sec => nav.appendChild(makeBtn(sec.id, sec.label)));
+  requestAnimationFrame(() => {
+    const active = nav.querySelector('button.active');
+    if (active) active.scrollIntoView({ block:'nearest', inline:'center' });
+    updateNavFade();
   });
-  nav.innerHTML = html;
 }
 
 // ─────────────────────────────────────────
@@ -4108,6 +4186,7 @@ function filterSection(section, btn) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
+  updateNavFade();
 }
 
 function filterRecipes() { render(); }
