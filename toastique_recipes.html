@@ -480,7 +480,6 @@
     <button class="settings-btn" onclick="resetToDefaults();closeSettings()">↺ Reset to Defaults</button>
     <div class="s-divider"></div>
     <button class="settings-btn admin-only" onclick="openSectionsPanel();closeSettings()">📑 Edit Tabs</button>
-    <button class="settings-btn admin-only" id="changePwBtnS" onclick="showAdminPasswordSetup(false);closeSettings()">🔑 Change Password</button>
   </div>
 </div>
 <button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
@@ -3882,7 +3881,21 @@ const DEFAULT_GROUPS = [
 function loadState() {
   try {
     const saved = localStorage.getItem('toastique_recipes');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge: pick up DEFAULT_GROUPS added after localStorage was first saved
+      const savedGroupIds = new Set((parsed.groups || []).map(g => g.id));
+      const mergedGroups = [
+        ...(parsed.groups || []),
+        ...DEFAULT_GROUPS.filter(g => !savedGroupIds.has(g.id))
+      ];
+      // Prune recipeIds that reference deleted recipes
+      const recipeSet = new Set((parsed.recipes || RECIPES).map(r => r.id));
+      mergedGroups.forEach(g => {
+        g.recipeIds = (g.recipeIds || []).filter(id => recipeSet.has(id));
+      });
+      return { recipes: parsed.recipes || [...RECIPES], groups: mergedGroups };
+    }
   } catch(e) {}
   return { recipes: [...RECIPES], groups: [...DEFAULT_GROUPS] };
 }
@@ -4270,8 +4283,10 @@ function clearSearch() {
 function toggleAdmin() {
   adminMode = !adminMode;
   const btn = document.getElementById('adminBtn');
-  btn.textContent = adminMode ? '🔓 Admin ON' : '🔒 Admin';
-  btn.classList.toggle('active', adminMode);
+  if (btn) {
+    btn.textContent = adminMode ? '🔓 Admin ON' : '🔒 Admin';
+    btn.classList.toggle('active', adminMode);
+  }
   document.body.classList.toggle('admin-active', adminMode);
   render();
 }
