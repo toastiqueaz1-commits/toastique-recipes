@@ -3983,10 +3983,13 @@ let _navScrollTimer = null;
   const attach = () => {
     const nav = document.getElementById('sectionNav');
     if (!nav) return;
+    let _userClicked = false;
     nav.addEventListener('scroll', () => {
       updateNavFade();
+      if (_userClicked) return;          // user just clicked — don't override
       clearTimeout(_navScrollTimer);
       _navScrollTimer = setTimeout(() => {
+        if (_userClicked) return;
         const ctr = nav.scrollLeft + nav.clientWidth / 2;
         let closest = null, minDist = Infinity;
         nav.querySelectorAll('button').forEach(btn => {
@@ -3996,6 +3999,8 @@ let _navScrollTimer = null;
         if (closest && !closest.classList.contains('active')) closest.click();
       }, 140);
     }, { passive: true });
+    // Expose flag so filterSection can set it
+    nav._setUserClicked = (v) => { _userClicked = v; };
   };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', attach);
@@ -4238,6 +4243,12 @@ function filterSection(section, btn) {
   btn.classList.add('active');
   render();
   updateNavFade();
+  // Suppress scroll-based auto-select while smooth scroll plays out
+  const nav = document.getElementById('sectionNav');
+  if (nav?._setUserClicked) {
+    nav._setUserClicked(true);
+    setTimeout(() => nav._setUserClicked(false), 600);
+  }
 }
 
 function filterRecipes() { render(); }
