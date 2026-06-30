@@ -3893,18 +3893,24 @@ function loadState() {
     const saved = localStorage.getItem('toastique_recipes');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Merge: pick up DEFAULT_GROUPS added after localStorage was first saved
+      // Merge: pick up new RECIPES added after localStorage was first saved
+      const savedRecipeIds = new Set((parsed.recipes || []).map(r => r.id));
+      const mergedRecipes = [
+        ...(parsed.recipes || []),
+        ...RECIPES.filter(r => !savedRecipeIds.has(r.id))
+      ];
+      // Merge: pick up new DEFAULT_GROUPS added after localStorage was first saved
       const savedGroupIds = new Set((parsed.groups || []).map(g => g.id));
       const mergedGroups = [
         ...(parsed.groups || []),
         ...DEFAULT_GROUPS.filter(g => !savedGroupIds.has(g.id))
       ];
       // Prune recipeIds that reference deleted recipes
-      const recipeSet = new Set((parsed.recipes || RECIPES).map(r => r.id));
+      const recipeSet = new Set(mergedRecipes.map(r => r.id));
       mergedGroups.forEach(g => {
         g.recipeIds = (g.recipeIds || []).filter(id => recipeSet.has(id));
       });
-      return { recipes: parsed.recipes || [...RECIPES], groups: mergedGroups };
+      return { recipes: mergedRecipes, groups: mergedGroups };
     }
   } catch(e) {}
   return { recipes: [...RECIPES], groups: [...DEFAULT_GROUPS] };
