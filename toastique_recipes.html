@@ -3702,6 +3702,28 @@ const RECIPES = [
       'Label with juice name, date, time, and your initials.',
     ]
   },
+
+  {
+    id: 'jj-blueberry-mint-limeade',
+    name: "J & J's Blueberry Mint Limeade",
+    section: 'juices',
+    emoji: '🫐',
+    yield: '3 quarts',
+    prepTime: '10 min',
+    tag: 'No Juicer',
+    ingredients: [
+      ['', '3 cups lime juice'],
+      ['', '3 quarts water'],
+      ['', '2 cups honey'],
+      ['', '2 cups frozen blueberries'],
+      ['', '4 branches of mint'],
+    ],
+    steps: [
+      'Blend all ingredients together.',
+      'Strain twice.',
+      'Yields 3 quarts.',
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────
@@ -3849,30 +3871,10 @@ const DEFAULT_GROUPS = [
     name: 'No Juicer Needed',
     section: 'juices',
     emoji: '🥤',
-    description: 'Detoxify · Pitaya Lemonade',
-    recipeIds: ['juice-detoxify','juice-pitaya-lemonade']
+    description: 'Detoxify · Pitaya Lemonade · J&J Blueberry Mint Limeade',
+    recipeIds: ['juice-detoxify','juice-pitaya-lemonade','jj-blueberry-mint-limeade']
   },
-  {
-    id: 'jj-blueberry-mint-limeade',
-    name: "J & J's Blueberry Mint Limeade",
-    section: 'juices',
-    emoji: '🫐',
-    yield: '3 quarts',
-    prepTime: '10 min',
-    tag: 'No Juicer',
-    ingredients: [
-      ['', '3 cups lime juice'],
-      ['', '3 quarts water'],
-      ['', '2 cups honey'],
-      ['', '2 cups frozen blueberries'],
-      ['', '4 branches of mint'],
-    ],
-    steps: [
-      'Blend all ingredients together.',
-      'Strain twice.',
-      'Yields 3 quarts.',
-    ],
-  },
+  // J&J recipe lives in RECIPES, not here
 ];
 
 // ─────────────────────────────────────────
