@@ -34,6 +34,8 @@
   .search-bar input { background: transparent; border: none; outline: none; color: #fff; font-size: 0.95rem; width: 100%; }
   .search-bar input::placeholder { color: rgba(255,255,255,0.65); }
   .search-bar svg { color: rgba(255,255,255,0.65); flex-shrink: 0; margin-right: 8px; }
+  .search-clear { background: none; border: none; color: rgba(255,255,255,0.65); font-size: 1rem; cursor: pointer; padding: 0 0 0 6px; line-height: 1; display: none; flex-shrink: 0; }
+  .search-clear.visible { display: block; }
 
   /* NAV TABS */
   .section-scroll-wrap { position:relative; overflow:hidden; }
@@ -402,6 +404,45 @@
   .prep-quick-bar { display:flex; justify-content:center; padding:6px 12px 4px; background:var(--green); }
   .prep-quick-btn { background:rgba(255,255,255,0.2); border:1.5px solid rgba(255,255,255,0.5); color:#fff; border-radius:14px; padding:5px 20px; font-size:0.8rem; font-weight:700; cursor:pointer; letter-spacing:0.02em; transition:background 0.15s; }
   .prep-quick-btn:hover { background:rgba(255,255,255,0.35); }
+
+  /* ─── PREP LIST OVERLAY ─── */
+  .prep-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:none; align-items:flex-end; justify-content:center; }
+  .prep-overlay.open { display:flex; }
+  .prep-panel { background:#fff; width:100%; max-width:520px; max-height:88vh; border-radius:18px 18px 0 0; display:flex; flex-direction:column; overflow:hidden; }
+  .prep-panel-hdr { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .prep-panel-hdr h2 { font-size:1rem; font-weight:800; color:var(--text); margin:0; }
+  .prep-date { font-size:0.72rem; color:var(--text-light); margin-bottom:10px; }
+  .prep-body { overflow-y:auto; flex:1; padding:12px 14px 20px; }
+  .prep-section-hdr { font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.07em; padding:10px 0 6px; display:flex; align-items:center; justify-content:space-between; }
+  .prep-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; margin-bottom:5px; cursor:pointer; transition:background 0.12s; background:#f9f9f7; border:1.5px solid transparent; user-select:none; }
+  .prep-item:hover { background:#f0f0eb; }
+  .prep-item.prep-done { opacity:0.45; }
+  .prep-item.prep-done .prep-name { text-decoration:line-through; }
+  .prep-check { width:22px; height:22px; border-radius:50%; border:2px solid #ccc; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.75rem; font-weight:900; color:#fff; transition:background 0.12s, border-color 0.12s; background:transparent; }
+  .prep-item.prep-done .prep-check { background:var(--green); border-color:var(--green); }
+  .prep-emoji { font-size:1.3rem; flex-shrink:0; }
+  .prep-info { flex:1; min-width:0; }
+  .prep-name { font-size:0.84rem; font-weight:700; color:var(--text); }
+  .prep-meta { font-size:0.7rem; color:var(--text-light); margin-top:1px; }
+  .prep-badge { font-size:0.62rem; font-weight:800; padding:2px 7px; border-radius:8px; flex-shrink:0; letter-spacing:0.04em; }
+  .prep-badge.expiring { background:#fff3e0; color:#e65100; }
+  .prep-remove-btn { background:none; border:none; color:#bbb; font-size:1rem; cursor:pointer; padding:2px 4px; border-radius:4px; flex-shrink:0; line-height:1; }
+  .prep-remove-btn:hover { background:#ffebee; color:#c62828; }
+  .prep-add-btn { background:var(--green); color:#fff; border:none; border-radius:10px; padding:4px 12px; font-size:0.74rem; font-weight:700; cursor:pointer; }
+  .prep-add-btn:hover { opacity:0.85; }
+  .prep-empty { text-align:center; color:var(--text-light); font-size:0.8rem; padding:16px 0 8px; line-height:1.7; }
+  .prep-summary { text-align:center; margin-top:14px; font-size:0.75rem; color:var(--text-light); padding:8px; background:#f4f9f4; border-radius:8px; font-weight:600; }
+  .prep-search-panel { background:#fff; border:1.5px solid var(--border); border-radius:12px; margin-top:8px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+  .prep-search-hdr { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); }
+  .prep-search-hdr input { flex:1; border:none; outline:none; font-size:0.84rem; font-family:inherit; color:var(--text); background:transparent; }
+  .prep-search-hdr button { background:none; border:none; color:#aaa; font-size:1rem; cursor:pointer; padding:0; }
+  .prep-search-results { max-height:220px; overflow-y:auto; }
+  .prep-search-item { display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer; border-bottom:1px solid #f0f0f0; transition:background 0.1s; }
+  .prep-search-item:hover { background:#f4f9f4; }
+  .prep-search-item:last-child { border-bottom:none; }
+  .prep-search-name { font-size:0.82rem; font-weight:700; color:var(--text); }
+  .prep-search-meta { font-size:0.68rem; color:var(--text-light); }
+  .prep-search-empty { text-align:center; color:var(--text-light); font-size:0.8rem; padding:16px; }
 </style>
 </head>
 <body>
@@ -412,7 +453,8 @@
   <h1>Recipe Book</h1>
   <div class="search-bar">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes()">
+    <input type="text" id="searchInput" placeholder="Search recipes..." oninput="filterRecipes();updateSearchClear()">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear">✕</button>
   </div>
   <div class="section-scroll-wrap">
     <div class="center-pip"></div>
@@ -1523,13 +1565,7 @@ const RECIPES = [
       'Shelf life: 5 days.',
     ]
   },
-  {
-    id: 'seasoned-croutons',
-    name: 'Seasoned Croutons',
-    section: 'salads',
-    emoji: '🍞',
-    missing: true,
-  },
+  
   {
     id: 'spicy-mango-bowl',
     name: 'Spicy Mango Bowl (16oz)',
@@ -1623,13 +1659,7 @@ const RECIPES = [
       '⚠️ Do NOT add vegetables while noodles are hot — this cooks the vegetables. Noodles will continue to cook in the dressing.',
     ]
   },
-  {
-    id: 'teriyaki-tofu-brown-rice',
-    name: 'Teriyaki Tofu & Brown Rice',
-    section: 'salads',
-    emoji: '🍚',
-    missing: true,
-  },
+  
   {
     id: 'thai-salad',
     name: 'Thai Salad (32oz)',
@@ -3359,21 +3389,7 @@ const RECIPES = [
       'Label with juice name, date, time, and your initials.',
     ]
   },
-  {
-    id: 'juice-clean-single',
-    name: 'CHANGE BAG & CLEAN MACHINE',
-    section: 'juices',
-    emoji: '🧹',
-    tag: '⚠️ Required',
-    ingredients: [],
-    steps: [
-      'STOP — Do not move on to green juices until this step is complete.',
-      'Remove and CHANGE the juicer bag.',
-      'Clean the machine entirely — including the blade, chamber, and all removable parts.',
-      'Ensure there are NO remaining particles from the single juices.',
-      'Once the machine is fully clean, proceed to the GREEN JUICES.',
-    ]
-  },
+  
 
   // ── GREEN JUICES ───────────────────────
   {
@@ -3488,21 +3504,7 @@ const RECIPES = [
       'Label with juice name, date, time, and your initials.',
     ]
   },
-  {
-    id: 'juice-clean-green',
-    name: 'CHANGE BAG & CLEAN MACHINE',
-    section: 'juices',
-    emoji: '🧹',
-    tag: '⚠️ Required',
-    ingredients: [],
-    steps: [
-      'STOP — Do not move on to red juices until this step is complete.',
-      'Remove and CHANGE the juicer bag.',
-      'Clean the machine entirely — including the blade, chamber, and all removable parts.',
-      'Ensure there are NO remaining particles from the green juices.',
-      'Once the machine is fully clean, proceed to the RED JUICES.',
-    ]
-  },
+  
 
   // ── RED JUICES ─────────────────────────
   {
@@ -3651,21 +3653,7 @@ const RECIPES = [
       'WARNING: Beets stain — wear gloves and protect clothing and surfaces.',
     ]
   },
-  {
-    id: 'juice-clean-red',
-    name: 'CHANGE BAG & CLEAN MACHINE',
-    section: 'juices',
-    emoji: '🧹',
-    tag: '⚠️ Required',
-    ingredients: [],
-    steps: [
-      'STOP — Do not proceed until this step is complete.',
-      'Remove and CHANGE the juicer bag.',
-      'Clean the machine entirely — including the blade, chamber, and all removable parts.',
-      'Ensure there are NO remaining particles from the red juices.',
-      'Machine is now clean and ready for the no-juicer drinks or storage.',
-    ]
-  },
+  
 
   // ── NO JUICER NEEDED ───────────────────
   {
@@ -3865,6 +3853,27 @@ const DEFAULT_GROUPS = [
     description: 'Detoxify · Pitaya Lemonade',
     recipeIds: ['juice-detoxify','juice-pitaya-lemonade']
   },
+  {
+    id: 'jj-blueberry-mint-limeade',
+    name: "J & J's Blueberry Mint Limeade",
+    section: 'juices',
+    emoji: '🫐',
+    yield: '3 quarts',
+    prepTime: '10 min',
+    tag: 'No Juicer',
+    ingredients: [
+      ['', '3 cups lime juice'],
+      ['', '3 quarts water'],
+      ['', '2 cups honey'],
+      ['', '2 cups frozen blueberries'],
+      ['', '4 branches of mint'],
+    ],
+    steps: [
+      'Blend all ingredients together.',
+      'Strain twice.',
+      'Yields 3 quarts.',
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────
@@ -4029,6 +4038,7 @@ function renderNav() {
     return b;
   };
   nav.appendChild(makeBtn('all', 'All'));
+  nav.appendChild(makeBtn('__mostused__', '⭐ Most Used'));
   ACTIVE_SECTIONS.forEach(sec => nav.appendChild(makeBtn(sec.id, sec.label)));
   requestAnimationFrame(() => {
     const active = nav.querySelector('button.active');
@@ -4064,8 +4074,23 @@ let editingRecipeId = null;
 // ─────────────────────────────────────────
 // RENDER
 // ─────────────────────────────────────────
+function getUseCounts() {
+  const counts = {};
+  productionLog.forEach(e => {
+    if (e.recipeId) counts[e.recipeId] = (counts[e.recipeId] || 0) + 1;
+  });
+  return counts;
+}
+
 function getFilteredRecipes() {
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (currentSection === '__mostused__') {
+    const counts = getUseCounts();
+    return ACTIVE_RECIPES
+      .filter(r => counts[r.id])
+      .sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0))
+      .slice(0, 15);
+  }
   return ACTIVE_RECIPES.filter(r => {
     const matchSection = currentSection === 'all' || r.section === currentSection;
     const matchSearch = !q || r.name.toLowerCase().includes(q) ||
@@ -4089,8 +4114,34 @@ function getGroupedRecipeIds() {
 
 function render() {
   const filtered = getFilteredRecipes();
-  const groupedIds = getGroupedRecipeIds();
   const main = document.getElementById('mainContent');
+
+  // ── Most Used special view ──
+  if (currentSection === '__mostused__') {
+    const counts = getUseCounts();
+    if (!filtered.length) {
+      main.innerHTML = `<div class="empty-state"><div class="icon">⭐</div><p>No recipes used yet.<br><span style="font-size:0.8rem;color:var(--text-light)">Start a batch to track usage.</span></p></div>`;
+      return;
+    }
+    let html = `<div class="section-header">⭐ Most Used <span class="recipe-count">${filtered.length}</span></div><div class="recipe-grid">`;
+    filtered.forEach(r => {
+      const cnt = counts[r.id] || 0;
+      const timer = Object.values(activeTimers).filter(t => t.recipeId === r.id && getTimerStatus(t.expiresAt) !== 'dead');
+      const statusDot = timer.length ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#4caf50;margin-right:4px;vertical-align:middle"></span>` : '';
+      html += `<div class="recipe-card" onclick="openRecipe('${r.id}')">
+        ${r.photo ? `<div class="card-photo" style="background-image:url('${r.photo}')"></div>` : `<div class="card-emoji">${r.emoji}</div>`}
+        <div class="card-body">
+          <div class="card-name">${r.name}</div>
+          <div class="card-meta">${statusDot}<span style="font-weight:700;color:var(--green)">${cnt}×</span> made · ${r.prepTime || ''}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+    main.innerHTML = html;
+    return;
+  }
+
+  const groupedIds = getGroupedRecipeIds();
 
   // Group by section
   const bySection = {};
@@ -4190,6 +4241,17 @@ function filterSection(section, btn) {
 }
 
 function filterRecipes() { render(); }
+function updateSearchClear() {
+  const btn = document.getElementById('searchClear');
+  if (btn) btn.classList.toggle('visible', !!document.getElementById('searchInput').value);
+}
+function clearSearch() {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  updateSearchClear();
+  render();
+  input.focus();
+}
 
 // ─────────────────────────────────────────
 // ADMIN
@@ -5597,7 +5659,70 @@ function restoreRecipeVersion(index) {
 // ─────────────────────────────────────────
 // DAILY PREP LIST
 // ─────────────────────────────────────────
+let prepList = { date: '', manual: [], checked: [] };
+
+function loadPrepList() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('tq_prep_list') || 'null');
+    const today = new Date().toDateString();
+    if (saved && saved.date === today) {
+      prepList = saved;
+    } else {
+      prepList = { date: today, manual: [], checked: [] };
+      savePrepList();
+    }
+  } catch(e) { prepList = { date: new Date().toDateString(), manual: [], checked: [] }; }
+}
+
+function savePrepList() {
+  prepList.date = new Date().toDateString();
+  localStorage.setItem('tq_prep_list', JSON.stringify(prepList));
+}
+
+function getExpiringSoon() {
+  const now = Date.now();
+  const in24h = now + 24 * 60 * 60 * 1000;
+  const expiring = {};
+  Object.values(activeTimers).forEach(t => {
+    if (t.expiresAt > now && t.expiresAt <= in24h) {
+      if (!expiring[t.recipeId] || t.expiresAt < expiring[t.recipeId]) {
+        expiring[t.recipeId] = t.expiresAt;
+      }
+    }
+  });
+  return ACTIVE_RECIPES
+    .filter(r => expiring[r.id])
+    .map(r => ({ ...r, _expiresAt: expiring[r.id] }))
+    .sort((a, b) => a._expiresAt - b._expiresAt);
+}
+
+function addToPrepList(id) {
+  if (!prepList.manual.includes(id)) {
+    prepList.manual.push(id);
+    savePrepList();
+    renderPrepList();
+  }
+}
+
+function removeFromPrepList(id) {
+  prepList.manual = prepList.manual.filter(x => x !== id);
+  prepList.checked = prepList.checked.filter(x => x !== id);
+  savePrepList();
+  renderPrepList();
+}
+
+function togglePrepCheck(id) {
+  if (prepList.checked.includes(id)) {
+    prepList.checked = prepList.checked.filter(x => x !== id);
+  } else {
+    prepList.checked.push(id);
+  }
+  savePrepList();
+  renderPrepList();
+}
+
 function openPrepList() {
+  loadPrepList();
   renderPrepList();
   document.getElementById('prepOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -5609,64 +5734,122 @@ function closePrepList() {
 }
 
 function renderPrepList() {
-  const content = document.getElementById('prepContent');
-  if (!content) return;
-  const timersByRecipe = {};
-  Object.values(activeTimers).forEach(t => {
-    if (!timersByRecipe[t.recipeId]) timersByRecipe[t.recipeId] = [];
-    timersByRecipe[t.recipeId].push(t);
-  });
-  const madeCounts = {};
-  productionLog.forEach(e => { if (e.recipeId) madeCounts[e.recipeId] = (madeCounts[e.recipeId] || 0) + 1; });
-  const expired = [], needsPrep = [], active = [];
-  ACTIVE_RECIPES.filter(r => !r.missing && getExpiryDays(r) > 0).forEach(r => {
-    const timers = timersByRecipe[r.id] || [];
-    if (!timers.length) {
-      needsPrep.push(r);
-    } else {
-      const expiredTimers = timers.filter(t => getTimerStatus(t.expiresAt) === 'dead');
-      const liveTimers   = timers.filter(t => getTimerStatus(t.expiresAt) !== 'dead');
-      if (expiredTimers.length) expired.push({ ...r, _timers: expiredTimers });
-      if (liveTimers.length)    active.push({ ...r, _timers: liveTimers });
-    }
-  });
-  const sortFn = (a, b) => (madeCounts[b.id] || 0) - (madeCounts[a.id] || 0);
-  expired.sort(sortFn); needsPrep.sort(sortFn); active.sort(sortFn);
-  let html = '';
-  if (expired.length) {
-    html += `<div class="prep-section-hdr" style="color:#c62828">⚠️ Expired — Replace Now (${expired.length})</div>`;
-    html += expired.map(r => `<div class="prep-item">
-      <div class="prep-emoji">${r.emoji}</div>
-      <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${r.prepTime||''} · ${getExpiryDays(r)}d shelf life</div></div>
-      <span class="prep-badge expired">EXPIRED</span></div>`).join('');
-  }
-  if (needsPrep.length) {
-    html += `<div class="prep-section-hdr" style="color:#e65100">📋 Needs Prep (${needsPrep.length})</div>`;
-    html += needsPrep.map(r => `<div class="prep-item">
-      <div class="prep-emoji">${r.emoji}</div>
-      <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${r.prepTime||''} · ${getExpiryDays(r)}d shelf life</div></div>
-      <span class="prep-badge needs">NEEDS PREP</span></div>`).join('');
-  }
-  if (active.length) {
-    html += `<div class="prep-section-hdr" style="color:#2e7d32">✅ Active (${active.length})</div>`;
-    html += active.map(r => {
-      const best = [...r._timers].sort((a,b) => a.expiresAt - b.expiresAt)[0];
-      const cd = formatCountdown(best.expiresAt);
-      return `<div class="prep-item">
-        <div class="prep-emoji">${r.emoji}</div>
-        <div class="prep-info"><div class="prep-name">${r.name}</div><div class="prep-meta">${cd} left${r._timers.length>1?' · '+r._timers.length+' batches':''}</div></div>
-        <span class="prep-badge ok">GOOD</span></div>`;
-    }).join('');
-  }
-  if (!html) html = `<div style="text-align:center;color:var(--text-light);padding:32px 0;line-height:1.8">No trackable recipes found.<br><span style="font-size:0.8rem">Recipes with an expiry policy appear here.</span></div>`;
+  const body = document.getElementById('prepBody');
+  if (!body) return;
+
+  const expiring = getExpiringSoon();
+  const expiringIds = new Set(expiring.map(r => r.id));
+
+  const manualRecipes = prepList.manual
+    .map(id => ACTIVE_RECIPES.find(r => r.id === id))
+    .filter(Boolean);
+
   const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  content.innerHTML = `<div style="font-size:0.75rem;color:var(--text-light);margin-bottom:4px">${dateStr}</div>
-    <div style="font-size:0.82rem;color:var(--text);margin-bottom:16px">
-      <strong style="color:#c62828">${expired.length} expired</strong> ·
-      <strong style="color:#e65100">${needsPrep.length} need prep</strong> ·
-      <strong style="color:var(--green)">${active.length} active</strong>
-    </div>${html}`;
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const totalItems = expiring.length + manualRecipes.length;
+  const doneCount = prepList.checked.length;
+
+  let html = `<div class="prep-date">${dateStr}</div>`;
+
+  // Auto section — expiring in <24h
+  html += `<div class="prep-section-hdr" style="color:#e65100">
+    <span>⏰ Expiring Soon ${expiring.length ? '(' + expiring.length + ')' : ''}</span>
+  </div>`;
+  if (expiring.length) {
+    html += expiring.map(r => {
+      const done = prepList.checked.includes(r.id);
+      const timeLeft = formatCountdown(r._expiresAt);
+      return `<div class="prep-item ${done ? 'prep-done' : ''}" onclick="togglePrepCheck('${r.id}')">
+        <div class="prep-check">${done ? '✓' : ''}</div>
+        <div class="prep-emoji">${r.emoji}</div>
+        <div class="prep-info">
+          <div class="prep-name">${r.name}</div>
+          <div class="prep-meta">Expires in ${timeLeft}</div>
+        </div>
+        <span class="prep-badge expiring">EXPIRING</span>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="prep-empty">No batches expiring in the next 24 hours 👍</div>`;
+  }
+
+  // Manual section
+  html += `<div class="prep-section-hdr" style="color:var(--green); margin-top:6px;">
+    <span>📝 Today's Prep List ${manualRecipes.length ? '(' + manualRecipes.length + ')' : ''}</span>
+    <button class="prep-add-btn" onclick="openPrepSearch(event)">+ Add Recipe</button>
+  </div>`;
+
+  if (manualRecipes.length) {
+    html += manualRecipes.map(r => {
+      const done = prepList.checked.includes(r.id);
+      return `<div class="prep-item ${done ? 'prep-done' : ''}" onclick="togglePrepCheck('${r.id}')">
+        <div class="prep-check">${done ? '✓' : ''}</div>
+        <div class="prep-emoji">${r.emoji}</div>
+        <div class="prep-info">
+          <div class="prep-name">${r.name}</div>
+          <div class="prep-meta">${r.prepTime || 'No prep time set'}</div>
+        </div>
+        <button class="prep-remove-btn" onclick="event.stopPropagation();removeFromPrepList('${r.id}')" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="prep-empty">Tap <strong>+ Add Recipe</strong> to build today's list</div>`;
+  }
+
+  if (totalItems > 0) {
+    html += `<div class="prep-summary">${doneCount} of ${totalItems} done${doneCount === totalItems ? ' 🎉' : ''}</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function openPrepSearch(e) {
+  e.stopPropagation();
+  document.getElementById('prepSearchPanel')?.remove();
+
+  const expiringIds = new Set(getExpiringSoon().map(r => r.id));
+  const available = ACTIVE_RECIPES.filter(r =>
+    !prepList.manual.includes(r.id) && !expiringIds.has(r.id)
+  );
+
+  const panel = document.createElement('div');
+  panel.id = 'prepSearchPanel';
+  panel.className = 'prep-search-panel';
+  panel.innerHTML = `
+    <div class="prep-search-hdr">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="prepSearchInput" placeholder="Search recipes…" oninput="filterPrepSearch()" autocomplete="off">
+      <button onclick="document.getElementById('prepSearchPanel').remove()">✕</button>
+    </div>
+    <div class="prep-search-results" id="prepSearchResults">${renderPrepSearchItems(available)}</div>`;
+
+  document.getElementById('prepBody').appendChild(panel);
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => document.getElementById('prepSearchInput')?.focus(), 100);
+}
+
+function renderPrepSearchItems(recipes) {
+  if (!recipes.length) return `<div class="prep-search-empty">No more recipes to add</div>`;
+  return recipes.slice(0, 25).map(r =>
+    `<div class="prep-search-item" onclick="addToPrepList('${r.id}');document.getElementById('prepSearchPanel').remove()">
+      <span style="font-size:1.2rem">${r.emoji}</span>
+      <div>
+        <div class="prep-search-name">${r.name}</div>
+        <div class="prep-search-meta">${r.section || ''} · ${r.prepTime || ''}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function filterPrepSearch() {
+  const q = (document.getElementById('prepSearchInput')?.value || '').toLowerCase();
+  const expiringIds = new Set(getExpiringSoon().map(r => r.id));
+  const available = ACTIVE_RECIPES.filter(r =>
+    !prepList.manual.includes(r.id) && !expiringIds.has(r.id) &&
+    (!q || r.name.toLowerCase().includes(q) || (r.section || '').toLowerCase().includes(q))
+  );
+  const el = document.getElementById('prepSearchResults');
+  if (el) el.innerHTML = renderPrepSearchItems(available);
 }
 
 // ─────────────────────────────────────────
@@ -5712,6 +5895,7 @@ function installPWA() {
 // ──────────────────────────────────────────
 renderNav();
 loadProductionData();
+loadPrepList();
 render();
   </script>
 
@@ -5719,10 +5903,10 @@ render();
 <div class="prep-overlay" id="prepOverlay" onclick="if(event.target===this)closePrepList()">
   <div class="prep-panel">
     <div class="prep-panel-hdr">
-      <h2>📋 Daily Prep List</h2>
-      <button onclick="closePrepList()" style="background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center">✕</button>
+      <h2>📋 Prep List</h2>
+      <button onclick="closePrepList()" style="background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
     </div>
-    <div id="prepContent"></div>
+    <div class="prep-body" id="prepBody"></div>
   </div>
 </div>
 
