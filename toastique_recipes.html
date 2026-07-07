@@ -443,6 +443,90 @@
   .prep-search-name { font-size:0.82rem; font-weight:700; color:var(--text); }
   .prep-search-meta { font-size:0.68rem; color:var(--text-light); }
   .prep-search-empty { text-align:center; color:var(--text-light); font-size:0.8rem; padding:16px; }
+
+  /* DARK MODE */
+  body.dark {
+    --cream: #1c1c1e;
+    --card-bg: #2c2c2e;
+    --text: #e5e5ea;
+    --text-light: #8e8e93;
+    --border: #3a3a3c;
+    --shadow: 0 2px 12px rgba(0,0,0,0.4);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.6);
+    --green-light: #1a2e1c;
+    --brown: #c4926e;
+  }
+  body.dark .step-card { background: var(--card-bg); }
+  body.dark .recipe-full { background: transparent; }
+  body.dark nav button { background: rgba(255,255,255,0.12); }
+  body.dark .settings-panel { background: #2c2c2e; }
+  body.dark .settings-btn { background: #3a3a3c; border-color: #4a4a4c; color: var(--text); }
+  body.dark .settings-btn:hover { background: #4a4a4c; }
+  body.dark .modal { background: var(--card-bg); }
+  body.dark .modal-header { background: var(--green); }
+  body.dark .batch-selector { background: var(--card-bg); border-color: var(--border); }
+  body.dark .batch-chip { background: var(--card-bg); border-color: var(--border); color: var(--text); }
+  body.dark .batch-chip.selected { background: var(--green); color: #fff; }
+  body.dark .card { background: var(--card-bg); }
+  body.dark .group-card { background: var(--card-bg); }
+  body.dark input, body.dark textarea, body.dark select { background: #3a3a3c; color: var(--text); border-color: var(--border); }
+
+
+  /* SECTION COLOR ACCENTS */
+  .section-header[data-section="treats"]   { border-left: 4px solid #c0392b; padding-left: 10px; }
+  .section-header[data-section="parfaits"] { border-left: 4px solid #8e44ad; padding-left: 10px; }
+  .section-header[data-section="salads"]   { border-left: 4px solid #27ae60; padding-left: 10px; }
+  .section-header[data-section="dressings"]{ border-left: 4px solid #e67e22; padding-left: 10px; }
+  .section-header[data-section="soups"]    { border-left: 4px solid #e74c3c; padding-left: 10px; }
+  .section-header[data-section="blender"]  { border-left: 4px solid #2980b9; padding-left: 10px; }
+  .section-header[data-section="toast"]    { border-left: 4px solid #d4956a; padding-left: 10px; }
+  .section-header[data-section="juices"]   { border-left: 4px solid #16a085; padding-left: 10px; }
+
+  nav button[data-section].active { color: #fff; }
+  nav button[data-section="treats"].active   { background: #c0392b; border-color: #c0392b; }
+  nav button[data-section="parfaits"].active { background: #8e44ad; border-color: #8e44ad; }
+  nav button[data-section="salads"].active   { background: #27ae60; border-color: #27ae60; }
+  nav button[data-section="dressings"].active{ background: #e67e22; border-color: #e67e22; }
+  nav button[data-section="soups"].active    { background: #e74c3c; border-color: #e74c3c; }
+  nav button[data-section="blender"].active  { background: #2980b9; border-color: #2980b9; }
+  nav button[data-section="toast"].active    { background: #d4956a; border-color: #d4956a; }
+  nav button[data-section="juices"].active   { background: #16a085; border-color: #16a085; }
+
+
+  /* INGREDIENT CHECKLIST */
+  .ing-item { cursor: pointer; user-select: none; transition: opacity 0.2s; }
+  .ing-item:hover { background: var(--green-light); border-radius: 4px; }
+  .ing-item.checked { opacity: 0.4; }
+  .ing-item.checked span { text-decoration: line-through; }
+  .ing-item.checked::before { content: '✓' !important; color: var(--green) !important; font-weight: 700; }
+  .checklist-hint { font-size: 0.72rem; color: var(--text-light); margin-bottom: 8px; font-style: italic; }
+
+
+  /* STEP TIMER BUTTON */
+  .step-timer-btn { display: block; width: 100%; margin: 10px 0 0; padding: 9px 14px; background: transparent; border: 2px solid var(--green); color: var(--green); border-radius: 10px; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
+  .step-timer-btn:hover { background: var(--green-light); }
+  .step-timer-btn.running { background: var(--green); color: #fff; }
+  .step-timer-btn.done { background: #27ae60; color: #fff; border-color: #27ae60; }
+
+
+  /* View choice panel removed — Full Recipe is now default */
+  #viewChoice { display: none !important; }
+
+  /* Inline step timer button in full recipe */
+  .step-timer-inline { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 5px 10px; background: transparent; border: 1.5px solid var(--green); color: var(--green); border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .step-timer-inline:hover { background: var(--green-light); }
+  .step-timer-inline.running { background: var(--green); color: #fff; border-color: var(--green); }
+  .step-timer-inline.done { background: #27ae60; color: #fff; border-color: #27ae60; }
+
+  /* Step by Step toggle button in full recipe */
+  .switch-to-steps-btn { display: flex; align-items: center; gap: 8px; width: 100%; margin: 18px 0 0; padding: 11px 16px; background: var(--green-light); border: 2px solid var(--green); color: var(--green); border-radius: 12px; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.2s; justify-content: center; }
+  .switch-to-steps-btn:hover { background: var(--green); color: #fff; }
+
+  /* Full Recipe button in step-by-step mode */
+  .switch-to-full-btn { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 7px 14px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.4); color: var(--text-light); border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; align-self: flex-start; }
+  .switch-to-full-btn:hover { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  body.dark .switch-to-full-btn { color: var(--text-light); border-color: var(--border); background: var(--card-bg); }
+
 </style>
 </head>
 <body>
@@ -471,6 +555,8 @@
   <div class="settings-panel" id="settingsPanel">
     <button class="settings-close" onclick="closeSettings()">✕</button>
     <h2>⚙ Settings</h2>
+    <div class="s-divider"></div>
+    <button class="settings-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
     <div class="s-divider"></div>
     <button class="settings-btn" id="adminBtnS" onclick="toggleAdminFromSettings()">🔒 Admin Mode</button>
     <div class="s-divider"></div>
@@ -4061,9 +4147,10 @@ function closeSettingsOutside(e) {
 function renderNav() {
   const nav = document.getElementById('sectionNav');
   nav.innerHTML = '';
-  const makeBtn = (id, label) => {
+  const makeBtn = (id, label, sectionId) => {
     const b = document.createElement('button');
     b.textContent = label;
+    if (sectionId) b.dataset.section = sectionId;
     if (currentSection === id) b.classList.add('active');
     b.addEventListener('click', () => {
       filterSection(id, b);
@@ -4073,7 +4160,7 @@ function renderNav() {
   };
   nav.appendChild(makeBtn('all', 'All'));
   nav.appendChild(makeBtn('__mostused__', '⭐ Most Used'));
-  ACTIVE_SECTIONS.forEach(sec => nav.appendChild(makeBtn(sec.id, sec.label)));
+  ACTIVE_SECTIONS.forEach(sec => nav.appendChild(makeBtn(sec.id, sec.label, sec.id)));
   requestAnimationFrame(() => {
     const active = nav.querySelector('button.active');
     if (active) active.scrollIntoView({ block:'nearest', inline:'center' });
@@ -4219,7 +4306,7 @@ function render() {
   sectionOrder.forEach(sec => {
     if (!bySection[sec]) return;
     const label = getSectionLabel(sec);
-    html += `<div class="section-header">${label} <span class="recipe-count">${bySection[sec].length}</span></div>`;
+    html += `<div class="section-header" data-section="${sec}">${label} <span class="recipe-count">${bySection[sec].length}</span></div>`;
     html += `<div class="recipe-grid">`;
     bySection[sec].forEach(r => {
       if (r._isGroup) {
@@ -4501,9 +4588,11 @@ function deleteGroup(groupId) {
 function openRecipe(id, fromGroup = false) {
   currentRecipe = ACTIVE_RECIPES.find(r => r.id === id);
   if (!currentRecipe) return;
-  currentView       = 'steps';
+  currentView       = 'full';
   currentStep       = 0;
-  currentBatchScale = 1;
+  // Restore last-used batch scale for this recipe, default to 1
+  const _savedScale = parseFloat(localStorage.getItem('tq_scale_' + id)) || 1;
+  currentBatchScale = _savedScale;
 
   document.getElementById('modalTitle').textContent = currentRecipe.emoji + ' ' + currentRecipe.name;
   const meta = [currentRecipe.yield, currentRecipe.prepTime, currentRecipe.tag].filter(Boolean).join(' · ');
@@ -4515,12 +4604,11 @@ function openRecipe(id, fromGroup = false) {
     bs.style.display = 'flex';
     bs.innerHTML = '<span class="batch-label">Batch:</span>' +
       BATCH_OPTIONS.map(o =>
-        `<button class="batch-chip${o.value === 1 ? ' selected' : ''}" data-scale="${o.value}" onclick="setBatchScale(${o.value})">${o.label}</button>`
+        `<button class="batch-chip${o.value === _savedScale ? ' selected' : ''}" data-scale="${o.value}" onclick="setBatchScale(${o.value})">${o.label}</button>`
       ).join('');
   }
 
-  document.getElementById('btnStepByStep').classList.add('selected');
-  document.getElementById('btnFullRecipe').classList.remove('selected');
+  // View choice panel is hidden; full recipe is now default
 
   // Find parent group if any
   const parentGroup = ACTIVE_GROUPS.find(g => g.recipeIds.includes(id));
@@ -4576,11 +4664,23 @@ function renderFullRecipe(parentGroup) {
   let ingHTML = '';
   Object.keys(groups).forEach(g => {
     if (g !== '__none__') ingHTML += `<div class="group-label">${g}</div>`;
-    ingHTML += groups[g].map(i => `<li><span>${scaleIngredient(i, currentBatchScale)}</span></li>`).join('');
+    ingHTML += groups[g].map(i => `<li class="ing-item" onclick="this.classList.toggle('checked')"><span>${scaleIngredient(i, currentBatchScale)}</span></li>`).join('');
   });
 
-  const stepsHTML = r.steps.map((s,i) => `
-    <li><div class="step-num">${i+1}</div><div>${s}</div></li>`).join('');
+  const stepsHTML = r.steps.map((s,i) => {
+    const tm = s.match(/(\d+)\s*(hour|hr|minute|min|second|sec)s?/i);
+    let timerBtn = '';
+    if (tm) {
+      const amt = parseInt(tm[1]);
+      const unit = tm[2].toLowerCase();
+      let secs = amt;
+      if (unit.startsWith('min')) secs = amt * 60;
+      if (unit.startsWith('hour') || unit.startsWith('hr')) secs = amt * 3600;
+      const lbl = amt + (unit.startsWith('min') ? ' min' : unit.startsWith('hour') || unit.startsWith('hr') ? ' hr' : ' sec');
+      timerBtn = `<button class="step-timer-inline" data-label="⏱ ${lbl} timer" onclick="startFullRecipeTimer(this, ${secs})">⏱ ${lbl} timer</button>`;
+    }
+    return `<li><div class="step-num">${i+1}</div><div>${s}${timerBtn ? '<br>' + timerBtn : ''}</div></li>`;
+  }).join('');
 
   document.getElementById('modalBody').innerHTML = `
     <div class="recipe-full">
@@ -4591,9 +4691,11 @@ function renderFullRecipe(parentGroup) {
         ${r.prepTime ? `<span>⏱ ${r.prepTime}</span>` : ''}
       </div>` : ''}
       <h3>Ingredients</h3>
+      <p class="checklist-hint">Tap to check off as you go</p>
       <ul class="ingredients-list">${ingHTML}</ul>
       <h3>Directions</h3>
       <ol class="steps-list">${stepsHTML}</ol>
+      <button class="switch-to-steps-btn" onclick="setView('steps')">👣 Switch to Step by Step Mode</button>
       <button class="quick-edit-link" onclick="enterRecipeEditMode()">✏ Edit this recipe</button>
     </div>`;
 }
@@ -4640,11 +4742,23 @@ function renderStepByStep(parentGroup) {
   document.getElementById('modalBody').innerHTML = `
     <div class="step-view">
       ${backBtn}
+      <button class="switch-to-full-btn" onclick="setView('full')">📋 Full Recipe View</button>
       <div class="step-progress">${dots}</div>
       ${ingSection}
       <div class="step-card">
         <div class="step-label">Step ${currentStep + 1} of ${total}</div>
         <div class="step-text">${r.steps[currentStep]}</div>
+        ${(function(){
+          const _tm = r.steps[currentStep].match(/(\d+)\s*(hour|hr|minute|min|second|sec)s?/i);
+          if (!_tm) return '';
+          const _amt = parseInt(_tm[1]);
+          const _unit = _tm[2].toLowerCase();
+          let _secs = _amt;
+          if (_unit.startsWith('min')) _secs = _amt * 60;
+          if (_unit.startsWith('hour') || _unit.startsWith('hr')) _secs = _amt * 3600;
+          const _lbl = _amt + ' ' + (_unit.startsWith('min') ? 'min' : _unit.startsWith('hour') || _unit.startsWith('hr') ? 'hr' : 'sec');
+          return '<button class="step-timer-btn" id="stepTimerBtn" onclick="startStepTimer(' + _secs + ', \'' + _lbl + '\')">⏱ Start ' + _lbl + ' timer</button>';
+        })()}
       </div>
       <div class="step-nav">
         ${currentStep > 0 ? `<button class="btn-prev" onclick="goStep(${currentStep - 1})">← Back</button>` : `<div></div>`}
@@ -4883,8 +4997,8 @@ function _convertUnits(amount, unit) {
     qt:192, qts:192, quart:192, quarts:192, gal:768, gallon:768, gallons:768 };
   if (VOL[u] !== undefined) {
     const t = amount * VOL[u];
-    if (t >= 768) return [t/768, 'gal'];
-    if (t >= 192) return [t/192, 'qt'];
+    if (t >= 3072) return [t/768, 'gal']; // only go to gal at 4+ gallons (16+ qt)
+    if (t >= 576) return [t/192, 'qt'];    // convert to qt at 3+ qt (12+ cups)
     if (t >= 12)  return [t/48,  t/48 <= 1 ? 'cup' : 'cups'];
     if (t >= 3)   return [t/3,   'tbsp'];
     return [t, 'tsp'];
@@ -4903,14 +5017,44 @@ function _convertUnits(amount, unit) {
 
 function scaleIngredient(text, scale) {
   if (!text || scale === 1) return text;
-  const re = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s*(tsp|tbsp|tablespoons?|teaspoons?|fl\.?\s*oz|fluid\s+oz|cups?|qt|qts|quarts?|gal(?:lons?)?|pt|pints?|oz|ounces?|lbs?|pounds?|g|grams?|kg|kilograms?)(?=\s|,|\)|$)/i;
-  const match = text.match(re);
+  const UF = {'½':0.5,'¼':0.25,'¾':0.75,'⅓':1/3,'⅔':2/3,'⅛':0.125,'⅜':0.375,'⅝':0.625,'⅞':0.875};
+
+  // 1. Compound "X lbs, Y oz" anywhere in string
+  const comp = text.match(/(\d+(?:\.\d+)?)\s*lbs?,\s*(\d+(?:\.\d+)?)\s*oz/i);
+  if (comp) {
+    const totalOz = (parseFloat(comp[1]) * 16 + parseFloat(comp[2])) * scale;
+    const lbs = Math.floor(totalOz / 16);
+    const oz  = Math.round((totalOz % 16) * 2) / 2;
+    let s = lbs > 0 ? formatScaledNum(lbs) + ' lbs' : '';
+    if (oz > 0) s += (s ? ', ' : '') + formatScaledNum(oz) + ' oz';
+    return text.replace(comp[0], s || formatScaledNum(totalOz) + ' oz');
+  }
+
+  // 2. Mixed integer + unicode fraction: "1½ cups"
+  const mixedUF = text.match(/(\d+)([½¼¾⅓⅔⅛⅜⅝⅞])\s*(tsp|tbsp|tablespoons?|teaspoons?|fl\.?\s*oz|fluid\s+oz|cups?|qt|qts|quarts?|gal(?:lons?)?|pt|pints?|oz|ounces?|lbs?|pounds?)/i);
+  if (mixedUF) {
+    const num = parseInt(mixedUF[1]) + UF[mixedUF[2]];
+    const [newAmt, newUnit] = _convertUnits(num * scale, mixedUF[3]);
+    return text.replace(mixedUF[0], formatScaledNum(newAmt) + ' ' + newUnit);
+  }
+
+  // 3. Standalone unicode fraction: "½ cup", "¾ tsp"
+  const stUF = text.match(/([½¼¾⅓⅔⅛⅜⅝⅞])\s*(tsp|tbsp|tablespoons?|teaspoons?|fl\.?\s*oz|fluid\s+oz|cups?|qt|qts|quarts?|gal(?:lons?)?|pt|pints?|oz|ounces?|lbs?|pounds?)/i);
+  if (stUF) {
+    const num = UF[stUF[1]];
+    const [newAmt, newUnit] = _convertUnits(num * scale, stUF[2]);
+    return text.replace(stUF[0], formatScaledNum(newAmt) + ' ' + newUnit);
+  }
+
+  // 4. Standard numeric + unit — search anywhere in string (not just at start)
+  const match = text.match(/(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s*(tsp|tbsp|tablespoons?|teaspoons?|fl\.?\s*oz|fluid\s+oz|cups?|qt|qts|quarts?|gal(?:lons?)?|pt|pints?|oz|ounces?|lbs?|pounds?|g|grams?|kg|kilograms?)(?=\s|,|\)|$)/i);
   if (match) {
     const num = _parseNum(match[1]);
     const [newAmt, newUnit] = _convertUnits(num * scale, match[2]);
-    return text.replace(re, formatScaledNum(newAmt) + ' ' + newUnit);
+    return text.replace(match[0], formatScaledNum(newAmt) + ' ' + newUnit);
   }
-  // No recognized unit — just scale the leading number
+
+  // 5. No recognized unit — scale leading number only
   const numRe = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)/;
   const numMatch = text.match(numRe);
   if (!numMatch) return text;
@@ -4938,6 +5082,10 @@ function setBatchScale(scale) {
   document.querySelectorAll('.batch-chip').forEach(btn => {
     btn.classList.toggle('selected', parseFloat(btn.dataset.scale) === scale);
   });
+  // Remember last scale for this recipe
+  if (currentRecipe?.id) {
+    try { localStorage.setItem('tq_scale_' + currentRecipe.id, scale); } catch {}
+  }
   const parentGroup = ACTIVE_GROUPS.find(g => g.recipeIds.includes(currentRecipe?.id));
   renderView(parentGroup);
 }
@@ -5933,8 +6081,91 @@ function installPWA() {
 
 
 // ─────────────────────────────────────────
+// FULL RECIPE STEP TIMERS
+// ─────────────────────────────────────────
+function startFullRecipeTimer(btn, seconds) {
+  if (btn._timerInterval) {
+    // Tap again to cancel
+    clearInterval(btn._timerInterval);
+    btn._timerInterval = null;
+    btn.textContent = btn.dataset.label || '⏱ timer';
+    btn.classList.remove('running', 'done');
+    return;
+  }
+  const endTime = Date.now() + seconds * 1000;
+  btn.classList.add('running');
+  function tick() {
+    const rem = Math.max(0, endTime - Date.now());
+    if (rem <= 0) {
+      btn.textContent = '✓ Done!';
+      btn.classList.remove('running');
+      btn.classList.add('done');
+      clearInterval(btn._timerInterval);
+      btn._timerInterval = null;
+      return;
+    }
+    const m = Math.floor(rem / 60000);
+    const s = Math.floor((rem % 60000) / 1000);
+    btn.textContent = '⏱ ' + (m > 0 ? m + 'm ' : '') + s + 's';
+  }
+  tick();
+  btn._timerInterval = setInterval(tick, 500);
+}
+
+// STEP TIMER (step-by-step mode)
+// ─────────────────────────────────────────
+let _stepTimerInterval = null;
+
+function startStepTimer(seconds, label) {
+  if (_stepTimerInterval) clearInterval(_stepTimerInterval);
+  const btn = document.getElementById('stepTimerBtn');
+  if (!btn) return;
+  const endTime = Date.now() + seconds * 1000;
+  btn.classList.add('running');
+
+  function tick() {
+    const btn2 = document.getElementById('stepTimerBtn');
+    if (!btn2) { clearInterval(_stepTimerInterval); _stepTimerInterval = null; return; }
+    const rem = Math.max(0, endTime - Date.now());
+    if (rem <= 0) {
+      btn2.textContent = '✓ Timer done!';
+      btn2.classList.remove('running');
+      btn2.classList.add('done');
+      clearInterval(_stepTimerInterval);
+      _stepTimerInterval = null;
+      return;
+    }
+    const m = Math.floor(rem / 60000);
+    const s = Math.floor((rem % 60000) / 1000);
+    btn2.textContent = '⏱ ' + (m > 0 ? m + 'm ' : '') + s + 's';
+  }
+  tick();
+  _stepTimerInterval = setInterval(tick, 500);
+}
+
+// ─────────────────────────────────────────
+// DARK MODE
+// ─────────────────────────────────────────
+function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark');
+  try { localStorage.setItem('tq_dark_mode', isDark ? '1' : '0'); } catch {}
+  const btn = document.getElementById('darkModeBtn');
+  if (btn) btn.textContent = isDark ? '☀ Light Mode' : '🌙 Dark Mode';
+}
+
+// ─────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────
+// Apply saved dark mode preference
+if (localStorage.getItem('tq_dark_mode') === '1') {
+  document.body.classList.add('dark');
+}
+// Set correct dark mode button label
+(function() {
+  const btn = document.getElementById('darkModeBtn');
+  if (btn && document.body.classList.contains('dark')) btn.textContent = '☀ Light Mode';
+})();
+
 renderNav();
 loadProductionData();
 loadPrepList();
