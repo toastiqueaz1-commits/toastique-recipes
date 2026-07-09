@@ -613,6 +613,35 @@
   }
   .user-badge.visible { display: block; }
 
+
+  /* ── SET PASSWORD MODAL (first login from invite) ── */
+  #setPasswordOverlay {
+    position: fixed; inset: 0; z-index: 9998;
+    background: rgba(0,0,0,0.6); display: none;
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  #setPasswordOverlay.open { display: flex; }
+  .setpw-card {
+    background: #fff; border-radius: 18px; padding: 28px 24px;
+    width: 100%; max-width: 340px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  }
+  .setpw-card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; color: var(--text); }
+  .setpw-card p  { font-size: 0.82rem; color: var(--text-light); margin-bottom: 18px; }
+  .setpw-card input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px;
+    outline: none; transition: border 0.2s;
+  }
+  .setpw-card input:focus { border-color: var(--green); }
+  .setpw-submit {
+    width: 100%; padding: 11px; background: var(--green); color: #fff;
+    border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .setpw-submit:disabled { opacity: 0.5; }
+  .setpw-msg { font-size: 0.8rem; margin-top: 8px; text-align: center; }
+
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -636,6 +665,18 @@
     <button class="login-submit" id="loginBtn" onclick="doLogin()">Sign In</button>
     <div id="loginError" class="login-error" style="display:none"></div>
     <div id="loginMsg"   class="login-msg"   style="display:none"></div>
+  </div>
+</div>
+
+<!-- ── SET PASSWORD OVERLAY (shown after accepting invite) ── -->
+<div id="setPasswordOverlay">
+  <div class="setpw-card">
+    <h3>👋 Welcome to Toastique!</h3>
+    <p>You're in. Set a password so you can log in next time.</p>
+    <input type="password" id="setPwInput"  placeholder="New password (min 8 chars)" autocomplete="new-password">
+    <input type="password" id="setPwInput2" placeholder="Confirm password" autocomplete="new-password">
+    <button class="setpw-submit" id="setPwBtn" onclick="submitSetPassword()">Set Password</button>
+    <div class="setpw-msg" id="setPwMsg"></div>
   </div>
 </div>
 
@@ -4796,7 +4837,7 @@ function renderFullRecipe(parentGroup) {
   const backBtn = parentGroup ? `<button class="back-btn" onclick="openGroup('${parentGroup.id}')">← Back to ${parentGroup.name}</button>` : '';
   // Group ingredients
   const groups = {};
-  r.ingredients.forEach(([grp, item]) => {
+  (r.ingredients || []).forEach(([grp, item]) => {
     const key = grp || '__none__';
     if (!groups[key]) groups[key] = [];
     groups[key].push(item);
@@ -4808,7 +4849,7 @@ function renderFullRecipe(parentGroup) {
     ingHTML += groups[g].map(i => `<li class="ing-item" onclick="this.classList.toggle('checked')"><span>${scaleIngredient(i, currentBatchScale)}</span></li>`).join('');
   });
 
-  const stepsHTML = r.steps.map((s,i) => {
+  const stepsHTML = (r.steps || []).map((s,i) => {
     const tm = s.match(/(\d+)\s*(hour|hr|minute|min|second|sec)s?/i);
     let timerBtn = '';
     if (tm) {
@@ -6356,6 +6397,15 @@ async function onSignedIn(user) {
   // Hide login, show app
   document.getElementById('loginScreen').classList.add('hidden');
 
+  // Detect first-time invite login (hash contains type=invite or type=recovery)
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const isInviteFlow = hashParams.get('type') === 'invite' || hashParams.get('type') === 'signup';
+  if (isInviteFlow) {
+    // Clear hash from URL
+    history.replaceState(null, '', window.location.pathname);
+    document.getElementById('setPasswordOverlay').classList.add('open');
+  }
+
   // Show user badge
   const badge = document.getElementById('userBadge');
   badge.textContent = (_sbProfile?.display_name || user.email || '').split('@')[0];
@@ -6372,6 +6422,32 @@ async function onSignedIn(user) {
   // Reinitialise app now that we have user context
   loadProductionData();
   render();
+}
+
+async function submitSetPassword() {
+  const pw1   = document.getElementById('setPwInput').value;
+  const pw2   = document.getElementById('setPwInput2').value;
+  const btn   = document.getElementById('setPwBtn');
+  const msgEl = document.getElementById('setPwMsg');
+
+  if (pw1.length < 8) { msgEl.textContent = 'Password must be at least 8 characters.'; msgEl.style.color = '#e74c3c'; return; }
+  if (pw1 !== pw2)    { msgEl.textContent = 'Passwords don't match.'; msgEl.style.color = '#e74c3c'; return; }
+
+  btn.disabled = true;
+  msgEl.textContent = 'Saving…'; msgEl.style.color = 'var(--text-light)';
+
+  const { error } = await _sb.auth.updateUser({ password: pw1 });
+  if (error) {
+    msgEl.textContent = '✗ ' + error.message;
+    msgEl.style.color = '#e74c3c';
+    btn.disabled = false;
+  } else {
+    msgEl.textContent = '✓ Password set! You're all set.';
+    msgEl.style.color = 'var(--green)';
+    setTimeout(() => {
+      document.getElementById('setPasswordOverlay').classList.remove('open');
+    }, 1500);
+  }
 }
 
 async function doLogin() {
@@ -6532,26 +6608,41 @@ async function sendInvite() {
   const storeId = document.getElementById('inviteStore').value;
   const role    = document.getElementById('inviteRole').value;
   const msgEl   = document.getElementById('inviteMsg');
+  const sendBtn = document.querySelector('.invite-send');
 
   if (!email) { msgEl.textContent = 'Enter an email address.'; msgEl.style.color = '#e74c3c'; return; }
 
   msgEl.textContent = 'Sending…'; msgEl.style.color = 'var(--text-light)';
+  if (sendBtn) sendBtn.disabled = true;
 
-  // 1. Log the invitation in our table
-  if (_sb) {
-    await _sb.from('invitations').insert({
-      email, store_id: storeId || null, role, invited_by: _sbUser?.id
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+        'apikey':        SUPABASE_KEY,
+      },
+      body: JSON.stringify({ email, store_id: storeId || null, role }),
     });
+
+    const result = await res.json();
+
+    if (result.error) {
+      msgEl.textContent = '✗ ' + result.error;
+      msgEl.style.color = '#e74c3c';
+    } else {
+      msgEl.textContent = '✓ ' + result.message;
+      msgEl.style.color = 'var(--green)';
+      document.getElementById('inviteEmail').value = '';
+    }
+  } catch (err) {
+    msgEl.textContent = '✗ Network error — check your connection.';
+    msgEl.style.color = '#e74c3c';
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
   }
-
-  // 2. Send the Supabase magic link invite
-  const { error } = await _sb.auth.admin ? 
-    { error: null } : // admin API needs service key — use dashboard for now
-    { error: null };
-
-  msgEl.textContent = `✓ Invited ${email}. Go to Supabase → Authentication → Users → Invite to send the link.`;
-  msgEl.style.color = 'var(--green)';
-  document.getElementById('inviteEmail').value = '';
 }
 
 // ══════════════════════════════════════════════════════════════
