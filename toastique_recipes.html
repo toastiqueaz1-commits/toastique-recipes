@@ -6625,8 +6625,16 @@ async function loadCorpStores() {
   listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
 
   const { data: stores } = await _sb.from('stores').select('*').eq('active', true).order('name');
+
+  // Always keep invite dropdown in sync (works even with zero stores)
+  const sel = document.getElementById('inviteStore');
+  if (sel) {
+    sel.innerHTML = '<option value="">— No store —</option>' +
+      (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  }
+
   if (!stores || !stores.length) {
-    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No stores found. Add stores in your Supabase dashboard.</p>';
+    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No stores yet — add one above.</p>';
     return;
   }
 
@@ -6657,11 +6665,6 @@ async function loadCorpStores() {
       <button onclick="deactivateStore('${store.id}', '${esc(store.name)}')" title="Remove store"
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:0.8rem;padding:2px 4px;margin-left:8px;flex-shrink:0">✕</button>
     </div>`).join('');
-
-  // Populate store selector in invite form
-  const sel = document.getElementById('inviteStore');
-  sel.innerHTML = '<option value="">— Select store —</option>' +
-    stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
 }
 
 async function sendInvite() {
@@ -6688,18 +6691,24 @@ async function sendInvite() {
       body: JSON.stringify({ email, store_id: storeId || null, role }),
     });
 
-    const result = await res.json();
+    const rawText = await res.text();
+    let result = {};
+    try { result = JSON.parse(rawText); } catch (_) {}
 
     if (result.error) {
-      msgEl.textContent = '✗ ' + result.error;
+      msgEl.textContent = '✗ ' + (typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
       msgEl.style.color = '#e74c3c';
-    } else {
+    } else if (result.message) {
       msgEl.textContent = '✓ ' + result.message;
       msgEl.style.color = 'var(--green)';
       document.getElementById('inviteEmail').value = '';
+    } else {
+      // Show raw response for debugging
+      msgEl.textContent = '✗ Unexpected response (HTTP ' + res.status + '): ' + rawText.slice(0, 120);
+      msgEl.style.color = '#e74c3c';
     }
   } catch (err) {
-    msgEl.textContent = '✗ Network error — check your connection.';
+    msgEl.textContent = '✗ ' + (err.message || 'Network error');
     msgEl.style.color = '#e74c3c';
   } finally {
     if (sendBtn) sendBtn.disabled = false;
