@@ -527,13 +527,150 @@
   .switch-to-full-btn:hover { background: var(--green-light); border-color: var(--green); color: var(--green); }
   body.dark .switch-to-full-btn { color: var(--text-light); border-color: var(--border); background: var(--card-bg); }
 
+
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--green);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 24px;
+  }
+  #loginScreen.hidden { display: none; }
+  .login-logo { font-size: 2.8rem; margin-bottom: 8px; }
+  .login-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 4px; letter-spacing: -0.5px; }
+  .login-sub { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 36px; }
+  .login-card {
+    background: #fff; border-radius: 18px; padding: 28px 24px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .login-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 20px; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
+  .login-field input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 0.9rem; color: var(--text);
+    background: #fff; outline: none; transition: border 0.2s;
+  }
+  .login-field input:focus { border-color: var(--green); }
+  .login-submit {
+    width: 100%; padding: 12px; background: var(--green); color: #fff;
+    border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; margin-top: 6px; transition: opacity 0.2s;
+  }
+  .login-submit:hover { opacity: 0.9; }
+  .login-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error { font-size: 0.8rem; color: #e74c3c; margin-top: 10px; text-align: center; }
+  .login-msg   { font-size: 0.8rem; color: var(--green); margin-top: 10px; text-align: center; font-weight: 600; }
+
+  /* ── CORPORATE ADMIN OVERLAY ── */
+  .corp-overlay {
+    position: fixed; inset: 0; z-index: 800;
+    background: rgba(0,0,0,0.55); display: none; align-items: flex-end;
+  }
+  .corp-overlay.open { display: flex; }
+  .corp-panel {
+    background: var(--card-bg, #fff); border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 700px; margin: 0 auto;
+    max-height: 80vh; overflow-y: auto; padding: 24px 20px 40px;
+  }
+  .corp-panel h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+  .corp-panel .corp-sub { font-size: 0.8rem; color: var(--text-light); margin-bottom: 20px; }
+  .corp-store-card {
+    border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 12px; cursor: pointer; transition: background 0.15s;
+  }
+  .corp-store-card:hover { background: var(--green-light); }
+  .corp-store-name { font-weight: 700; font-size: 0.95rem; }
+  .corp-store-meta { font-size: 0.78rem; color: var(--text-light); margin-top: 3px; }
+  .corp-store-recent { font-size: 0.78rem; color: var(--green); margin-top: 6px; font-weight: 600; }
+  .corp-invite-btn {
+    width: 100%; padding: 12px; background: var(--green); color: #fff;
+    border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; margin-top: 8px;
+  }
+  .corp-close { float: right; background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-light); }
+  .corp-section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin: 20px 0 10px; }
+  .invite-form { background: var(--green-light); border-radius: 12px; padding: 16px; margin-top: 12px; display: none; }
+  .invite-form.open { display: block; }
+  .invite-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .invite-row input, .invite-row select {
+    flex: 1; min-width: 120px; padding: 9px 12px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 0.85rem; background: #fff; color: var(--text);
+  }
+  .invite-send { padding: 9px 18px; background: var(--green); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+  .corporate-only { display: none; }
+
+  /* ── USER BADGE in header ── */
+  .user-badge {
+    position: absolute; top: 14px; right: 54px;
+    background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.3);
+    color: #fff; border-radius: 20px; padding: 4px 10px;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    display: none;
+  }
+  .user-badge.visible { display: block; }
+
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-logo">🥤</div>
+  <div class="login-title">Toastique</div>
+  <div class="login-sub">Recipe Book — Staff Access</div>
+  <div class="login-card">
+    <h3>Sign in to your account</h3>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-submit" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div id="loginError" class="login-error" style="display:none"></div>
+    <div id="loginMsg"   class="login-msg"   style="display:none"></div>
+  </div>
+</div>
+
+<!-- ── CORPORATE ADMIN OVERLAY ── -->
+<div class="corp-overlay" id="corpOverlay" onclick="if(event.target===this)closeCorpPanel()">
+  <div class="corp-panel">
+    <button class="corp-close" onclick="closeCorpPanel()">✕</button>
+    <h2>🏢 Corporate Dashboard</h2>
+    <p class="corp-sub">All stores · Real-time data</p>
+
+    <div class="corp-section-title">Invite New User</div>
+    <button class="corp-invite-btn" onclick="document.getElementById('inviteForm').classList.toggle('open')">+ Send Invite</button>
+    <div class="invite-form" id="inviteForm">
+      <div class="invite-row">
+        <input type="email" id="inviteEmail" placeholder="staff@email.com">
+        <select id="inviteStore"></select>
+        <select id="inviteRole">
+          <option value="staff">Staff</option>
+          <option value="manager">Manager</option>
+          <option value="corporate">Corporate</option>
+        </select>
+        <button class="invite-send" onclick="sendInvite()">Send</button>
+      </div>
+      <div id="inviteMsg" style="font-size:0.8rem;margin-top:8px;color:var(--green)"></div>
+    </div>
+
+    <div class="corp-section-title">Stores</div>
+    <div id="corpStoreList"><p style="color:var(--text-light);font-size:0.85rem">Loading stores…</p></div>
+  </div>
+</div>
 
 <header style="position:relative">
 
   <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
+  <button class="user-badge" id="userBadge" onclick="showUserMenu()"></button>
   <h1>Recipe Book</h1>
   <div class="search-bar">
     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -566,6 +703,10 @@
     <button class="settings-btn" onclick="resetToDefaults();closeSettings()">↺ Reset to Defaults</button>
     <div class="s-divider"></div>
     <button class="settings-btn admin-only" onclick="openSectionsPanel();closeSettings()">📑 Edit Tabs</button>
+    <div class="s-divider"></div>
+    <button class="settings-btn corporate-only" id="corpBtn" onclick="openCorpPanel();closeSettings()">🏢 Corporate Dashboard</button>
+    <div class="s-divider"></div>
+    <button class="settings-btn" onclick="doLogout()" id="logoutBtn" style="color:#e74c3c">⎋ Sign Out</button>
   </div>
 </div>
 <button class="fab" title="Add Recipe" onclick="openRecipeForm(null)">＋</button>
@@ -5224,6 +5365,10 @@ function stopProduction(timerKey, logIt = true, wasteData) {
     };
     productionLog.unshift(entry);
     if (productionLog.length > MAX_PROD_LOG) productionLog = productionLog.slice(0, MAX_PROD_LOG);
+    // Save to cloud (async, non-blocking — local save happens regardless)
+    saveLogEntryToCloud(entry).then(cloudId => {
+      if (cloudId) { entry.id = cloudId; }
+    }).catch(() => {});
     try {
       localStorage.setItem('tq_prod_log', JSON.stringify(productionLog));
     } catch {
@@ -6156,6 +6301,261 @@ function toggleDarkMode() {
 // ─────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// SUPABASE INTEGRATION
+// Replace YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY below
+// with the values from: Supabase → Project Settings → API
+// ══════════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://dkupqdoizcfljtynaofc.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_hweFtsanjOVjc1YtAVEoSA_t49Mxz8A';
+const SB_ENABLED    = !SUPABASE_URL.startsWith('YOUR_');
+
+let _sb          = null;
+let _sbUser      = null;   // auth.User
+let _sbProfile   = null;   // { store_id, role, display_name }
+
+// ── Auth helpers ──────────────────────────────────────────────
+async function initSupabase() {
+  if (!SB_ENABLED) {
+    // Running without Supabase — hide login, behave as before
+    document.getElementById('loginScreen').classList.add('hidden');
+    return;
+  }
+
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Listen for auth changes
+  _sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      await onSignedIn(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      _sbUser = null; _sbProfile = null;
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('userBadge').classList.remove('visible');
+    }
+  });
+
+  // Check existing session
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session) {
+    await onSignedIn(session.user);
+  } else {
+    // Show login screen
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
+}
+
+async function onSignedIn(user) {
+  _sbUser = user;
+
+  // Load profile (store_id, role)
+  const { data: profile } = await _sb
+    .from('profiles').select('*').eq('id', user.id).single();
+  _sbProfile = profile;
+
+  // Hide login, show app
+  document.getElementById('loginScreen').classList.add('hidden');
+
+  // Show user badge
+  const badge = document.getElementById('userBadge');
+  badge.textContent = (_sbProfile?.display_name || user.email || '').split('@')[0];
+  badge.classList.add('visible');
+
+  // Show corporate features
+  if (_sbProfile?.role === 'corporate') {
+    document.querySelectorAll('.corporate-only').forEach(el => el.style.display = 'block');
+  }
+
+  // Pull cloud production logs and merge with local
+  await syncLogsFromCloud();
+
+  // Reinitialise app now that we have user context
+  loadProductionData();
+  render();
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPassword').value;
+  const btn   = document.getElementById('loginBtn');
+  const err   = document.getElementById('loginError');
+  const msg   = document.getElementById('loginMsg');
+
+  if (!email || !pass) { showLoginErr('Please enter your email and password.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  err.style.display = 'none';
+
+  const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    showLoginErr(error.message);
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+  // onAuthStateChange handles the rest
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doLogout() {
+  if (_sb) await _sb.auth.signOut();
+  location.reload();
+}
+
+function showUserMenu() {
+  // For now just open settings
+  openSettings();
+}
+
+// ── Production log cloud sync ─────────────────────────────────
+async function syncLogsFromCloud() {
+  if (!_sb || !_sbProfile?.store_id) return;
+  try {
+    const { data, error } = await _sb
+      .from('production_logs')
+      .select('*')
+      .eq('store_id', _sbProfile.store_id)
+      .order('started_at', { ascending: false })
+      .limit(500);
+
+    if (error || !data) return;
+
+    // Merge cloud logs into local format
+    const cloudEntries = data.map(row => ({
+      id:          row.id,
+      recipeId:    row.recipe_id,
+      recipeName:  row.recipe_name,
+      emoji:       '🍴',
+      initials:    '?',
+      startTime:   new Date(row.started_at).getTime(),
+      endTime:     row.completed_at ? new Date(row.completed_at).getTime() : null,
+      expiresAt:   row.started_at ? new Date(row.started_at).getTime() + (row.expiry_days || 7) * 86400000 : null,
+      expiryDays:  row.expiry_days || 7,
+      batchScale:  row.batch_scale || 1,
+      qty:         null, qtyUnit: '',
+      wasExpired:  false,
+    }));
+
+    // Merge: prefer cloud entries, keep any local-only entries by id
+    const cloudIds = new Set(cloudEntries.map(e => e.id).filter(Boolean));
+    const localOnly = productionLog.filter(e => !e.id || !cloudIds.has(e.id));
+    productionLog = [...cloudEntries, ...localOnly]
+      .sort((a, b) => b.startTime - a.startTime)
+      .slice(0, MAX_PROD_LOG);
+
+    localStorage.setItem('tq_prod_log', JSON.stringify(productionLog));
+  } catch (e) {
+    console.warn('Cloud sync failed (offline?), using local log', e);
+  }
+}
+
+async function saveLogEntryToCloud(entry) {
+  if (!_sb || !_sbProfile?.store_id) return null;
+  try {
+    const { data, error } = await _sb.from('production_logs').insert({
+      store_id:    _sbProfile.store_id,
+      user_id:     _sbUser?.id,
+      recipe_id:   entry.recipeId,
+      recipe_name: entry.recipeName,
+      batch_scale: entry.batchScale || 1,
+      started_at:  new Date(entry.startTime).toISOString(),
+      completed_at: entry.endTime ? new Date(entry.endTime).toISOString() : null,
+      expiry_days: entry.expiryDays || 7,
+    }).select().single();
+
+    if (!error && data) return data.id; // return cloud ID to tag local entry
+  } catch (e) {
+    console.warn('Failed to save log to cloud:', e);
+  }
+  return null;
+}
+
+// ── Corporate panel ───────────────────────────────────────────
+async function openCorpPanel() {
+  document.getElementById('corpOverlay').classList.add('open');
+  await loadCorpStores();
+}
+
+function closeCorpPanel() {
+  document.getElementById('corpOverlay').classList.remove('open');
+}
+
+async function loadCorpStores() {
+  if (!_sb) return;
+  const listEl = document.getElementById('corpStoreList');
+  listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
+
+  const { data: stores } = await _sb.from('stores').select('*').eq('active', true).order('name');
+  if (!stores || !stores.length) {
+    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No stores found. Add stores in your Supabase dashboard.</p>';
+    return;
+  }
+
+  // Load recent activity for each store (last 7 days batch count)
+  const since = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { data: recentLogs } = await _sb
+    .from('production_logs')
+    .select('store_id, recipe_name, started_at')
+    .gte('started_at', since);
+
+  const countByStore = {};
+  const lastByStore  = {};
+  (recentLogs || []).forEach(log => {
+    countByStore[log.store_id] = (countByStore[log.store_id] || 0) + 1;
+    if (!lastByStore[log.store_id] || log.started_at > lastByStore[log.store_id].started_at) {
+      lastByStore[log.store_id] = log;
+    }
+  });
+
+  listEl.innerHTML = stores.map(store => `
+    <div class="corp-store-card">
+      <div class="corp-store-name">${store.name}</div>
+      <div class="corp-store-meta">${store.location || ''}</div>
+      <div class="corp-store-recent">
+        ${countByStore[store.id] ? `${countByStore[store.id]} batches this week · Last: ${lastByStore[store.id]?.recipe_name || '—'}` : 'No activity this week'}
+      </div>
+    </div>`).join('');
+
+  // Populate store selector in invite form
+  const sel = document.getElementById('inviteStore');
+  sel.innerHTML = '<option value="">— Select store —</option>' +
+    stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function sendInvite() {
+  const email   = document.getElementById('inviteEmail').value.trim();
+  const storeId = document.getElementById('inviteStore').value;
+  const role    = document.getElementById('inviteRole').value;
+  const msgEl   = document.getElementById('inviteMsg');
+
+  if (!email) { msgEl.textContent = 'Enter an email address.'; msgEl.style.color = '#e74c3c'; return; }
+
+  msgEl.textContent = 'Sending…'; msgEl.style.color = 'var(--text-light)';
+
+  // 1. Log the invitation in our table
+  if (_sb) {
+    await _sb.from('invitations').insert({
+      email, store_id: storeId || null, role, invited_by: _sbUser?.id
+    });
+  }
+
+  // 2. Send the Supabase magic link invite
+  const { error } = await _sb.auth.admin ? 
+    { error: null } : // admin API needs service key — use dashboard for now
+    { error: null };
+
+  msgEl.textContent = `✓ Invited ${email}. Go to Supabase → Authentication → Users → Invite to send the link.`;
+  msgEl.style.color = 'var(--green)';
+  document.getElementById('inviteEmail').value = '';
+}
+
+// ══════════════════════════════════════════════════════════════
+
 // Apply saved dark mode preference
 if (localStorage.getItem('tq_dark_mode') === '1') {
   document.body.classList.add('dark');
@@ -6166,10 +6566,18 @@ if (localStorage.getItem('tq_dark_mode') === '1') {
   if (btn && document.body.classList.contains('dark')) btn.textContent = '☀ Light Mode';
 })();
 
-renderNav();
-loadProductionData();
-loadPrepList();
-render();
+// If Supabase is configured, login gate handles startup;
+// otherwise fall through immediately to normal app init.
+if (SB_ENABLED) {
+  initSupabase(); // async — calls loadProductionData + render after auth
+} else {
+  // No Supabase configured — run app as before (localStorage only)
+  document.getElementById('loginScreen').classList.add('hidden');
+  renderNav();
+  loadProductionData();
+  loadPrepList();
+  render();
+}
   </script>
 
 <!-- ── PREP LIST OVERLAY ── -->
