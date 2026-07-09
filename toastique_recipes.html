@@ -703,7 +703,12 @@
       <div id="inviteMsg" style="font-size:0.8rem;margin-top:8px;color:var(--green)"></div>
     </div>
 
-    <div class="corp-section-title">Stores</div>
+    <div class="corp-section-title" style="margin-top:20px">Recipe Library</div>
+    <p style="font-size:0.8rem;color:var(--text-light);margin:-8px 0 12px">Push all current recipes to cloud — every store sees updates on their next login. Photos stay in the app; only ingredients, steps, and recipe details sync.</p>
+    <button id="recipeSyncBtn" class="invite-send" onclick="seedRecipesToCloud()">☁ Sync All Recipes to Cloud</button>
+    <div id="recipeSyncStatus" style="font-size:0.78rem;color:var(--text-light);min-height:18px;margin-top:6px"></div>
+
+    <div class="corp-section-title" style="margin-top:20px">Stores</div>
     <div id="corpStoreList"><p style="color:var(--text-light);font-size:0.85rem">Loading stores…</p></div>
   </div>
 </div>
@@ -4685,12 +4690,14 @@ function saveRecipeForm() {
   }
 
   saveState();
+  saveRecipeToCloud(recipe); // async, fire-and-forget — corporate only
   closeRecipeForm();
   render();
 }
 
 function confirmDeleteRecipe(id) {
   if (!confirm('Delete this recipe?')) return;
+  deleteRecipeFromCloud(id); // async, fire-and-forget — corporate only
   ACTIVE_RECIPES = ACTIVE_RECIPES.filter(r => r.id !== id);
   saveState();
   render();
@@ -4699,6 +4706,7 @@ function confirmDeleteRecipe(id) {
 function deleteCurrentRecipe() {
   if (!editingRecipeId) return;
   if (!confirm('Delete this recipe? This cannot be undone.')) return;
+  deleteRecipeFromCloud(editingRecipeId); // async, fire-and-forget — corporate only
   ACTIVE_RECIPES = ACTIVE_RECIPES.filter(r => r.id !== editingRecipeId);
   // Also remove from any groups
   ACTIVE_GROUPS.forEach(g => { g.recipeIds = g.recipeIds.filter(id => id !== editingRecipeId); });
@@ -6363,6 +6371,13 @@ async function initSupabase() {
     return;
   }
 
+  // Guard: supabase-js CDN might not have loaded (ad blocker, offline, etc.)
+  if (typeof supabase === 'undefined') {
+    const errEl = document.getElementById('loginError');
+    if (errEl) { errEl.textContent = 'Could not load auth library — check your internet connection and reload.'; errEl.style.display = 'block'; }
+    return;
+  }
+
   _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Listen for auth changes
@@ -6418,8 +6433,19 @@ async function onSignedIn(user) {
 
   // Pull cloud production logs and merge with local
   await syncLogsFromCloud();
+  // Pull cloud recipes and merge with local (corporate edits propagate here)
+  await loadRecipesFromCloud();
+
+  // Corporate users get admin mode auto-enabled
+  if (_sbProfile?.role === 'corporate') {
+    adminMode = true;
+    document.body.classList.add('admin-active');
+    const adminBtn = document.getElementById('adminBtnS');
+    if (adminBtn) adminBtn.innerHTML = '🔓 Admin Mode <span style="color:var(--green);font-size:0.75rem;margin-left:6px">ON</span>';
+  }
 
   // Reinitialise app now that we have user context
+  renderNav();
   loadProductionData();
   render();
 }
@@ -6431,7 +6457,7 @@ async function submitSetPassword() {
   const msgEl = document.getElementById('setPwMsg');
 
   if (pw1.length < 8) { msgEl.textContent = 'Password must be at least 8 characters.'; msgEl.style.color = '#e74c3c'; return; }
-  if (pw1 !== pw2)    { msgEl.textContent = 'Passwords don't match.'; msgEl.style.color = '#e74c3c'; return; }
+  if (pw1 !== pw2)    { msgEl.textContent = "Passwords don’t match."; msgEl.style.color = '#e74c3c'; return; }
 
   btn.disabled = true;
   msgEl.textContent = 'Saving…'; msgEl.style.color = 'var(--text-light)';
@@ -6442,7 +6468,7 @@ async function submitSetPassword() {
     msgEl.style.color = '#e74c3c';
     btn.disabled = false;
   } else {
-    msgEl.textContent = '✓ Password set! You're all set.';
+    msgEl.textContent = "✓ Password set! You're all set.";
     msgEl.style.color = 'var(--green)';
     setTimeout(() => {
       document.getElementById('setPasswordOverlay').classList.remove('open');
@@ -6459,17 +6485,26 @@ async function doLogin() {
 
   if (!email || !pass) { showLoginErr('Please enter your email and password.'); return; }
 
+  // Guard: Supabase client didn't initialise (CDN blocked or key wrong)
+  if (!_sb) { showLoginErr('App not connected — try reloading the page.'); return; }
+
   btn.disabled = true;
   btn.textContent = 'Signing in…';
   err.style.display = 'none';
 
-  const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
-  if (error) {
-    showLoginErr(error.message);
+  try {
+    const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      showLoginErr(error.message);
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+    // success → onAuthStateChange fires and calls onSignedIn
+  } catch (e) {
+    showLoginErr('Connection error — ' + (e.message || 'please reload and try again.'));
     btn.disabled = false;
     btn.textContent = 'Sign In';
   }
-  // onAuthStateChange handles the rest
 }
 
 function showLoginErr(msg) {
@@ -6642,6 +6677,172 @@ async function sendInvite() {
     msgEl.style.color = '#e74c3c';
   } finally {
     if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+// ── Cloud recipe sync ─────────────────────────────────────────
+// Fetches recipes from Supabase and merges into ACTIVE_RECIPES.
+// Cloud data wins for all fields except photo (photos stay local/hardcoded).
+// Runs on every login — staff silently get the latest corporate edits.
+async function loadRecipesFromCloud() {
+  if (!_sb) return;
+  try {
+    const { data: cloudRecipes, error } = await _sb.from('recipes').select('*');
+    if (error || !cloudRecipes?.length) return;
+
+    const cloudMap = new Map(cloudRecipes.map(r => [r.id, r]));
+
+    // Merge cloud data into ACTIVE_RECIPES; photo stays from local/hardcoded
+    ACTIVE_RECIPES = ACTIVE_RECIPES.map(r => {
+      const cloud = cloudMap.get(r.id);
+      if (!cloud) return r; // local-only recipe — keep as-is
+      cloudMap.delete(r.id);
+      return {
+        ...r,
+        name:        cloud.name        || r.name,
+        emoji:       cloud.emoji       || r.emoji,
+        section:     cloud.section     || r.section,
+        yield:       cloud.yield_text  || r.yield,
+        prepTime:    cloud.prep_time   || r.prepTime,
+        tag:         cloud.tag         || r.tag,
+        ingredients: cloud.ingredients || r.ingredients,
+        steps:       cloud.steps       || r.steps,
+        allergens:   cloud.allergens   || r.allergens || [],
+        // photo intentionally not overwritten — stays from hardcoded HTML
+      };
+    });
+
+    // Add any cloud-only recipes (newly created via corporate, no hardcoded version)
+    cloudMap.forEach(cloud => {
+      ACTIVE_RECIPES.push({
+        id:          cloud.id,
+        name:        cloud.name,
+        emoji:       cloud.emoji       || '🍴',
+        section:     cloud.section     || '',
+        yield:       cloud.yield_text  || '',
+        prepTime:    cloud.prep_time   || '',
+        tag:         cloud.tag         || '',
+        ingredients: cloud.ingredients || [],
+        steps:       cloud.steps       || [],
+        allergens:   cloud.allergens   || [],
+        photo:       null,
+      });
+    });
+
+    // Sync recipe groups
+    const { data: cloudGroups } = await _sb.from('recipe_groups').select('*');
+    if (cloudGroups?.length) {
+      const groupMap = new Map(cloudGroups.map(g => [g.id, g]));
+      ACTIVE_GROUPS = ACTIVE_GROUPS.map(g => {
+        const cloud = groupMap.get(g.id);
+        if (!cloud) return g;
+        return {
+          ...g,
+          name:        cloud.name        || g.name,
+          emoji:       cloud.emoji       || g.emoji,
+          description: cloud.description || g.description,
+          recipeIds:   cloud.recipe_ids  || g.recipeIds,
+        };
+      });
+    }
+
+    saveState(); // Cache merged data in localStorage for offline use
+  } catch(e) {
+    console.warn('loadRecipesFromCloud failed (offline?):', e);
+  }
+}
+
+// Saves a single recipe to Supabase. Corporate only — others are silently skipped.
+async function saveRecipeToCloud(recipe) {
+  if (!_sb || _sbProfile?.role !== 'corporate') return;
+  try {
+    const { error } = await _sb.from('recipes').upsert({
+      id:          recipe.id,
+      name:        recipe.name,
+      emoji:       recipe.emoji    || '🍴',
+      section:     recipe.section  || '',
+      yield_text:  recipe.yield    || '',
+      prep_time:   recipe.prepTime || '',
+      tag:         recipe.tag      || '',
+      ingredients: recipe.ingredients || [],
+      steps:       recipe.steps       || [],
+      allergens:   recipe.allergens   || [],
+      updated_by:  _sbUser?.id,
+      updated_at:  new Date().toISOString(),
+    }, { onConflict: 'id' });
+    if (error) console.warn('saveRecipeToCloud error:', error);
+  } catch(e) {
+    console.warn('saveRecipeToCloud failed:', e);
+  }
+}
+
+// Deletes a recipe from Supabase. Corporate only.
+async function deleteRecipeFromCloud(id) {
+  if (!_sb || _sbProfile?.role !== 'corporate') return;
+  try {
+    await _sb.from('recipes').delete().eq('id', id);
+  } catch(e) {
+    console.warn('deleteRecipeFromCloud failed:', e);
+  }
+}
+
+// Bulk-uploads all ACTIVE_RECIPES + ACTIVE_GROUPS to Supabase.
+// Called from the Corporate Dashboard "Sync All Recipes" button.
+// Run once after initial setup; after that individual saves keep things in sync.
+async function seedRecipesToCloud() {
+  if (!_sb || _sbProfile?.role !== 'corporate') return;
+  const statusEl = document.getElementById('recipeSyncStatus');
+  const btn      = document.getElementById('recipeSyncBtn');
+  if (btn) btn.disabled = true;
+  if (statusEl) { statusEl.textContent = 'Syncing…'; statusEl.style.color = 'var(--text-light)'; }
+
+  try {
+    const recipesToInsert = ACTIVE_RECIPES.map(r => ({
+      id:          r.id,
+      name:        r.name,
+      emoji:       r.emoji    || '🍴',
+      section:     r.section  || '',
+      yield_text:  r.yield    || '',
+      prep_time:   r.prepTime || '',
+      tag:         r.tag      || '',
+      ingredients: r.ingredients || [],
+      steps:       r.steps       || [],
+      allergens:   r.allergens   || [],
+      updated_by:  _sbUser?.id,
+      updated_at:  new Date().toISOString(),
+    }));
+
+    for (let i = 0; i < recipesToInsert.length; i += 25) {
+      const { error } = await _sb.from('recipes')
+        .upsert(recipesToInsert.slice(i, i + 25), { onConflict: 'id' });
+      if (error) console.warn('recipes batch error:', error);
+    }
+
+    const groupsToInsert = ACTIVE_GROUPS.map(g => ({
+      id:          g.id,
+      name:        g.name,
+      section:     g.section      || '',
+      emoji:       g.emoji        || '',
+      description: g.description  || '',
+      recipe_ids:  g.recipeIds    || [],
+      updated_by:  _sbUser?.id,
+      updated_at:  new Date().toISOString(),
+    }));
+
+    for (let i = 0; i < groupsToInsert.length; i += 25) {
+      await _sb.from('recipe_groups')
+        .upsert(groupsToInsert.slice(i, i + 25), { onConflict: 'id' });
+    }
+
+    if (statusEl) {
+      statusEl.textContent = '✓ ' + recipesToInsert.length + ' recipes synced · ' + new Date().toLocaleTimeString();
+      statusEl.style.color = 'var(--green)';
+    }
+  } catch(e) {
+    console.warn('seedRecipesToCloud error:', e);
+    if (statusEl) { statusEl.textContent = '✗ Sync failed — see browser console'; statusEl.style.color = '#e74c3c'; }
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
