@@ -6663,52 +6663,54 @@ function closeCorpPanel() {
 async function loadCorpStores() {
   if (!_sb) return;
   const listEl = document.getElementById('corpStoreList');
+  if (!listEl) return;
   listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
   try {
-  const { data: stores, error: stErr } = await _sb.from('stores').select('*').eq('active', true).order('name');
-  if (stErr) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + stErr.message + '</p>'; return; }
+    const { data: stores, error: stErr } = await _sb.from('stores').select('*').eq('active', true).order('name');
+    if (stErr) throw new Error(stErr.message);
 
-  // Always keep invite dropdown in sync (works even with zero stores)
-  const sel = document.getElementById('inviteStore');
-  if (sel) {
-    sel.innerHTML = '<option value="">— No store —</option>' +
-      (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
-  }
-
-  if (!stores || !stores.length) {
-    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No stores yet — add one above.</p>';
-    return;
-  }
-
-  // Load recent activity for each store (last 7 days batch count)
-  const since = new Date(Date.now() - 7 * 86400000).toISOString();
-  const { data: recentLogs } = await _sb
-    .from('production_logs')
-    .select('store_id, recipe_name, started_at')
-    .gte('started_at', since);
-
-  const countByStore = {};
-  const lastByStore  = {};
-  (recentLogs || []).forEach(log => {
-    countByStore[log.store_id] = (countByStore[log.store_id] || 0) + 1;
-    if (!lastByStore[log.store_id] || log.started_at > lastByStore[log.store_id].started_at) {
-      lastByStore[log.store_id] = log;
+    // Keep invite dropdown in sync
+    const sel = document.getElementById('inviteStore');
+    if (sel) {
+      sel.innerHTML = '<option value="">— No store —</option>' +
+        (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
     }
-  });
 
-  listEl.innerHTML = stores.map(store => `
-    <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div style="flex:1;min-width:0">
-        <div class="corp-store-name">${esc(store.name)}</div>
-        <div class="corp-store-recent">
-          ${countByStore[store.id] ? `${countByStore[store.id]} batches this week · Last: ${esc(lastByStore[store.id]?.recipe_name || '—')}` : 'No activity this week'}
+    if (!stores || !stores.length) {
+      listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No stores yet — add one above.</p>';
+      return;
+    }
+
+    const since = new Date(Date.now() - 7 * 86400000).toISOString();
+    const { data: recentLogs } = await _sb
+      .from('production_logs')
+      .select('store_id, recipe_name, started_at')
+      .gte('started_at', since);
+
+    const countByStore = {};
+    const lastByStore  = {};
+    (recentLogs || []).forEach(log => {
+      countByStore[log.store_id] = (countByStore[log.store_id] || 0) + 1;
+      if (!lastByStore[log.store_id] || log.started_at > lastByStore[log.store_id].started_at) {
+        lastByStore[log.store_id] = log;
+      }
+    });
+
+    listEl.innerHTML = stores.map(store => `
+      <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div class="corp-store-name">${esc(store.name)}</div>
+          <div class="corp-store-recent">
+            ${countByStore[store.id] ? `${countByStore[store.id]} batches this week · Last: ${esc(lastByStore[store.id]?.recipe_name || '—')}` : 'No activity this week'}
+          </div>
         </div>
-      </div>
-      <button onclick="deactivateStore('${store.id}', '${esc(store.name)}')" title="Remove store"
-        style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:0.8rem;padding:2px 4px;margin-left:8px;flex-shrink:0">✕</button>
-    </div>`).join('');
+        <button onclick="deactivateStore('${store.id}', '${esc(store.name)}')" title="Remove store"
+          style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:0.8rem;padding:2px 4px;margin-left:8px;flex-shrink:0">✕</button>
+      </div>`).join('');
+  } catch(e) {
+    listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>';
+  }
 }
-  } catch(e) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>'; }
 
 async function sendInvite() {
   const email   = document.getElementById('inviteEmail').value.trim();
@@ -6787,45 +6789,46 @@ async function loadCorpUsers() {
   if (!listEl) return;
   listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
   try {
-  const [{ data: users, error: uErr }, { data: stores }] = await Promise.all([
-    _sb.from('profiles').select('*').order('display_name'),
-    _sb.from('stores').select('id, name'),
-  ]);
-  if (uErr) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + uErr.message + '</p>'; return; }
+    const [{ data: users, error: uErr }, { data: stores }] = await Promise.all([
+      _sb.from('profiles').select('*').order('display_name'),
+      _sb.from('stores').select('id, name'),
+    ]);
+    if (uErr) throw new Error(uErr.message);
 
-  if (!users?.length) {
-    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No users found.</p>';
-    return;
+    if (!users?.length) {
+      listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No users found.</p>';
+      return;
+    }
+
+    const storeOptions = '<option value="">— No store —</option>' +
+      (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    const others = users.filter(u => u.id !== _sbUser?.id);
+
+    listEl.innerHTML = others.map(u => {
+      const isActive = u.active !== false;
+      const label = esc(u.display_name || u.email || u.id.slice(0, 8));
+      const roleLabel = esc(u.role || '');
+      const opts = storeOptions.replace(`value="${u.store_id}"`, `value="${u.store_id}" selected`);
+      return `
+      <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="min-width:0;flex:1">
+          <div class="corp-store-name">${label}${isActive ? '' : ' <span style="color:#e74c3c;font-size:0.7rem;font-weight:normal">inactive</span>'}</div>
+          <div class="corp-store-meta">${roleLabel}</div>
+        </div>
+        <select onchange="changeUserStore('${u.id}', this.value)"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.75rem;color:var(--text);background:#fff;cursor:pointer">
+          ${opts}
+        </select>
+        <button onclick="toggleUserActive('${u.id}', ${isActive})"
+          style="border:1px solid ${isActive ? '#e74c3c' : 'var(--green)'};color:${isActive ? '#e74c3c' : 'var(--green)'};background:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;white-space:nowrap">
+          ${isActive ? 'Deactivate' : 'Reactivate'}
+        </button>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>';
   }
-
-  const storeMap = Object.fromEntries((stores || []).map(s => [s.id, s.name]));
-  const storeOptions = '<option value="">— No store —</option>' +
-    (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
-  const others = users.filter(u => u.id !== _sbUser?.id);
-
-  listEl.innerHTML = others.map(u => {
-    const isActive = u.active !== false;
-    const label = esc(u.display_name || u.email || u.id.slice(0, 8));
-    const roleLabel = esc(u.role || '');
-    const opts = storeOptions.replace(`value="${u.store_id}"`, `value="${u.store_id}" selected`);
-    return `
-    <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
-      <div style="min-width:0;flex:1">
-        <div class="corp-store-name">${label}${isActive ? '' : ' <span style="color:#e74c3c;font-size:0.7rem;font-weight:normal">inactive</span>'}</div>
-        <div class="corp-store-meta">${roleLabel}</div>
-      </div>
-      <select onchange="changeUserStore('${u.id}', this.value)"
-        style="border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.75rem;color:var(--text);background:#fff;cursor:pointer">
-        ${opts}
-      </select>
-      <button onclick="toggleUserActive('${u.id}', ${isActive})"
-        style="border:1px solid ${isActive ? '#e74c3c' : 'var(--green)'};color:${isActive ? '#e74c3c' : 'var(--green)'};background:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;white-space:nowrap">
-        ${isActive ? 'Deactivate' : 'Reactivate'}
-      </button>
-    </div>`;
-  }).join('');
 }
-  } catch(e) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>'; }
 
 async function changeUserStore(id, storeId) {
   if (!_sb || _sbProfile?.role !== 'corporate') return;
