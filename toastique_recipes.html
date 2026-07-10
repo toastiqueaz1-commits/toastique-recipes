@@ -6876,3 +6876,22 @@ async function loadRecipesFromCloud() {
       ACTIVE_RECIPES.push({
         id:          cloud.id,
         name:        cloud.name,
+        section:     cloud.section,
+        emoji:       cloud.emoji       || '🍴',
+        yield:       cloud.yield_text,
+        prepTime:    cloud.prep_time,
+        ingredients: cloud.ingredients || [],
+        steps:       cloud.steps       || [],
+        allergens:   cloud.allergens   || [],
+        photo:       null,
+      });
+    });
+    render();
+  } catch (e) {
+    console.warn('Cloud recipe sync failed:', e);
+  }
+}
+
+</script>
+</body>
+</html>
