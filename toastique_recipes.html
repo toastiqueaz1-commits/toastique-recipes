@@ -6755,24 +6755,37 @@ async function loadCorpUsers() {
   }
 
   const storeMap = Object.fromEntries((stores || []).map(s => [s.id, s.name]));
+  const storeOptions = '<option value="">— No store —</option>' +
+    (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
   const others = users.filter(u => u.id !== _sbUser?.id);
 
   listEl.innerHTML = others.map(u => {
     const isActive = u.active !== false;
     const label = esc(u.display_name || u.email || u.id.slice(0, 8));
-    const meta  = [u.role, u.store_id ? storeMap[u.store_id] || '?' : ''].filter(Boolean).join(' · ');
+    const roleLabel = esc(u.role || '');
+    const opts = storeOptions.replace(`value="${u.store_id}"`, `value="${u.store_id}" selected`);
     return `
-    <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
       <div style="min-width:0;flex:1">
         <div class="corp-store-name">${label}${isActive ? '' : ' <span style="color:#e74c3c;font-size:0.7rem;font-weight:normal">inactive</span>'}</div>
-        <div class="corp-store-meta">${esc(meta)}</div>
+        <div class="corp-store-meta">${roleLabel}</div>
       </div>
+      <select onchange="changeUserStore('${u.id}', this.value)"
+        style="border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:0.75rem;color:var(--text);background:#fff;cursor:pointer">
+        ${opts}
+      </select>
       <button onclick="toggleUserActive('${u.id}', ${isActive})"
         style="border:1px solid ${isActive ? '#e74c3c' : 'var(--green)'};color:${isActive ? '#e74c3c' : 'var(--green)'};background:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;white-space:nowrap">
         ${isActive ? 'Deactivate' : 'Reactivate'}
       </button>
     </div>`;
   }).join('');
+}
+
+async function changeUserStore(id, storeId) {
+  if (!_sb || _sbProfile?.role !== 'corporate') return;
+  const { error } = await _sb.from('profiles').update({ store_id: storeId || null }).eq('id', id);
+  if (error) alert('Could not update store: ' + error.message);
 }
 
 async function toggleUserActive(id, currentlyActive) {
