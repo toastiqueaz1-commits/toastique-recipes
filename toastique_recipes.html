@@ -6664,8 +6664,9 @@ async function loadCorpStores() {
   if (!_sb) return;
   const listEl = document.getElementById('corpStoreList');
   listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
-
-  const { data: stores } = await _sb.from('stores').select('*').eq('active', true).order('name');
+  try {
+  const { data: stores, error: stErr } = await _sb.from('stores').select('*').eq('active', true).order('name');
+  if (stErr) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + stErr.message + '</p>'; return; }
 
   // Always keep invite dropdown in sync (works even with zero stores)
   const sel = document.getElementById('inviteStore');
@@ -6707,6 +6708,7 @@ async function loadCorpStores() {
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:0.8rem;padding:2px 4px;margin-left:8px;flex-shrink:0">✕</button>
     </div>`).join('');
 }
+  } catch(e) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>'; }
 
 async function sendInvite() {
   const email   = document.getElementById('inviteEmail').value.trim();
@@ -6784,11 +6786,12 @@ async function loadCorpUsers() {
   const listEl = document.getElementById('corpUserList');
   if (!listEl) return;
   listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">Loading…</p>';
-
-  const [{ data: users }, { data: stores }] = await Promise.all([
+  try {
+  const [{ data: users, error: uErr }, { data: stores }] = await Promise.all([
     _sb.from('profiles').select('*').order('display_name'),
     _sb.from('stores').select('id, name'),
   ]);
+  if (uErr) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + uErr.message + '</p>'; return; }
 
   if (!users?.length) {
     listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem">No users found.</p>';
@@ -6822,6 +6825,7 @@ async function loadCorpUsers() {
     </div>`;
   }).join('');
 }
+  } catch(e) { listEl.innerHTML = '<p style="color:#e74c3c;font-size:0.82rem">⚠ ' + e.message + '</p>'; }
 
 async function changeUserStore(id, storeId) {
   if (!_sb || _sbProfile?.role !== 'corporate') return;
