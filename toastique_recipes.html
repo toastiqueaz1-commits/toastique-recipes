@@ -6673,7 +6673,7 @@ async function loadCorpStores() {
     const sel = document.getElementById('inviteStore');
     if (sel) {
       sel.innerHTML = '<option value="">— No store —</option>' +
-        (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+        (stores || []).map(s => `<option value="${s.id}">${escHtml(s.name)}</option>`).join('');
     }
 
     if (!stores || !stores.length) {
@@ -6699,12 +6699,12 @@ async function loadCorpStores() {
     listEl.innerHTML = stores.map(store => `
       <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:flex-start">
         <div style="flex:1;min-width:0">
-          <div class="corp-store-name">${esc(store.name)}</div>
+          <div class="corp-store-name">${escHtml(store.name)}</div>
           <div class="corp-store-recent">
-            ${countByStore[store.id] ? `${countByStore[store.id]} batches this week · Last: ${esc(lastByStore[store.id]?.recipe_name || '—')}` : 'No activity this week'}
+            ${countByStore[store.id] ? `${countByStore[store.id]} batches this week · Last: ${escHtml(lastByStore[store.id]?.recipe_name || '—')}` : 'No activity this week'}
           </div>
         </div>
-        <button onclick="deactivateStore('${store.id}', '${esc(store.name)}')" title="Remove store"
+        <button onclick="deactivateStore('${store.id}', '${escHtml(store.name)}')" title="Remove store"
           style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:0.8rem;padding:2px 4px;margin-left:8px;flex-shrink:0">✕</button>
       </div>`).join('');
   } catch(e) {
@@ -6801,13 +6801,13 @@ async function loadCorpUsers() {
     }
 
     const storeOptions = '<option value="">— No store —</option>' +
-      (stores || []).map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+      (stores || []).map(s => `<option value="${s.id}">${escHtml(s.name)}</option>`).join('');
     const others = users.filter(u => u.id !== _sbUser?.id);
 
     listEl.innerHTML = others.map(u => {
       const isActive = u.active !== false;
-      const label = esc(u.display_name || u.email || u.id.slice(0, 8));
-      const roleLabel = esc(u.role || '');
+      const label = escHtml(u.display_name || u.email || u.id.slice(0, 8));
+      const roleLabel = escHtml(u.role || '');
       const opts = storeOptions.replace(`value="${u.store_id}"`, `value="${u.store_id}" selected`);
       return `
       <div class="corp-store-card" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
