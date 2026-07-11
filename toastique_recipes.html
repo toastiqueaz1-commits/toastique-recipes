@@ -4168,11 +4168,12 @@ function loadState() {
     const saved = localStorage.getItem('toastique_recipes');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Merge: pick up new RECIPES added after localStorage was first saved
-      const savedRecipeIds = new Set((parsed.recipes || []).map(r => r.id));
+      // Hardcoded RECIPES always win — so uploading a new file fixes any bad cached data.
+      // Only keep user-created recipes from localStorage (ones not in the hardcoded list).
+      const hardcodedIds = new Set(RECIPES.map(r => r.id));
       const mergedRecipes = [
-        ...(parsed.recipes || []),
-        ...RECIPES.filter(r => !savedRecipeIds.has(r.id))
+        ...RECIPES,
+        ...(parsed.recipes || []).filter(r => !hardcodedIds.has(r.id))
       ];
       // Merge: pick up new DEFAULT_GROUPS added after localStorage was first saved
       const savedGroupIds = new Set((parsed.groups || []).map(g => g.id));
