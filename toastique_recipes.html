@@ -6798,9 +6798,9 @@ async function loadRecipesFromCloud() {
         yield:       cloud.yield_text  || r.yield,
         prepTime:    cloud.prep_time   || r.prepTime,
         tag:         cloud.tag         || r.tag,
-        ingredients: cloud.ingredients || r.ingredients,
-        steps:       cloud.steps       || r.steps,
-        allergens:   cloud.allergens   || r.allergens || [],
+        ingredients: (cloud.ingredients && cloud.ingredients.length > 0) ? cloud.ingredients : r.ingredients,
+        steps:       (cloud.steps       && cloud.steps.length       > 0) ? cloud.steps       : r.steps,
+        allergens:   (cloud.allergens   && cloud.allergens.length   > 0) ? cloud.allergens   : (r.allergens || []),
         // photo intentionally not overwritten — stays from hardcoded HTML
       };
     });
@@ -6821,11 +6821,7 @@ async function loadRecipesFromCloud() {
       });
     });
     render();
-  } catch (e) {
-    console.warn('Cloud recipe sync failed:', e);
-  }
-}
-
+  } cat
 // Boot
 document.addEventListener('DOMContentLoaded', initSupabase);
 
