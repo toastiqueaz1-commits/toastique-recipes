@@ -894,6 +894,20 @@
   </div>
 </div>
 
+<!-- WASTE PROMPT OVERLAY -->
+<div class="waste-overlay" id="wasteOverlay">
+  <div class="waste-modal">
+    <h3 id="wasteTitle">Clearing Item</h3>
+    <p id="wasteBody"></p>
+    <div id="wasteInputArea"></div>
+    <div class="waste-action-row">
+      <button class="waste-skip-btn" onclick="confirmWaste(true)">Skip</button>
+      <button class="waste-save-btn" onclick="confirmWaste(false)">Confirm</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- ANALYTICS OVERLAY -->
 <div class="analytics-overlay" id="analyticsOverlay" onclick="if(event.target===this)closeAnalytics()">
   <div class="analytics-panel">
@@ -5581,6 +5595,7 @@ function renderAnalytics(activeTab) {
     <button class="atab${activeTab==='summary'?' active':''}" onclick="renderAnalytics('summary')">Summary</button>
     <button class="atab${activeTab==='history'?' active':''}" onclick="renderAnalytics('history')">History</button>
     <button class="atab${activeTab==='waste'?' active':''}" onclick="renderAnalytics('waste')">Waste</button>
+    <button class="atab${activeTab==='weekly'?' active':''}" onclick="renderAnalytics('weekly')">Weekly Avg</button>
   </div>`;
 
   // Always build the active-now section
@@ -5746,6 +5761,79 @@ function renderAnalytics(activeTab) {
         </div>`;
       }).join('');
     }
+  }
+
+  } else if (activeTab === 'weekly') {
+    const timestamps = productionLog.map(e => e.startTime || e.endTime).filter(Boolean);
+    const earliest = timestamps.length ? Math.min(...timestamps) : null;
+    const now2 = Date.now();
+    const weeksElapsed = earliest ? Math.max(1, (now2 - earliest) / (7 * 24 * 3600 * 1000)) : 1;
+
+    const weeklyStats = {};
+    productionLog.forEach(entry => {
+      if (!entry?.recipeId) return;
+      if (!weeklyStats[entry.recipeId]) {
+        weeklyStats[entry.recipeId] = {
+          name: entry.recipeName || entry.recipeId,
+          emoji: entry.emoji || '🍴',
+          expiryDays: entry.expiryDays || 7,
+          count: 0, wasteTotal: 0, wasteN: 0, qtyTotal: 0, qtyN: 0,
+        };
+      }
+      const s = weeklyStats[entry.recipeId];
+      s.count++;
+      if (entry.wastePct != null) { s.wasteTotal += entry.wastePct; s.wasteN++; }
+      if (entry.qty)  { s.qtyTotal += entry.qty; s.qtyN++; }
+    });
+
+    const wRows = Object.values(weeklyStats)
+      .sort((a, b) => b.count - a.count)
+      .map(r => {
+        const perWeek     = (r.count / weeksElapsed).toFixed(1);
+        const avgWastePct = r.wasteN ? Math.round(r.wasteTotal / r.wasteN) : 0;
+        const wasteFactor = avgWastePct > 0 ? (1 / (1 - avgWastePct / 100)) : 1;
+        const targetPerWk = (parseFloat(perWeek) * wasteFactor).toFixed(1);
+        const hasWaste    = r.wasteN > 0;
+        const avgQty      = r.qtyN ? Math.round(r.qtyTotal / r.qtyN) : null;
+        const wasteColor  = hasWaste && avgWastePct > 20 ? '#e65100' : 'var(--text)';
+        const wasteBg     = hasWaste && avgWastePct > 20 ? '#fff3e0' : '#f5f5f5';
+        return `
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:1.2rem">${r.emoji}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</div>
+                <div style="font-size:0.68rem;color:var(--text-light)">${r.expiryDays}d shelf life · ${r.count} total batches logged</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center">
+              <div style="background:#e8f5e9;border-radius:8px;padding:8px 4px">
+                <div style="font-size:1.15rem;font-weight:700;color:var(--green)">${perWeek}</div>
+                <div style="font-size:0.62rem;color:var(--text-light);line-height:1.3">batches<br>/ week</div>
+              </div>
+              <div style="background:${wasteBg};border-radius:8px;padding:8px 4px">
+                <div style="font-size:1.15rem;font-weight:700;color:${wasteColor}">${hasWaste ? avgWastePct + '%' : '—'}</div>
+                <div style="font-size:0.62rem;color:var(--text-light);line-height:1.3">avg<br>wasted</div>
+              </div>
+              <div style="background:#e3f2fd;border-radius:8px;padding:8px 4px">
+                <div style="font-size:1.15rem;font-weight:700;color:#1565c0">${hasWaste ? targetPerWk : perWeek}</div>
+                <div style="font-size:0.62rem;color:var(--text-light);line-height:1.3">target<br>/ week</div>
+              </div>
+            </div>
+            ${avgQty ? `<div style="font-size:0.7rem;color:var(--text-light);margin-top:6px;text-align:center">avg ${avgQty} units per batch</div>` : ''}
+          </div>`;
+      }).join('');
+
+    const rangeLabel = earliest
+      ? `Based on ${(weeksElapsed).toFixed(1)} weeks of data (${new Date(earliest).toLocaleDateString('en-US',{month:'short',day:'numeric'})} – today)`
+      : 'No data yet';
+
+    body = `
+      <div style="font-size:0.7rem;color:var(--text-light);margin-bottom:12px;font-style:italic">${rangeLabel}</div>
+      ${wRows || '<p style="text-align:center;color:var(--text-light);padding:28px 0">No production history yet. Start logging batches to see weekly averages.</p>'}
+      <div style="font-size:0.68rem;color:var(--text-light);margin-top:4px;line-height:1.5;padding:0 2px;border-top:1px solid var(--border);padding-top:10px">
+        <strong>Target/week</strong> = your actual batch rate adjusted upward for waste. Use this to plan how many batches to prep each week.
+      </div>`;
   }
 
   content.innerHTML = tabHTML + body + `
