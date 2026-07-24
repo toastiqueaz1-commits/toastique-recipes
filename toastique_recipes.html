@@ -5761,8 +5761,6 @@ function renderAnalytics(activeTab) {
         </div>`;
       }).join('');
     }
-  }
-
   } else if (activeTab === 'weekly') {
     const timestamps = productionLog.map(e => e.startTime || e.endTime).filter(Boolean);
     const earliest = timestamps.length ? Math.min(...timestamps) : null;
