@@ -719,7 +719,8 @@
   </div>
 </div>
 
-<header style="position:relative">
+<div style="position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.2)">
+<header style="position:relative;box-shadow:none">
 
   <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   <button class="user-badge" id="userBadge" onclick="showUserMenu()"></button>
@@ -736,6 +737,7 @@
 </header>
 <div class="prep-quick-bar">
   <button class="prep-quick-btn" onclick="openPrepList()">📋 Prep List</button>
+</div>
 </div>
 
 <!-- Settings side panel -->
@@ -904,6 +906,18 @@
       <button class="waste-skip-btn" onclick="confirmWaste(true)">Skip</button>
       <button class="waste-save-btn" onclick="confirmWaste(false)">Confirm</button>
     </div>
+  </div>
+</div>
+
+
+<!-- PREP LIST OVERLAY -->
+<div class="prep-overlay" id="prepOverlay" onclick="if(event.target===this)closePrepList()">
+  <div class="prep-panel">
+    <div class="prep-panel-hdr">
+      <h2>📋 Daily Prep List</h2>
+      <button onclick="closePrepList()" style="background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div class="prep-body" id="prepBody"></div>
   </div>
 </div>
 
