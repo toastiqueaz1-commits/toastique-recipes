@@ -5504,25 +5504,31 @@ function showInitialsForm() {
   const defaultDT = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   area.innerHTML = `
     <div class="initials-form">
-      <input id="initialsInput" class="initials-input" type="text" maxlength="3"
-             placeholder="Initials" autocomplete="off"
-             onkeydown="if(event.key==='Enter')document.getElementById('qtyInput')?.focus()">
-      <div class="qty-start-row">
-        <input id="qtyInput" class="qty-start-input" type="number" min="1" placeholder="Qty"
-               title="How many did you make? (optional)"
-               onkeydown="if(event.key==='Enter')confirmStartProduction()">
-        <span class="qty-start-label">made (optional)</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <div>
+          <div style="font-size:0.65rem;color:var(--text-light);font-weight:600;margin-bottom:2px">Initials</div>
+          <input id="initialsInput" class="initials-input" type="text" maxlength="3"
+                 placeholder="e.g. JD" autocomplete="off" style="width:100%;box-sizing:border-box"
+                 onkeydown="if(event.key==='Enter')document.getElementById('qtyInput')?.focus()">
+        </div>
+        <div>
+          <div style="font-size:0.65rem;color:var(--text-light);font-weight:600;margin-bottom:2px">Qty made (optional)</div>
+          <input id="qtyInput" class="qty-start-input" type="number" min="1" placeholder="0"
+                 style="width:100%;box-sizing:border-box"
+                 onkeydown="if(event.key==='Enter')confirmStartProduction()">
+        </div>
+        <div>
+          <div style="font-size:0.65rem;color:var(--text-light);font-weight:600;margin-bottom:2px">Made at</div>
+          <input id="prepDateInput" type="datetime-local" value="${defaultDT}"
+                 style="border:1.5px solid var(--border);border-radius:8px;padding:5px 6px;font-size:0.72rem;font-family:inherit;color:var(--text);background:var(--bg);width:100%;box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:0.65rem;color:var(--text-light);font-weight:600;margin-bottom:2px">Expires (optional)</div>
+          <input id="customExpiryInput" type="datetime-local"
+                 style="border:1.5px solid var(--border);border-radius:8px;padding:5px 6px;font-size:0.72rem;font-family:inherit;color:var(--text);background:var(--bg);width:100%;box-sizing:border-box">
+        </div>
       </div>
-      <div class="qty-start-row" style="margin-top:4px">
-        <input id="prepDateInput" type="datetime-local" value="${defaultDT}"
-               style="border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:0.78rem;font-family:inherit;color:var(--text);background:var(--bg);flex:1">
-      </div>
-      <div class="qty-start-row" style="margin-top:4px;gap:6px;align-items:center">
-        <span style="font-size:0.68rem;color:var(--text-light);font-weight:600;white-space:nowrap;flex-shrink:0">Expires:</span>
-        <input id="customExpiryInput" type="datetime-local"
-               style="border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:0.78rem;font-family:inherit;color:var(--text);background:var(--bg);flex:1">
-      </div>
-      <div style="display:flex;gap:6px;margin-top:6px">
+      <div style="display:flex;gap:6px">
         <button class="start-prod-btn" onclick="confirmStartProduction()">▶ Start</button>
         <button class="prod-cancel-inline" onclick="refreshProdButton()">✕</button>
       </div>
