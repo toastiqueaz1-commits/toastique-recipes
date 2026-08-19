@@ -839,9 +839,15 @@
         <input type="text" id="fPrepTime" placeholder="e.g. 15 min">
       </div>
     </div>
-    <div class="form-row">
-      <label>Tag (optional)</label>
-      <input type="text" id="fTag" placeholder="e.g. V · GF · DF">
+    <div class="form-row-2">
+      <div>
+        <label>Tag (optional)</label>
+        <input type="text" id="fTag" placeholder="e.g. V · GF · DF">
+      </div>
+      <div>
+        <label>Shelf Life (days) <span style="font-weight:400;color:var(--text-light);font-size:0.75em">– admin override</span></label>
+        <input type="number" id="fExpiryDays" min="1" max="365" placeholder="auto">
+      </div>
     </div>
 
     <div class="form-section-label">Ingredients</div>
@@ -4612,6 +4618,7 @@ function openRecipeForm(id) {
   document.getElementById('fYield').value = r ? (r.yield || '') : '';
   document.getElementById('fPrepTime').value = r ? (r.prepTime || '') : '';
   document.getElementById('fTag').value = r ? (r.tag || '') : '';
+  document.getElementById('fExpiryDays').value = r ? (r.expiryDays || '') : '';
   document.getElementById('btnDeleteRecipe').style.display = r ? 'block' : 'none';
 
   // Photo
@@ -4688,6 +4695,7 @@ function saveRecipeForm() {
     yield: document.getElementById('fYield').value.trim(),
     prepTime: document.getElementById('fPrepTime').value.trim(),
     tag: document.getElementById('fTag').value.trim(),
+    expiryDays: (() => { const v = parseInt(document.getElementById('fExpiryDays')?.value); return (v > 0) ? v : undefined; })(),
     ingredients: ingItems,
     steps,
     ...(photoVal ? { photo: photoVal } : {}),
@@ -5143,6 +5151,8 @@ const EXPIRY_CONFIG = {
 
 function getExpiryDays(recipe) {
   if (!recipe) return 7;
+  // 0. Per-recipe admin override stored on the recipe object itself
+  if (recipe.expiryDays && recipe.expiryDays > 0) return recipe.expiryDays;
   // 1. Exact ID match (group overrides)
   if (EXPIRY_CONFIG[recipe.id] !== undefined) return EXPIRY_CONFIG[recipe.id];
   // 2. Name keyword matching
@@ -5372,17 +5382,18 @@ function saveActiveTimers() {
   try { localStorage.setItem('tq_active_timers', JSON.stringify(toSave)); } catch {}
 }
 
-function startProduction(recipeId, initials, qty, qtyUnit, batchScale, prepTs) {
+function startProduction(recipeId, initials, qty, qtyUnit, batchScale, prepTs, customExpiresAt) {
   const recipe = ACTIVE_RECIPES.find(r => r.id === recipeId);
   if (!recipe) return;
   const ts         = prepTs || Date.now();
   const key        = recipeId + '|' + ts;
   const expiryDays = getExpiryDays(recipe);
+  const expiresAt  = (customExpiresAt && customExpiresAt > ts) ? customExpiresAt : ts + expiryDays * 24 * 3600 * 1000;
   activeTimers[key] = {
     recipeId,
     startTime:  ts,
-    expiresAt:  ts + expiryDays * 24 * 3600 * 1000,
-    expiryDays,
+    expiresAt,
+    expiryDays: customExpiresAt ? Math.round((expiresAt - ts) / (24 * 3600 * 1000) * 10) / 10 : expiryDays,
     recipeName: recipe.name,
     emoji:      recipe.emoji || '🍴',
     initials:   ((initials || '').trim().toUpperCase().slice(0, 3)) || '?',
@@ -5506,6 +5517,11 @@ function showInitialsForm() {
         <input id="prepDateInput" type="datetime-local" value="${defaultDT}"
                style="border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:0.78rem;font-family:inherit;color:var(--text);background:var(--bg);flex:1">
       </div>
+      <div class="qty-start-row" style="margin-top:4px;flex-direction:column;gap:2px">
+        <label style="font-size:0.7rem;color:var(--text-light);font-weight:600">Custom expiry (leave blank = auto)</label>
+        <input id="customExpiryInput" type="datetime-local"
+               style="border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:0.78rem;font-family:inherit;color:var(--text);background:var(--bg);flex:1;width:100%">
+      </div>
       <div style="display:flex;gap:6px;margin-top:6px">
         <button class="start-prod-btn" onclick="confirmStartProduction()">▶ Start</button>
         <button class="prod-cancel-inline" onclick="refreshProdButton()">✕</button>
@@ -5522,7 +5538,9 @@ function confirmStartProduction() {
   const qty    = qtyRaw ? parseInt(qtyRaw) || null : null;
   const dtVal  = document.getElementById('prepDateInput')?.value;
   const prepTs = dtVal ? new Date(dtVal).getTime() : Date.now();
-  startProduction(currentRecipe.id, initials, qty, '', currentBatchScale, prepTs);
+  const customExpVal = document.getElementById('customExpiryInput')?.value;
+  const customExpiresAt = customExpVal ? new Date(customExpVal).getTime() : null;
+  startProduction(currentRecipe.id, initials, qty, '', currentBatchScale, prepTs, customExpiresAt);
 }
 
 function updateProdBadge() {
