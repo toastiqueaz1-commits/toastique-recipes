@@ -480,6 +480,7 @@
   .section-header[data-section="blender"]  { border-left: 4px solid #2980b9; padding-left: 10px; }
   .section-header[data-section="toast"]    { border-left: 4px solid #d4956a; padding-left: 10px; }
   .section-header[data-section="juices"]   { border-left: 4px solid #16a085; padding-left: 10px; }
+  .section-header[data-section="seasonal"]  { border-left: 4px solid #e67e22; padding-left: 10px; }
 
   nav button[data-section].active { color: #fff; }
   nav button[data-section="treats"].active   { background: #c0392b; border-color: #c0392b; }
@@ -490,6 +491,7 @@
   nav button[data-section="blender"].active  { background: #2980b9; border-color: #2980b9; }
   nav button[data-section="toast"].active    { background: #d4956a; border-color: #d4956a; }
   nav button[data-section="juices"].active   { background: #16a085; border-color: #16a085; }
+  nav button[data-section="seasonal"].active  { background: #e67e22; border-color: #e67e22; }
 
 
   /* INGREDIENT CHECKLIST */
@@ -3985,6 +3987,354 @@ const RECIPES = [
       'Yields 3 quarts.',
     ],
   },
+
+  // ═══════════════════════════════════════
+  // SEASONAL
+  // ═══════════════════════════════════════
+  {
+    id: 'spiced-pumpkin-smoothie',
+    name: 'Spiced Pumpkin Smoothie',
+    section: 'seasonal',
+    emoji: '🎃',
+    yield: '16oz or 24oz',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['16oz', ''],
+      ['', '1 tsp pumpkin spice'],
+      ['', '1 tbsp maple syrup'],
+      ['', '1¼ c frozen banana'],
+      ['', '3 frozen pumpkin purée scoops'],
+      ['', '6-7 ice cubes'],
+      ['', 'Almond milk (fill to line)'],
+      ['24oz', ''],
+      ['', '1½ tsp pumpkin spice'],
+      ['', '1 tbsp maple syrup'],
+      ['', '1½ c frozen banana'],
+      ['', '4 frozen pumpkin purée scoops'],
+      ['', '8-9 ice cubes'],
+      ['', 'Almond milk (fill to line)'],
+    ],
+    steps: [
+      'Add all ingredients to blender in order listed.',
+      'Blend until smooth and serve immediately.',
+      'Note: Pumpkin Purée Scoops — refer to the Pumpkin Purée Scoops prep recipe in the Blender & Toast Recipe Book.',
+      'Pumpkin Spice can be purchased from any local grocery store.',
+    ]
+  },
+  {
+    id: 'pumpkin-spice-syrup',
+    name: 'Pumpkin Spice Syrup',
+    section: 'seasonal',
+    emoji: '🍂',
+    yield: '1.5 gallons',
+    prepTime: '2 hr',
+    expiryDays: 14,
+    ingredients: [
+      ['Part A', ''],
+      ['', '4 liters of water'],
+      ['', '200g cinnamon sticks'],
+      ['', '50g ground ginger'],
+      ['', '20g nutmeg powder'],
+      ['', '30g whole cloves'],
+      ['', '30g peppercorns'],
+      ['Part B', ''],
+      ['', '80g pure vanilla extract'],
+      ['', '3350g white sugar'],
+      ['', '250g maple syrup'],
+      ['', '1600g pumpkin puree'],
+    ],
+    steps: [
+      'Whisk all Part A ingredients together and place in a large pot on the hot plate. Bring to a boil using setting #15.',
+      'Once boiling, reduce to setting #2 (simmer) and set a timer for 45 minutes.',
+      'After 45 minutes, remove pot from hot plate and let sit for another 45 minutes.',
+      'Meanwhile, combine all Part B ingredients in an 8qt Cambro and set aside.',
+      'After resting, strain the spiced liquid (Part A) through a sieve or colander into the Part B Cambro.',
+      'Blend all ingredients together using an immersion blender until smooth.',
+      'Transfer syrup to a bottle. Store remainder in quart containers or a Cambro in the refrigerator. Label, date, and initial.',
+    ]
+  },
+  {
+    id: 'pumpkin-cheesecake-waffle',
+    name: 'Pumpkin Cheesecake Waffle',
+    section: 'seasonal',
+    emoji: '🧇',
+    yield: '1 serving',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['Assembly', ''],
+      ['', '1 protein waffle, toasted'],
+      ['', '1 scoop (2oz blue scoop) Pumpkin Cheesecake Whip'],
+      ['', '¼ cup diced granny smith apples'],
+      ['', '1 tbsp dried cranberries'],
+      ['', 'Cinnamon, sprinkled on top'],
+      ['', 'Pumpkin Syrup, served on the side in a 2oz cup'],
+    ],
+    steps: [
+      'Toast the protein waffle.',
+      'Add 1 scoop (2oz blue scoop) of Pumpkin Cheesecake Whip on top.',
+      'Sprinkle ¼ cup diced granny smith apples on top.',
+      'Sprinkle 1 tbsp dried cranberries on top.',
+      'Sprinkle cinnamon on top.',
+      'Serve with Pumpkin Syrup in a 2oz cup on the side.',
+    ]
+  },
+  {
+    id: 'pumpkin-cheesecake-whip',
+    name: 'Pumpkin Cheesecake Whip',
+    section: 'seasonal',
+    emoji: '🎃',
+    yield: '1 quart',
+    prepTime: '10 min',
+    expiryDays: 4,
+    ingredients: [
+      ['', '1 cup whipped cream cheese'],
+      ['', '1 cup Greek vanilla yogurt'],
+      ['', '1 cup pumpkin puree (freeze unused for future use)'],
+    ],
+    steps: [
+      'Whisk all ingredients together in a large mixing bowl until smooth.',
+      'Transfer mixture to a quart container.',
+      'Label, date, initial, and wrap.',
+      'Store under the blender station.',
+    ]
+  },
+  {
+    id: 'caramel-apple-chai',
+    name: 'Caramel Apple Chai',
+    section: 'seasonal',
+    emoji: '🍎',
+    yield: '12oz',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['', '4oz cold-pressed apple juice'],
+      ['', '4oz chai concentrate'],
+      ['', '3oz milk of choice'],
+      ['', '2 pumps caramel syrup'],
+      ['', 'Sprinkle of cinnamon'],
+    ],
+    steps: [
+      'Combine apple juice, chai concentrate, and milk of choice in the large steaming pitcher.',
+      'Steam like a latte.',
+      'Add 2 pumps of caramel syrup into a 12oz cup.',
+      'Pour steamed mixture into the 12oz cup.',
+      'Sprinkle cinnamon on top and serve.',
+    ]
+  },
+  {
+    id: 'mushroom-burrata-toast',
+    name: 'Mushroom & Burrata Toast',
+    section: 'seasonal',
+    emoji: '🍄',
+    yield: '1 serving',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['Assembly', ''],
+      ['', 'Toasted Rustico bread'],
+      ['', 'Onion Jam, thin spread'],
+      ['', '¼ cup arugula'],
+      ['', '½ cup Roasted Mushrooms (heat in cheese melter 2 min to order)'],
+      ['', '1 burrata'],
+      ['', 'Drizzle Caesar Dressing'],
+      ['', 'Sprinkle chili flakes'],
+      ['', 'Sprinkle Maldon salt'],
+      ['', 'Top with microgreens'],
+    ],
+    steps: [
+      'Toast Rustico bread.',
+      'Spread a thin layer of Onion Jam on the toast.',
+      'Layer ¼ cup arugula on top.',
+      'Heat ½ cup Roasted Mushrooms in the cheese melter for 2 minutes, then place on toast.',
+      'Place 1 burrata on top.',
+      'Drizzle Caesar Dressing over the top.',
+      'Sprinkle chili flakes and Maldon salt.',
+      'Top with microgreens and serve.',
+    ]
+  },
+  {
+    id: 'roasted-mushrooms',
+    name: 'Roasted Mushrooms',
+    section: 'seasonal',
+    emoji: '🍄',
+    yield: '1/6 short pan',
+    prepTime: '15 min',
+    expiryDays: 4,
+    ingredients: [
+      ['', '4 cups cremini mushrooms'],
+      ['', '¼ cup canola and olive oil blend'],
+      ['', '1 tsp picked thyme'],
+      ['', '2 tsp kosher salt'],
+      ['', '½ tsp ground black pepper'],
+    ],
+    steps: [
+      'Wipe mushrooms clean with a damp towel. Do NOT submerge in water.',
+      'Cut mushrooms in half or quarters for uniform, bite-sized pieces.',
+      'Heat oil blend in a medium frying pan on hot plate setting #10 for 30 seconds.',
+      'Add mushrooms and cook for 5 minutes, stirring every minute. Add salt, pepper, and fresh thyme during the 3rd minute.',
+      'Transfer to a 1/6 short pan lined with deli paper.',
+      'Label, date, initial, and wrap to store at the toast station.',
+    ]
+  },
+  {
+    id: 'smokey-chipotle-turkey-toast',
+    name: 'Smokey Chipotle Turkey Toast',
+    section: 'seasonal',
+    emoji: '🦃',
+    yield: '1 serving',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['Assembly', ''],
+      ['', 'Toasted Walnut Raisin bread'],
+      ['', 'Drizzle of Chipotle Aioli'],
+      ['', '½ cup Swiss and fontina blend'],
+      ['', '¼ cup diced granny smith apples'],
+      ['', '*Place entire toast in cheese melter to melt cheese*'],
+      ['', '¼ cup arugula'],
+      ['', '2.5oz portion sliced turkey'],
+      ['', '6 red onion slices, thinly sliced'],
+      ['', '1 tbsp dried cranberries'],
+      ['', 'Second drizzle of Chipotle Aioli'],
+      ['', 'Top with microgreens'],
+    ],
+    steps: [
+      'Toast Walnut Raisin bread.',
+      'Drizzle Chipotle Aioli on the toast.',
+      'Add ½ cup Swiss and fontina cheese blend and ¼ cup diced granny smith apples.',
+      'Place entire toast in cheese melter until cheese is melted.',
+      'Remove from melter. Top with ¼ cup arugula.',
+      'Add 2.5oz sliced turkey and 6 thin red onion slices.',
+      'Sprinkle 1 tbsp dried cranberries.',
+      'Drizzle more Chipotle Aioli on top.',
+      'Finish with microgreens and serve.',
+    ]
+  },
+  {
+    id: 'sliced-turkey',
+    name: 'Sliced Turkey',
+    section: 'seasonal',
+    emoji: '🦃',
+    yield: '2.5oz portions',
+    prepTime: '10 min',
+    expiryDays: 5,
+    ingredients: [
+      ['', 'Turkey (whole loaf)'],
+    ],
+    steps: [
+      'Adjust meat slicer thickness to 1.',
+      'Slice turkey and separate into 2.5oz portions.',
+      'Wrap each portion in deli paper and place in a 1/6 short pan.',
+      'Label, date, initial, and wrap to store at the toast station.',
+    ]
+  },
+  {
+    id: 'chipotle-aioli',
+    name: 'Chipotle Aioli',
+    section: 'seasonal',
+    emoji: '🌶️',
+    yield: '1 quart + squeeze bottle',
+    prepTime: '10 min',
+    expiryDays: 7,
+    ingredients: [
+      ['', '3 chipotles from Chipotle in Adobo Sauce'],
+      ['', '2 tbsp Berry Jam'],
+      ['', '2 cups mayonnaise'],
+      ['', 'Pinch of kosher salt'],
+    ],
+    steps: [
+      'Place all ingredients in a food processor and run until smooth.',
+      'Transfer to a squeeze bottle for service; store the rest in a quart container.',
+      'Label, date, initial, and wrap to store under the toast station.',
+    ]
+  },
+  {
+    id: 'kit-keenan-raspberry-crumble-smoothie',
+    name: 'Kit Keenan Raspberry Crumble Smoothie',
+    section: 'seasonal',
+    emoji: '🫐',
+    yield: '16oz (Kit Keenan cup)',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['Cup Decoration', ''],
+      ['', '1 tbsp berry jam'],
+      ['', '1 tbsp vanilla Greek yogurt'],
+      ['16oz Smoothie', ''],
+      ['', '1 tbsp gluten free granola (bottom of cup)'],
+      ['', '1 cup frozen raspberries'],
+      ['', '½ cup frozen banana'],
+      ['', '1 scoop vanilla protein'],
+      ['', '2 tbsp Greek yogurt'],
+      ['', '¼ tsp cinnamon'],
+      ['', '16oz oat milk'],
+      ['', '1 tbsp gluten free granola (top)'],
+    ],
+    steps: [
+      'Cup decoration: Spread vanilla Greek yogurt directly behind the "Toastique Kit Keenan" text inside the cup. Spread berry jam above and below the yogurt.',
+      'Place 1 tbsp gluten free granola in the bottom of the decorated cup.',
+      'Blend frozen raspberries, frozen banana, vanilla protein, Greek yogurt, cinnamon, and oat milk until smooth.',
+      'Pour smoothie into the cup.',
+      'Top with 1 tbsp gluten free granola and serve immediately.',
+      'Must be served in a 16oz Toastique Kit Keenan cup.',
+    ]
+  },
+  {
+    id: 'kit-keenan-cannoli-cloud-coffee',
+    name: 'Kit Keenan Cannoli Cloud Coffee',
+    section: 'seasonal',
+    emoji: '☕',
+    yield: '16oz (Kit Keenan cup)',
+    prepTime: '5 min',
+    expiryDays: 0,
+    ingredients: [
+      ['Drink Base — IN ORDER', ''],
+      ['', 'Double shot of espresso'],
+      ['', '1 pump vanilla syrup'],
+      ['', '1 pump almond syrup'],
+      ['', 'Filtered water — fill to the 9oz line'],
+      ['', 'Splash of milk of choice — fill to the 10oz line'],
+      ['Assembly', ''],
+      ['', 'Ice (fill to top of Toastique logo on cup)'],
+      ['', '½ cup Cannoli Cream Cold Foam'],
+      ['', '1 tsp Chocolate Shavings'],
+      ['', '1 tbsp Cannoli Cookie Crumble'],
+    ],
+    steps: [
+      'Build drink base IN ORDER in a large pitcher: double shot espresso, 1 pump vanilla syrup, 1 pump almond syrup, filtered water to 9oz line, splash of milk to 10oz line.',
+      'Fill a 16oz Toastique Kit Keenan cup with ice up to the top of the Toastique logo.',
+      'Pour entire pitcher contents over the ice.',
+      'Add ½ cup Cannoli Cream Cold Foam evenly on top with a spoon.',
+      'Garnish with 1 tsp Chocolate Shavings and 1 tbsp Cannoli Cookie Crumble.',
+      'Must be served in a 16oz Toastique Kit Keenan cup.',
+    ]
+  },
+  {
+    id: 'cannoli-cream-cold-foam',
+    name: 'Cannoli Cream Cold Foam',
+    section: 'seasonal',
+    emoji: '☕',
+    yield: '~6 portions',
+    prepTime: '10 min',
+    expiryDays: 3,
+    ingredients: [
+      ['', '16oz heavy whipping cream'],
+      ['', '4 tbsp whipped cream cheese'],
+      ['', '8 pumps vanilla syrup'],
+      ['', '1 tsp almond extract'],
+      ['', '1 tsp cinnamon'],
+      ['', '1/8 tsp kosher salt'],
+    ],
+    steps: [
+      'Combine all ingredients in a 1/6 tall pan or 1 quart container.',
+      'Blend with an immersion blender for about 1 minute until thick and completely smooth.',
+      'Store refrigerated near the espresso station.',
+      'Chocolate Shavings: Use a vegetable peeler to shave a dark chocolate bar into thin pieces. Keep in a ½ quart container near the espresso station.',
+      'Cannoli Cookie Crumble: Gently crush cannoli cookies into coarse crumbs, sift powdered sugar evenly over the pieces. Keep in a ½ quart container near the espresso station.',
+    ]
+  },
 ];
 
 // ─────────────────────────────────────────
@@ -4219,6 +4569,7 @@ const DEFAULT_SECTIONS = [
   { id: 'blender',   label: '🥤 Blender Prep' },
   { id: 'toast',     label: '🍞 Toast Prep' },
   { id: 'juices',    label: '🧃 Cold-Pressed Juices' },
+  { id: 'seasonal',   label: '🍂 Seasonal' },
 ];
 let ACTIVE_SECTIONS = (function() {
   try {
