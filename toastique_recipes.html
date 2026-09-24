@@ -6902,6 +6902,54 @@ async function loadRecipesFromCloud() {
   }
 }
 
+async function seedRecipesToCloud() {
+  const btn    = document.getElementById('recipeSyncBtn');
+  const status = document.getElementById('recipeSyncStatus');
+  if (!_sb) { status.textContent = '✗ Not connected to cloud.'; status.style.color='#e53935'; return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Syncing…';
+  status.textContent = '';
+  status.style.color = 'var(--text-light)';
+
+  try {
+    const rows = ACTIVE_RECIPES.map(r => ({
+      id:           r.id,
+      name:         r.name         || '',
+      emoji:        r.emoji        || '🍴',
+      section:      r.section      || '',
+      yield_text:   r.yield        || '',
+      prep_time:    r.prepTime     || '',
+      tag:          r.tag          || '',
+      ingredients:  r.ingredients  || [],
+      steps:        r.steps        || [],
+      allergens:    r.allergens    || [],
+      expiry_days:  r.expiryDays   || null,
+    }));
+
+    // Upsert in batches of 50 to stay well under Supabase limits
+    const batchSize = 50;
+    let pushed = 0;
+    for (let i = 0; i < rows.length; i += batchSize) {
+      const batch = rows.slice(i, i + batchSize);
+      const { error } = await _sb.from('recipes').upsert(batch, { onConflict: 'id' });
+      if (error) throw error;
+      pushed += batch.length;
+      status.textContent = `Syncing… ${pushed}/${rows.length}`;
+    }
+
+    status.textContent = `✓ ${rows.length} recipes synced to cloud.`;
+    status.style.color = 'var(--green)';
+  } catch(e) {
+    console.error('seedRecipesToCloud:', e);
+    status.textContent = '✗ Sync failed: ' + (e.message || e);
+    status.style.color = '#e53935';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '☁ Sync All Recipes to Cloud';
+  }
+}
+
 // Boot
 document.addEventListener('DOMContentLoaded', initSupabase);
 
