@@ -6924,7 +6924,6 @@ async function seedRecipesToCloud() {
       ingredients:  r.ingredients  || [],
       steps:        r.steps        || [],
       allergens:    r.allergens    || [],
-      expiry_days:  r.expiryDays   || null,
     }));
 
     // Upsert in batches of 50 to stay well under Supabase limits
